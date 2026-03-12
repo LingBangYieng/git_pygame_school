@@ -305,16 +305,16 @@ while game_loop:
             x_max = max(p1[0], p2[0])  
             y_max = max(p1[1], p2[1])  
 
-            width = x_max - x_min  
-            height = y_max - y_min 
+            width_area = x_max - x_min  
+            height_area = y_max - y_min 
 
-            rect = (x_min, y_min, width, height)
+            rect = (x_min, y_min, width_area, height_area)
 
-            temp_surface = pg.Surface((width*field_size + field_size, height*field_size + field_size), pg.SRCALPHA)
+            temp_surface = pg.Surface((width_area*field_size + field_size, height_area*field_size + field_size), pg.SRCALPHA)
             temp_surface.fill((46, 150, 172, 50))
 
             screen.blit(temp_surface, (x_min * field_size, y_min * field_size))
-            pg.draw.rect(screen, (46, 150, 172), (x_min * field_size, y_min * field_size, width*field_size + field_size, height*field_size + field_size), 3)
+            pg.draw.rect(screen, (46, 150, 172), (x_min * field_size, y_min * field_size, width_area*field_size + field_size, height_area*field_size + field_size), 3)
             # there_is_selected_area = False
 
 
