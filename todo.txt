@@ -1,0 +1,2 @@
+implement usage iof Vectorz!!!!!
+fix circle implementation

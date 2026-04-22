@@ -1,17 +1,36 @@
 import pygame as pg
+import time
 from pathlib import Path
 from helper_pygame import image_color_shifter
+import tkinter as tk
+
 
 
 pg.font.init()
-pg.display.init()      
+pg.display.init()     
+
+def save_save_grid(visual_grid, filename="temp_save"):
+    save_grid = [[(tup[1],tup[2]) if isinstance(tup, tuple) else 0 for tup in row ] for row in visual_grid]
+    # with open(f"saves/save_{time.strftime('%Y-%m-%d#%H_%M_%S', time.localtime())}.txt", "w") as f:
+    with open(f"saves/{filename}.map", "w") as f:
+        f.write(f"{save_grid}")
+
+def tup_to_sprite(tup):
+    sprite = pg.image.load(tup[1])
+    sprite = pg.transform.rotate(sprite, tup[0])
+    return pg.transform.scale_by(sprite, 2)
 
 
-
+def load_save_grid(filename):
+    save_grid = None
+    with open(f"saves/{filename}.map", "r") as f:
+        save_grid = eval(f.read())
+    visual_grid = [[(tup_to_sprite(tup), tup[0], tup[1]) if tup != 0 else 0 for tup in row] for row in save_grid]
+    return visual_grid
 
 
 def in_menu_func(events):
-
+ 
     global current_sprite, in_menu, current_sprite_string, ignore_next_click, old_current_sprite, scroll_displacement
 
     sprite_text_positions = {}
@@ -120,8 +139,8 @@ in_menu = False
 draw_grid = True
 place_delete = True
 preview = False
-there_is_selected_area = False
-selecting_area = False
+# there_is_selected_area = False
+# selecting_area = False
 ignore_next_click = False
 do_transition = False
 transition_backwards = False
@@ -145,7 +164,7 @@ counter = 0
 
 
 
-
+save_grid = []
 
 while game_loop:   
 
@@ -156,10 +175,11 @@ while game_loop:
     keys = pg.key.get_pressed()  
     events = pg.event.get()
 
-    if current_sprite != old_current_sprite:
+    if current_sprite != old_current_sprite or True:
 
-        current_sprite_string = image_color_shifter(current_sprite_string, "blue")
-        current_sprite_preview = pg.image.load(current_sprite_string)
+
+        sh_current_sprite_string = image_color_shifter(current_sprite_string, "blue", strength=0.5)
+        current_sprite_preview = pg.image.load(sh_current_sprite_string)
         current_sprite_preview = pg.transform.scale_by(current_sprite_preview, 1.5)
         current_sprite_preview = pg.transform.rotate(current_sprite_preview, rotation)
         
@@ -200,6 +220,16 @@ while game_loop:
                 if event.key == pg.K_p:
                     preview = not preview
 
+                if event.key == pg.K_s:
+                    keys = pg.key.get_pressed()
+                    if keys[pg.K_LCTRL] or keys[pg.K_RCTRL]:
+                        save_save_grid(visual_grid, input("enter filename: "))
+
+                if event.key == pg.K_o:
+                    keys = pg.key.get_pressed()
+                    if keys[pg.K_LCTRL] or keys[pg.K_RCTRL]:
+                        visual_grid = load_save_grid(input("enter filename: "))                  
+                      
                 if event.key == pg.K_t:
                     do_transition = True
                     mouse_transition_start = mouse_pos
@@ -209,42 +239,18 @@ while game_loop:
                     current_sprite = pg.image.load(current_sprite_string)
                     current_sprite = pg.transform.scale_by(current_sprite, 2)
                 
-                if event.key ==  pg.K_a and selecting_area == False:
-
-                    x = round(mouse_pos[0] // field_size)
-                    y = round(mouse_pos[1] // field_size)
-
-                    temp_start_pos = (x, y)
-                    print("start", temp_start_pos)
-                    selecting_area = True
-                
-
-        if event.type == pg.KEYUP:
-
-            if event.key == pg.K_a and selecting_area:
-
-                x = round(mouse_pos[0] // field_size)
-                y = round(mouse_pos[1] // field_size)
-
-                temp_end_pos = (x, y)
-                print("end", temp_end_pos)
-                print()
-                print(temp_start_pos, temp_end_pos)
-                there_is_selected_area = True
-                selecting_area = False
-
-
-
-
 
         if event.type == pg.MOUSEBUTTONDOWN and in_menu == False:
 
             if event.button == 2:
+                print( [round(mouse_pos[1] // field_size)])
+                print([round(mouse_pos[0] // field_size)])
+                if visual_grid[round(mouse_pos[1] // field_size)][round(mouse_pos[0] // field_size)] != 0:
+                    current_sprite, rotation, current_sprite_string = visual_grid[round(mouse_pos[1] // field_size)][round(mouse_pos[0] // field_size)]
+                    print("H",rotation)
+                
 
-                place_delete = not place_delete
-                print("mode should've switched")
-
-            if event.button == 1 and place_delete:
+            if event.button == 1: 
                 if ignore_next_click:
 
                     ignore_next_click = False
@@ -254,10 +260,10 @@ while game_loop:
                 y = mouse_pos[1] // field_size
                 
                 if visual_grid[y][x] == 0:
-                    visual_grid[y][x] = (current_sprite, rotation)
+                    visual_grid[y][x] = (current_sprite, rotation, current_sprite_string)
                     print(f"changed field:{y},{x}")
 
-            if event.button == 1 and place_delete == False:
+            if event.button == 3: 
 
                 x = mouse_pos[0] // field_size
                 y = mouse_pos[1] // field_size
@@ -265,8 +271,19 @@ while game_loop:
                 if visual_grid[y][x] != 0:
                     visual_grid[y][x] = 0
                     print(f"changed field:{y},{x}")
+            
+            save_save_grid(visual_grid)
 
+            
 
+    # if counter%1000 == 0 and counter != 0:
+    #     visual_grid = [[0]*int(size*width//field_size) for _ in range(int(size*height//field_size))]
+    # if counter%1500 == 0 and counter != 0:
+    #     visual_grid = load_save_grid("saves/save_new.txt")
+    if counter == 0:
+        visual_grid = load_save_grid("temp_save")
+        
+    # print(counter)
 
     if in_menu == False:
         for row in range(len(visual_grid)):
@@ -293,31 +310,6 @@ while game_loop:
 
         if place_delete == False:
             screen.blit(del_crosshair, (mouse_pos[0]-8, mouse_pos[1]-8))
-
-        
-        if there_is_selected_area:
-
-            p1 = temp_start_pos
-            p2 = temp_end_pos
-
-            x_min = min(p1[0], p2[0])  
-            y_min = min(p1[1], p2[1])  
-            x_max = max(p1[0], p2[0])  
-            y_max = max(p1[1], p2[1])  
-
-            width_area = x_max - x_min  
-            height_area = y_max - y_min 
-
-            rect = (x_min, y_min, width_area, height_area)
-
-            temp_surface = pg.Surface((width_area*field_size + field_size, height_area*field_size + field_size), pg.SRCALPHA)
-            temp_surface.fill((46, 150, 172, 50))
-
-            screen.blit(temp_surface, (x_min * field_size, y_min * field_size))
-            pg.draw.rect(screen, (46, 150, 172), (x_min * field_size, y_min * field_size, width_area*field_size + field_size, height_area*field_size + field_size), 3)
-            # there_is_selected_area = False
-
-
 
 
 

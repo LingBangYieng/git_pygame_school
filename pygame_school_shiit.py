@@ -2,7 +2,7 @@ import os
 os.environ["SDL_VIDEODRIVER"] = "windows"
 import pygame as pg
 import numpy as np
-from helper_pygame import spritesheet_cutter_2d, Bullet
+from helper_pygame import spritesheet_cutter_2d, Bullet, world_to_screen_coords
 
 
 game_loop = True
@@ -18,7 +18,7 @@ scale_player = 4
 width, height = 200, 100
 screen = pg.display.set_mode((width*size, height*size))
 pg.mouse.set_visible(False)
-laser_data_list = []
+laser_data_list: list[Bullet] = []
 
 
 
@@ -56,10 +56,6 @@ view_field_xy_position = pg.Rect(0, 0, width*size, height*size)
 
 # grenade launch with size rescaling
 
-def world_to_screen_coords(world_coords_object):
-    
-    screen_coords = world_coords_object[0] - view_field_xy_position.topleft[0], world_coords_object[1] - view_field_xy_position.topleft[1]
-    return screen_coords
 
 
 
@@ -111,7 +107,6 @@ frame_index = 0
 
 clock = pg.time.Clock()
 # (46, 150, 172)
-print("gamne loop")
 while game_loop:
 
 
@@ -159,7 +154,7 @@ while game_loop:
 
 
     screen.fill((0, 0, 0))  
-    screen.blit(background, world_to_screen_coords((0,0)))
+    screen.blit(background, world_to_screen_coords((0,0), view_field_xy_position))
 
    
 
@@ -174,21 +169,30 @@ while game_loop:
                 laser_sound.play()
 
 
-    for laser_data in laser_data_list:
-        laser = pg.transform.rotate(laser_data.sprite, laser_data.alpha - 90)
-        laser_rect = laser.get_rect(center = (laser_data.position[0] + 16, laser_data.position[1] + 16))  # 16 --> bullet sprite size
-        laser_data.move()
-        screen.blit(laser, world_to_screen_coords(laser_data.position))
-        if abs(laser_data.position[0]) >= width * size * 2 or abs(laser_data.position[1]) >= height * size * 2 or len(laser_data_list) > 100:
-            laser_data_list.pop(0)
+    clean_list = [e for e in laser_data_list]
+
+
+    for i in range(len(laser_data_list)):
+        laser_data = laser_data_list[i]
+        if laser_data.lifetime <= 0:
+            clean_list.pop(i)
+
+    laser_data_list = clean_list
+
+    for i in range(len(laser_data_list)):
+        laser_data = laser_data_list[i]
+        laser_data.draw(screen, view_field_xy_position)
+
+
+
 
     
     
 
     screen.blit(player, player_rect)   
-    screen.blit(item0, (world_to_screen_coords((500,500))))
-    screen.blit(item1, (world_to_screen_coords((400,400))))
-    screen.blit(entrance, (world_to_screen_coords((600,600))))
+    screen.blit(item0, (world_to_screen_coords((500,500), view_field_xy_position)))
+    screen.blit(item1, (world_to_screen_coords((400,400), view_field_xy_position)))
+    screen.blit(entrance, (world_to_screen_coords((600,600), view_field_xy_position)))
     
     screen.blit(crosshair, (mouse_position[0] - 16, mouse_position[1] - 16))
 
