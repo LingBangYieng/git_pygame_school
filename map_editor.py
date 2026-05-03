@@ -9,6 +9,8 @@ import tkinter as tk
 pg.font.init()
 pg.display.init()     
 
+
+
 def save_save_grid(visual_grid, filename="temp_save"):
     save_grid = [[(tup[1],tup[2]) if isinstance(tup, tuple) else 0 for tup in row ] for row in visual_grid]
     # with open(f"saves/save_{time.strftime('%Y-%m-%d#%H_%M_%S', time.localtime())}.txt", "w") as f:
@@ -165,6 +167,10 @@ counter = 0
 
 
 save_grid = []
+
+
+
+
 
 while game_loop:   
 

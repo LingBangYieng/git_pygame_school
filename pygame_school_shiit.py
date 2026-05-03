@@ -2,7 +2,7 @@ import os
 os.environ["SDL_VIDEODRIVER"] = "windows"
 import pygame as pg
 import numpy as np
-from helper_pygame import spritesheet_cutter_2d, Bullet, world_to_screen_coords
+from helper_pygame import *
 
 
 game_loop = True

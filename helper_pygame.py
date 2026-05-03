@@ -66,7 +66,7 @@ def spritesheet_cutter_2d(frame_width: int, frame_height: int, num_frames: int, 
 
 
 
-def image_color_shifter(path_to_image: str, color_shift: str, strength: int = 0.25) -> str:       # adds a color shift (white'll look greenish or other color'ish) to an image
+def image_color_shifter(path_to_image: str, color_shift: str, name: str, strength: int = 0.25) -> str:       # adds a color shift (white'll look greenish or other color'ish) to an image
 
     possible_color_shifts = {               # dict that stores color tuples (rgb) keys are strings that are given in arguments
         "white":  (255, 255, 255),
@@ -104,9 +104,9 @@ def image_color_shifter(path_to_image: str, color_shift: str, strength: int = 0.
             img_array[row, col, 2] += (1 - strength) + color_shift_tuple[2] * strength
 
     img_array = np.clip(img_array, 0, 255).astype(np.uint8) # turns it back into uint8 to be valid for rgb tuples
-    new_img = Image.fromarray(img_array)    # opposite to np.array --> converts np.array into an image
-    new_img.save("assets/color_shifted/new_image.png")  # saves to image to given path / folder
-    path_to_new_img = "assets/color_shifted/new_image.png"  # saves the exact saving location in variable
+    # new_img = Image.fromarray(img_array)    # opposite to np.array --> converts np.array into an image
+    # new_img.save(f"assets/color_shifted/{name}_image.png")  # saves to image to given path / folder
+    path_to_new_img = f"assets/color_shifted/{name}_image.png"  # saves the exact saving location in variable
     return path_to_new_img  # return path string for later pygame use
 
 
