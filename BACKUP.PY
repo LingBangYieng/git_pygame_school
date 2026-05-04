@@ -1,5 +1,5 @@
 import pygame as pg
-import time
+from time import perf_counter_ns as PCNS
 from pathlib import Path
 from helper_pygame import image_color_shifter
 import tkinter as tk
@@ -9,17 +9,28 @@ import tkinter as tk
 pg.font.init()
 pg.display.init()     
 
+def update_map_builder_sprites():
+
+    for i, file in enumerate(library_folder.iterdir()):
+        if file.suffix == ".png":
+            image = pg.image.load(f"assets/map_builder_sprites/{file.stem}.png")
+            for i in range(0, 4):
+                timage = pg.transform.rotate(image, i*90)
+                pg.image.save(timage, f"assets/map_builder_sprites_rotated/{i*90}_{file.stem}_image.png")
+                sprite_dict[f"assets/map_builder_sprites_rotated/{i*90}_{file.stem}_image.png"] = timage = pg.transform.scale_by(pg.image.load(f"assets/map_builder_sprites_rotated/{i*90}_{file.stem}_image.png"), zoom)
+                
+
 def update_color_shifted():
 
     for i, file in enumerate(library_folder.iterdir()):
         if file.suffix == ".png":
             string_current_shift = image_color_shifter(f"assets/map_builder_sprites/{file.stem}.png", "blue", file.stem, 0.5)
             image = pg.image.load(string_current_shift)
-            image = pg.transform.scale_by(image, zoom)
+            image = pg.transform.scale_by(image, zoom*3/4)
             print(string_current_shift)
-            for i in range(4):
-                image = pg.transform.rotate(image, i*90)
-                pg.image.save(image, f"assets/color_shifted/{i*90}_{file.stem}_image.png")
+            for i in range(0, 4):
+                timage = pg.transform.rotate(image, i*90)
+                pg.image.save(timage, f"assets/color_shifted/{i*90}_{file.stem}_image.png")
 
 
 def save_save_grid(visual_grid, filename="temp_save"):
@@ -45,7 +56,7 @@ def load_save_grid(filename):
 
 def in_menu_func(events):
  
-    global current_sprite, in_menu, current_sprite_string, ignore_next_click, old_current_sprite, scroll_displacement
+    global current_sprite, in_menu, current_sprite_string, ignore_next_click, old_current_sprite, scroll_displacement, current_sprite_name
 
     sprite_text_positions = {}
 
@@ -106,6 +117,7 @@ def in_menu_func(events):
                         if event.button == 1:
 
                             current_sprite_string = f"assets/map_builder_sprites/{name}.png"
+                            current_sprite_name = name
                             current_sprite = pg.image.load(current_sprite_string)
                             current_sprite = pg.transform.scale_by(current_sprite, zoom)
                             in_menu = False
@@ -171,6 +183,7 @@ place_crosshair = pg.transform.scale_by(place_crosshair, 0.5)
 
 current_sprite = pg.image.load(f"assets/map_builder_sprites/la_toilette.png")
 current_sprite = pg.transform.scale_by(current_sprite, zoom)
+current_sprite_name = "la_toilette"
 old_current_sprite = pg.image.load(f"assets/map_builder_sprites/la_toilette.png")
 current_sprite_preview = pg.image.load(f"assets/map_builder_sprites/la_toilette.png")
 
@@ -181,6 +194,8 @@ counter = 0
 
 
 save_grid = []
+
+sprite_dict = {}
 
 
 
@@ -196,10 +211,12 @@ lmb_held = False
 
 
 update_color_shifted()
+update_map_builder_sprites()
 
 
 while game_loop:   
 
+    start_ns = PCNS()
 
 
     clock.tick()    
@@ -209,13 +226,15 @@ while game_loop:
 
     if current_sprite != old_current_sprite:
 
-    fix 90 to 180 angle switch up and implementaion of cuurent_sprite != old_current_sprite
+    # fix 90 to 180 angle switch up and implementaion of cuurent_sprite != old_current_sprite
     
-        sh_current_sprite_string = image_color_shifter(current_sprite_string, "blue", strength=0.5)
-        current_sprite_preview = pg.image.load(sh_current_sprite_string)
-        current_sprite_preview = pg.transform.scale_by(current_sprite_preview, zoom*3/4)
-        current_sprite_preview = pg.transform.rotate(current_sprite_preview, rotation)
+        # sh_current_sprite_string = image_color_shifter(current_sprite_string, "blue", strength=0.5)
+        # current_sprite_preview = pg.image.load(sh_current_sprite_string)
+        # current_sprite_preview = pg.transform.scale_by(current_sprite_preview, zoom*3/4)
+        # current_sprite_preview = pg.transform.rotate(current_sprite_preview, rotation)
         
+        current_sprite_preview = pg.image.load(f"assets/color_shifted/{rotation%360}_{current_sprite_name}_image.png")
+
 
 
     for event in events:
@@ -314,7 +333,8 @@ while game_loop:
                 print(x,y)
                 
                 if visual_grid[build_layer][y][x] == 0:
-                    visual_grid[build_layer][y][x] = (current_sprite, rotation, current_sprite_string)
+                    # visual_grid[build_layer][y][x] = (current_sprite, rotation, f"{rotation%360}_current_sprite_string")
+                    visual_grid[build_layer][y][x] = (sprite_dict[f"assets/map_builder_sprites_rotated/{rotation%360}_{current_sprite_name}_image.png"],  rotation, f"assets/map_builder_sprites_rotated/{rotation%360}_{current_sprite_name}_image.png")
                     print(f"changed field:{y},{x}")
 
 
@@ -336,7 +356,7 @@ while game_loop:
                 
 
             
-            save_save_grid(visual_grid)
+    save_save_grid(visual_grid)
 
 
 
@@ -346,10 +366,7 @@ while game_loop:
 
     #INFO
     #LAYER
-    if layer_mode:
-        font = pg.font.Font(None, 30)
-        text = font.render(f"layer: {build_layer}", True, (0,0,0))
-        screen.blit(text, (5, 5))
+
 
 
 
@@ -371,7 +388,7 @@ while game_loop:
         # i += 1
         return True
 
-
+    
 
     if in_menu == False:
         if layer_mode:
@@ -387,10 +404,10 @@ while game_loop:
                     x = coords[0]
                     y = coords[1]
 
+                    # print("1",(PCNS() - start_ns))
+                    # start_ns = PCNS()
                     if isinstance(visual_grid[local_layer][row][col], tuple):
                         iteration_image = visual_grid[local_layer][row][col][0]
-                        if visual_grid[local_layer][row][col][1] != 0:
-                            iteration_image = pg.transform.rotate(visual_grid[local_layer][row][col][0], visual_grid[local_layer][row][col][1])
                         screen.blit(iteration_image, (x, y))
 
 
@@ -402,12 +419,14 @@ while game_loop:
                         if preview and place_delete:
                             screen.blit(current_sprite_preview, (round(mouse_pos[0] // field_size) * field_size + field_size/8, round(mouse_pos[1] // field_size) * field_size + field_size/8))
 
+                    # print("2",(PCNS() - start_ns))
+                    # start_ns = PCNS()
                     #LAYER
                     # print(local_layer)
                     if layer_mode and is_free(local_layer, row, col):
                         screen.blit(red_layer, (x,y))
 
-
+                    # print("3",(PCNS() - start_ns))
 
 
         if place_delete:
@@ -415,8 +434,15 @@ while game_loop:
 
         if place_delete == False:
             screen.blit(del_crosshair, (mouse_pos[0]-8, mouse_pos[1]-8))
+        
+        
 
+    print("after prob",f"{(PCNS() - start_ns) / 1e6:.2f}")
 
+    if True or layer_mode:
+        font = pg.font.Font(None, 30)
+        text = font.render(f"layer: {build_layer}", True, (0,0,0))
+        screen.blit(text, (5, 5))
 
     if do_transition:
 
@@ -446,7 +472,7 @@ while game_loop:
 
     counter += 1
 
-
+    print(" prob",f"{(PCNS() - start_ns) / 1e6:.2f}")
 
     pg.display.update()
 
