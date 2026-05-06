@@ -1,9 +1,7 @@
 import pygame as pg
-from time import perf_counter_ns as PCNS
 from pathlib import Path
 from helper_pygame import image_color_shifter
 import tkinter as tk
-
 
 
 pg.font.init()
@@ -34,13 +32,13 @@ def update_color_shifted():
 
 
 def save_save_grid(visual_grid, filename="temp_save"):
-    save_grid = [[[(tup[1],tup[2],tup[3]) if isinstance(tup, tuple) else 0 for tup in row ] for row in layer] for layer in visual_grid]
-    # with open(f"saves/save_{time.strftime('%Y-%m-%d#%H_%M_%S', time.localtime())}.txt", "w") as f:
+    save_grid = [[[(tup[1],tup[2]) if isinstance(tup, tuple) else 0 for tup in row ] for row in layer] for layer in visual_grid]
     with open(f"saves/{filename}.map", "w") as f:
         f.write(f"{save_grid}")
 
 def tup_to_sprite(tup):
-    sprite = pg.image.load(tup[1])
+    rotation, current_sprite_name = tup
+    sprite = pg.image.load(f"assets/map_builder_sprites_rotated/{rotation}_{current_sprite_name}_image.png")
     return pg.transform.scale_by(sprite, zoom)
 
 
@@ -48,18 +46,26 @@ def load_save_grid(filename):
     save_grid = None
     with open(f"saves/{filename}.map", "r") as f:
         save_grid = eval(f.read())
-        # print(save_grid)
-    visual_grid = [[[(tup_to_sprite(tup), tup[0], tup[1], tup[2]) if isinstance(tup, tuple) else 0 for tup in row ] for row in layer] for layer in save_grid]
+    visual_grid = [[[(tup_to_sprite(tup), tup[0], tup[1]) if isinstance(tup, tuple) else 0 for tup in row ] for row in layer] for layer in save_grid]
     return visual_grid
+
+
+
+
+
+
+
+
+
 
 
 def in_menu_func(events):
  
-    global current_sprite, in_menu, current_sprite_string, ignore_next_click, old_current_sprite, scroll_displacement, current_sprite_name
+    global current_sprite, in_menu, ignore_next_click, old_current_sprite, scroll_displacement, current_sprite_name
 
     sprite_text_positions = {}
 
-
+    #scroll
     for event in events:
         if event.type == pg.MOUSEBUTTONDOWN:
 
@@ -72,9 +78,7 @@ def in_menu_func(events):
 
     for i, file in enumerate(library_folder.iterdir()):
 
-        # if file.stem == "hitbox_half" or file.stem == "hitbox_full":
-        #     continue
-                
+        #DRAW Text,Icon,Box
         text = font.render(f"{file.stem}", True, (255, 255, 255))
 
         x = (width*size - text.get_width()) // 2
@@ -83,7 +87,6 @@ def in_menu_func(events):
         h = text.get_height()
 
         
-
         screen.blit(text, (x, y))
         current_sprite_library = pg.image.load(f"assets/map_builder_sprites/{file.stem}.png")
         screen.blit(current_sprite_library, (x + 10 + w, y))
@@ -94,16 +97,15 @@ def in_menu_func(events):
         w_hit_rect = w + 30 + w_curr
         h_hit_rect = h_curr + 20
 
-        
-
         pg.draw.rect(screen, (0, 0, 0), (x_hit_rect , y_hit_rect, w_hit_rect, h_hit_rect), 2)
-
-
         screen.blit(crosshair, (mouse_pos[0] - 8, mouse_pos[1] - 8))
+        #end DRAW Text,Icon,Box
+
+
 
         sprite_text_positions[file.stem] = (x_hit_rect, y_hit_rect, w_hit_rect, h_hit_rect)
 
-        m_x, m_y = mouse_pos
+        m_x, m_y = mouse_pos #global
 
         for name, (x, y, w, h) in sprite_text_positions.items():
 
@@ -115,9 +117,8 @@ def in_menu_func(events):
 
                         if event.button == 1:
 
-                            current_sprite_string = f"assets/map_builder_sprites/{name}.png"
                             current_sprite_name = name
-                            current_sprite = pg.image.load(current_sprite_string)
+                            current_sprite = pg.image.load(f"assets/map_builder_sprites/{name}.png")
                             current_sprite = pg.transform.scale_by(current_sprite, zoom)
                             in_menu = False
                             ignore_next_click = True
@@ -147,27 +148,21 @@ field_size = 48
 zoom = field_size/32
 rotation = 0
 scroll_displacement = 0
-transition_counter = 0
-mouse_transition_start = (0, 0)
-temp_start_pos = (0, 0)
 
 
 
 
-current_sprite_string = "assets/map_builder_sprites/la_toilette.png"
+
 library_folder = Path("assets/map_builder_sprites/")
 
-visual_grid = [[[0]*int(size*width//field_size) for _ in range(int(size*height//field_size))] for __ in range(3)]
-image_grid = [[[0]*int(size*width//field_size) for _ in range(int(size*height//field_size))] for __ in range(3)]
 
+visual_grid = [[[0]*int(size*width//field_size) for _ in range(int(size*height//field_size))] for __ in range(3)]
 
 
 in_menu = False
 draw_grid = False
 place_delete = True
 preview = True
-# there_is_selected_area = False
-# selecting_area = False
 ignore_next_click = False
 do_transition = False
 transition_backwards = False
@@ -176,15 +171,15 @@ transition_backwards = False
 
 crosshair = pg.image.load(f"assets/goofy_crosshair.png")
 crosshair = pg.transform.scale_by(crosshair, zoom)
-del_crosshair = pg.image.load(f"assets/deletion_crosshair.png")
 place_crosshair = pg.image.load(f"assets/placing_crosshair.png")
 place_crosshair = pg.transform.scale_by(place_crosshair, 0.5)
 
-current_sprite = pg.image.load(f"assets/map_builder_sprites/la_toilette.png")
-current_sprite = pg.transform.scale_by(current_sprite, zoom)
 current_sprite_name = "la_toilette"
-old_current_sprite = pg.image.load(f"assets/map_builder_sprites/la_toilette.png")
-current_sprite_preview = pg.image.load(f"assets/map_builder_sprites/la_toilette.png")
+current_sprite_string = f"assets/map_builder_sprites/{current_sprite_name}.png"
+current_sprite = pg.image.load(current_sprite_string)
+current_sprite = pg.transform.scale_by(current_sprite, zoom)
+old_current_sprite = pg.image.load(current_sprite_string)
+current_sprite_preview = pg.image.load(current_sprite_string)
 
 
 clock = pg.time.Clock()   
@@ -215,25 +210,13 @@ update_map_builder_sprites()
 
 while game_loop:   
 
-    start_ns = PCNS()
-
-
     clock.tick()    
     mouse_pos = pg.mouse.get_pos()
     keys = pg.key.get_pressed()  
     events = pg.event.get()
 
     if current_sprite != old_current_sprite:
-
-    # fix 90 to 180 angle switch up and implementaion of cuurent_sprite != old_current_sprite
-    
-        # sh_current_sprite_string = image_color_shifter(current_sprite_string, "blue", strength=0.5)
-        # current_sprite_preview = pg.image.load(sh_current_sprite_string)
-        # current_sprite_preview = pg.transform.scale_by(current_sprite_preview, zoom*3/4)
-        # current_sprite_preview = pg.transform.rotate(current_sprite_preview, rotation)
-        
         current_sprite_preview = pg.image.load(f"assets/color_shifted/{rotation%360}_{current_sprite_name}_image.png")
-
 
 
     for event in events:
@@ -286,12 +269,12 @@ while game_loop:
                     mouse_transition_start = mouse_pos
 
                 if event.key == pg.K_h:
-                    current_sprite_string = f"assets/map_builder_sprites/hitbox_full.png"
-                    current_sprite = pg.image.load(current_sprite_string)
+                    current_sprite = pg.image.load(f"assets/map_builder_sprites/hitbox_full.png")
                     current_sprite = pg.transform.scale_by(current_sprite, zoom)
 
                 if event.key == pg.K_0:
                     visual_grid = [[[0]*int(size*width//field_size) for _ in range(int(size*height//field_size))] for __ in range(3)]
+
 
 
                 #LAYER CONTROL
@@ -314,7 +297,6 @@ while game_loop:
                     if build_layer < 0:
                         build_layer = 0
 
-
         #BUILD HOLD
         rmb_held = pg.mouse.get_pressed()[2]
         lmb_held = pg.mouse.get_pressed()[0]
@@ -335,8 +317,7 @@ while game_loop:
                     print(x,y)
                     
                     if visual_grid[build_layer][y][x] == 0:
-                        # visual_grid[build_layer][y][x] = (current_sprite, rotation, f"{rotation%360}_current_sprite_string")
-                        visual_grid[build_layer][y][x] = (sprite_dict[f"assets/map_builder_sprites_rotated/{rotation%360}_{current_sprite_name}_image.png"],  rotation%360, f"assets/map_builder_sprites_rotated/{rotation%360}_{current_sprite_name}_image.png", current_sprite_name)
+                        visual_grid[build_layer][y][x] = (sprite_dict[f"assets/map_builder_sprites_rotated/{rotation%360}_{current_sprite_name}_image.png"],  rotation%360, current_sprite_name)
                         print(f"changed field:{y},{x}")
 
 
@@ -353,7 +334,7 @@ while game_loop:
                     print( [round(mouse_pos[1] // field_size)])
                     print([round(mouse_pos[0] // field_size)])
                     if visual_grid[build_layer][round(mouse_pos[1] // field_size)][round(mouse_pos[0] // field_size)] != 0:
-                        current_sprite, rotation, current_sprite_string_, current_sprite_name = visual_grid[build_layer][round(mouse_pos[1] // field_size)][round(mouse_pos[0] // field_size)]
+                        current_sprite, rotation, current_sprite_name = visual_grid[build_layer][round(mouse_pos[1] // field_size)][round(mouse_pos[0] // field_size)]
                         print("H",rotation)
                     
 
@@ -366,31 +347,10 @@ while game_loop:
 
 
 
-    #INFO
-    #LAYER
 
-
-
-
-    # if counter%1000 == 0 and counter != 0:
-    #     visual_grid = [[0]*int(size*width//field_size) for _ in range(int(size*height//field_size))]
-    # if counter%1500 == 0 and counter != 0:
-    #     visual_grid = load_save_grid("saves/save_new.txt")
     if counter == 0:
         visual_grid = load_save_grid("temp_save")
-        
-    # print(counter)
 
-
-    def is_free(L,R,C):
-        # i = 0
-        # while i <= L:
-        if visual_grid[L][R][C] != 0:
-            return False
-        # i += 1
-        return True
-
-    
 
     if in_menu == False:
         if layer_mode:
@@ -406,8 +366,6 @@ while game_loop:
                     x = coords[0]
                     y = coords[1]
 
-                    # print("1",(PCNS() - start_ns))
-                    # start_ns = PCNS()
                     if isinstance(visual_grid[local_layer][row][col], tuple):
                         iteration_image = visual_grid[local_layer][row][col][0]
                         screen.blit(iteration_image, (x, y))
@@ -421,61 +379,23 @@ while game_loop:
                         if preview and place_delete:
                             screen.blit(current_sprite_preview, (round(mouse_pos[0] // field_size) * field_size + field_size/8, round(mouse_pos[1] // field_size) * field_size + field_size/8))
 
-                    # print("2",(PCNS() - start_ns))
-                    # start_ns = PCNS()
+
                     #LAYER
-                    # print(local_layer)
-                    if layer_mode and is_free(local_layer, row, col):
+                    if layer_mode and visual_grid[local_layer][row][col]:
                         screen.blit(red_layer, (x,y))
 
-                    # print("3",(PCNS() - start_ns))
 
 
-        if place_delete:
+
             screen.blit(place_crosshair, (mouse_pos[0]-8, mouse_pos[1]-8))
-
-        if place_delete == False:
-            screen.blit(del_crosshair, (mouse_pos[0]-8, mouse_pos[1]-8))
-        
-        
-
-    # print("after prob",f"{(PCNS() - start_ns) / 1e6:.2f}")
 
     if True or layer_mode:
         font = pg.font.Font(None, 30)
         text = font.render(f"layer: {build_layer}", True, (0,0,0))
         screen.blit(text, (5, 5))
 
-    if do_transition:
-
-        pg.draw.circle(screen, (0, 0, 0), mouse_transition_start, transition_counter)
-
-        if counter % 5 == 0:
-
-            if transition_counter >= screen.get_height() * 5:
-                do_transition = False
-                transition_backwards = True
-
-            else:
-
-                transition_counter += 20
-
-    if transition_backwards:
-
-        pg.draw.circle(screen, (0, 0, 0), mouse_transition_start, transition_counter)
-
-        if transition_counter <= 0:
-            transition_backwards = False
-
-        else:
-
-            transition_counter -= 5
-
 
     counter += 1
 
-    # print(" prob",f"{(PCNS() - start_ns) / 1e6:.2f}")
-
     pg.display.update()
-
 pg.quit()
