@@ -155,8 +155,8 @@ scroll_displacement = 0
 
 library_folder = Path("assets/map_builder_sprites/")
 
-
-visual_grid = [[[0]*int(size*width//field_size) for _ in range(int(size*height//field_size))] for __ in range(3)]
+layers = 3
+visual_grid = [[[0]*int(size*width//field_size) for _ in range(int(size*height//field_size))] for __ in range(layers)]
 
 
 in_menu = False
@@ -175,11 +175,10 @@ place_crosshair = pg.image.load(f"assets/placing_crosshair.png")
 place_crosshair = pg.transform.scale_by(place_crosshair, 0.5)
 
 current_sprite_name = "la_toilette"
-current_sprite_string = f"assets/map_builder_sprites/{current_sprite_name}.png"
-current_sprite = pg.image.load(current_sprite_string)
+current_sprite = pg.image.load(f"assets/map_builder_sprites/{current_sprite_name}.png")
 current_sprite = pg.transform.scale_by(current_sprite, zoom)
-old_current_sprite = pg.image.load(current_sprite_string)
-current_sprite_preview = pg.image.load(current_sprite_string)
+old_current_sprite = pg.image.load(f"assets/map_builder_sprites/{current_sprite_name}.png")
+current_sprite_preview = pg.image.load(f"assets/map_builder_sprites/{current_sprite_name}.png")
 
 
 clock = pg.time.Clock()   
@@ -273,7 +272,7 @@ while game_loop:
                     current_sprite = pg.transform.scale_by(current_sprite, zoom)
 
                 if event.key == pg.K_0:
-                    visual_grid = [[[0]*int(size*width//field_size) for _ in range(int(size*height//field_size))] for __ in range(3)]
+                    visual_grid = [[[0]*int(size*width//field_size) for _ in range(int(size*height//field_size))] for __ in range(layers)]
 
 
 
