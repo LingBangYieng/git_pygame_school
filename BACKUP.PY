@@ -34,14 +34,13 @@ def update_color_shifted():
 
 
 def save_save_grid(visual_grid, filename="temp_save"):
-    save_grid = [[[(tup[1],tup[2]) if isinstance(tup, tuple) else 0 for tup in row ] for row in layer] for layer in visual_grid]
+    save_grid = [[[(tup[1],tup[2],tup[3]) if isinstance(tup, tuple) else 0 for tup in row ] for row in layer] for layer in visual_grid]
     # with open(f"saves/save_{time.strftime('%Y-%m-%d#%H_%M_%S', time.localtime())}.txt", "w") as f:
     with open(f"saves/{filename}.map", "w") as f:
         f.write(f"{save_grid}")
 
 def tup_to_sprite(tup):
     sprite = pg.image.load(tup[1])
-    sprite = pg.transform.rotate(sprite, tup[0])
     return pg.transform.scale_by(sprite, zoom)
 
 
@@ -50,7 +49,7 @@ def load_save_grid(filename):
     with open(f"saves/{filename}.map", "r") as f:
         save_grid = eval(f.read())
         # print(save_grid)
-    visual_grid = [[[(tup_to_sprite(tup), tup[0], tup[1]) if isinstance(tup, tuple) else 0 for tup in row ] for row in layer] for layer in save_grid]
+    visual_grid = [[[(tup_to_sprite(tup), tup[0], tup[1], tup[2]) if isinstance(tup, tuple) else 0 for tup in row ] for row in layer] for layer in save_grid]
     return visual_grid
 
 
@@ -164,7 +163,7 @@ image_grid = [[[0]*int(size*width//field_size) for _ in range(int(size*height//f
 
 
 in_menu = False
-draw_grid = True
+draw_grid = False
 place_delete = True
 preview = True
 # there_is_selected_area = False
@@ -201,7 +200,7 @@ sprite_dict = {}
 
 #LAYER
 build_layer = 0
-layer_mode = True
+layer_mode = False
 red_layer = pg.image.load("assets/map_signals/red.png")
 red_layer = pg.transform.scale_by(red_layer, zoom)
 
@@ -303,8 +302,8 @@ while game_loop:
                     if keys[pg.K_LSHIFT] or keys[pg.K_RSHIFT] or event.key == pg.K_KP_PLUS:
                         print("plus")
                         build_layer += 1
-                        if build_layer > 4:
-                            build_layer = 4
+                        if build_layer > 2:
+                            build_layer = 2
 
                 if event.key == pg.K_MINUS or event.key == pg.K_KP_MINUS:
                     print("minus")
@@ -319,44 +318,44 @@ while game_loop:
         
 
 
+        if round(mouse_pos[1] // field_size) < int(size*height//field_size) and round(mouse_pos[0] // field_size) < int(size*width//field_size):
+            if (lmb_held or rmb_held or event.type == pg.MOUSEBUTTONDOWN) and in_menu == False:
+                if lmb_held or (event.type == pg.MOUSEBUTTONDOWN and event.button == 1): 
+                    if ignore_next_click:
 
-        if (lmb_held or rmb_held or event.type == pg.MOUSEBUTTONDOWN) and in_menu == False:
-            if lmb_held or (event.type == pg.MOUSEBUTTONDOWN and event.button == 1): 
-                if ignore_next_click:
+                        ignore_next_click = False
+                        continue
 
-                    ignore_next_click = False
-                    continue
+                    x = mouse_pos[0] // field_size
+                    y = mouse_pos[1] // field_size
 
-                x = mouse_pos[0] // field_size
-                y = mouse_pos[1] // field_size
+                    print(x,y)
+                    
+                    if visual_grid[build_layer][y][x] == 0:
+                        # visual_grid[build_layer][y][x] = (current_sprite, rotation, f"{rotation%360}_current_sprite_string")
+                        visual_grid[build_layer][y][x] = (sprite_dict[f"assets/map_builder_sprites_rotated/{rotation%360}_{current_sprite_name}_image.png"],  rotation%360, f"assets/map_builder_sprites_rotated/{rotation%360}_{current_sprite_name}_image.png", current_sprite_name)
+                        print(f"changed field:{y},{x}")
 
-                print(x,y)
+
+                if rmb_held or (event.type == pg.MOUSEBUTTONDOWN and event.button == 3): 
+
+                    x = mouse_pos[0] // field_size
+                    y = mouse_pos[1] // field_size
+                    
+                    if visual_grid[build_layer][y][x] != 0:
+                        visual_grid[build_layer][y][x] = 0
+                        print(f"changed field:{y},{x}")
+
+                if (event.type == pg.MOUSEBUTTONDOWN and event.button == 2):
+                    print( [round(mouse_pos[1] // field_size)])
+                    print([round(mouse_pos[0] // field_size)])
+                    if visual_grid[build_layer][round(mouse_pos[1] // field_size)][round(mouse_pos[0] // field_size)] != 0:
+                        current_sprite, rotation, current_sprite_string_, current_sprite_name = visual_grid[build_layer][round(mouse_pos[1] // field_size)][round(mouse_pos[0] // field_size)]
+                        print("H",rotation)
+                    
+
                 
-                if visual_grid[build_layer][y][x] == 0:
-                    # visual_grid[build_layer][y][x] = (current_sprite, rotation, f"{rotation%360}_current_sprite_string")
-                    visual_grid[build_layer][y][x] = (sprite_dict[f"assets/map_builder_sprites_rotated/{rotation%360}_{current_sprite_name}_image.png"],  rotation, f"assets/map_builder_sprites_rotated/{rotation%360}_{current_sprite_name}_image.png")
-                    print(f"changed field:{y},{x}")
-
-
-            if rmb_held or (event.type == pg.MOUSEBUTTONDOWN and event.button == 3): 
-
-                x = mouse_pos[0] // field_size
-                y = mouse_pos[1] // field_size
-                
-                if visual_grid[build_layer][y][x] != 0:
-                    visual_grid[build_layer][y][x] = 0
-                    print(f"changed field:{y},{x}")
-
-            if (event.type == pg.MOUSEBUTTONDOWN and event.button == 2):
-                print( [round(mouse_pos[1] // field_size)])
-                print([round(mouse_pos[0] // field_size)])
-                if visual_grid[build_layer][round(mouse_pos[1] // field_size)][round(mouse_pos[0] // field_size)] != 0:
-                    current_sprite, rotation, current_sprite_string = visual_grid[build_layer][round(mouse_pos[1] // field_size)][round(mouse_pos[0] // field_size)]
-                    print("H",rotation)
-                
-
-            
-    save_save_grid(visual_grid)
+                save_save_grid(visual_grid)
 
 
 
@@ -394,7 +393,7 @@ while game_loop:
         if layer_mode:
             show_layers = range(build_layer+1)
         else:
-            show_layers = range(0,2)
+            show_layers = range(0,3)
         
         for local_layer in show_layers:
             for row in range(len(visual_grid[local_layer])):
@@ -437,7 +436,7 @@ while game_loop:
         
         
 
-    print("after prob",f"{(PCNS() - start_ns) / 1e6:.2f}")
+    # print("after prob",f"{(PCNS() - start_ns) / 1e6:.2f}")
 
     if True or layer_mode:
         font = pg.font.Font(None, 30)
@@ -472,7 +471,7 @@ while game_loop:
 
     counter += 1
 
-    print(" prob",f"{(PCNS() - start_ns) / 1e6:.2f}")
+    # print(" prob",f"{(PCNS() - start_ns) / 1e6:.2f}")
 
     pg.display.update()
 
