@@ -290,6 +290,9 @@ while game_loop:
                     current_sprite = pg.image.load(current_sprite_string)
                     current_sprite = pg.transform.scale_by(current_sprite, zoom)
 
+                if event.key == pg.K_0:
+                    visual_grid = [[[0]*int(size*width//field_size) for _ in range(int(size*height//field_size))] for __ in range(3)]
+
 
                 #LAYER CONTROL
 
