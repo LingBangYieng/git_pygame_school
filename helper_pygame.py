@@ -104,8 +104,8 @@ def image_color_shifter(path_to_image: str, color_shift: str, name: str, strengt
             img_array[row, col, 2] += (1 - strength) + color_shift_tuple[2] * strength
 
     img_array = np.clip(img_array, 0, 255).astype(np.uint8) # turns it back into uint8 to be valid for rgb tuples
-    # new_img = Image.fromarray(img_array)    # opposite to np.array --> converts np.array into an image
-    # new_img.save(f"assets/color_shifted/{name}_image.png")  # saves to image to given path / folder
+    new_img = Image.fromarray(img_array)    # opposite to np.array --> converts np.array into an image
+    new_img.save(f"assets/color_shifted/{name}_image.png")  # saves to image to given path / folder
     path_to_new_img = f"assets/color_shifted/{name}_image.png"  # saves the exact saving location in variable
     return path_to_new_img  # return path string for later pygame use
 
@@ -145,12 +145,6 @@ class Bullet:
         screen.blit(bullet_image_rotated, world_to_screen_coords(self.position, view_field_xy_position))
      
 
-
-
-class Rayz:
-
-    def __init__(self):
-        pass
         
 
 

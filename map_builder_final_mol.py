@@ -138,7 +138,7 @@ def in_menu_func(events):
 
 
 game_loop = True
-size = 1
+size = 0.5
 width, height = 2560, 1440
 screen = pg.display.set_mode((width*size, height*size))  
 fade = pg.Surface((width, height))
@@ -338,7 +338,7 @@ while game_loop:
                     
 
                 
-                save_save_grid(visual_grid)
+        save_save_grid(visual_grid)
 
 
 
@@ -380,7 +380,7 @@ while game_loop:
 
 
                     #LAYER
-                    if layer_mode and visual_grid[local_layer][row][col]:
+                    if layer_mode and visual_grid[local_layer][row][col]==0:
                         screen.blit(red_layer, (x,y))
 
 
