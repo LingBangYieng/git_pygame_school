@@ -1,3 +1,7 @@
-color_shifted/*
-!color_shifted/.gitkeep
+assets/color_shifted/*
+!assets/color_shifted/.gitkeep
+
+assets/map_builder_sprites_rotated/*
+!assets/map_builder_sprites_rotated/.gitkeep
+
 __pycache__/
