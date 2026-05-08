@@ -1,7 +1,7 @@
 import pygame as pg
 import numpy as np
 from PIL import Image
-
+from class_vectorz import Vectorz
 
 
 # def random_pos_gen(old_random):
@@ -15,6 +15,10 @@ from PIL import Image
 #             return random_start, random_end
 
 
+def world_to_screen_coords(world_coords_object, view_field_xy_position):
+    
+    screen_coords = (world_coords_object[0] - view_field_xy_position.topleft[0], world_coords_object[1] - view_field_xy_position.topleft[1])
+    return screen_coords
 
 
 
@@ -62,7 +66,7 @@ def spritesheet_cutter_2d(frame_width: int, frame_height: int, num_frames: int, 
 
 
 
-def image_color_shifter(path_to_image: str, color_shift: str, strength: int = 0.25) -> str:       # adds a color shift (white'll look greenish or other color'ish) to an image
+def image_color_shifter(path_to_image: str, color_shift: str, name: str, strength: int = 0.25) -> str:       # adds a color shift (white'll look greenish or other color'ish) to an image
 
     possible_color_shifts = {               # dict that stores color tuples (rgb) keys are strings that are given in arguments
         "white":  (255, 255, 255),
@@ -101,24 +105,29 @@ def image_color_shifter(path_to_image: str, color_shift: str, strength: int = 0.
 
     img_array = np.clip(img_array, 0, 255).astype(np.uint8) # turns it back into uint8 to be valid for rgb tuples
     new_img = Image.fromarray(img_array)    # opposite to np.array --> converts np.array into an image
-    new_img.save("assets/color_shifted/new_image.png")  # saves to image to given path / folder
-    path_to_new_img = "assets/color_shifted/new_image.png"  # saves the exact saving location in variable
+    new_img.save(f"assets/color_shifted/{name}_image.png")  # saves to image to given path / folder
+    path_to_new_img = f"assets/color_shifted/{name}_image.png"  # saves the exact saving location in variable
     return path_to_new_img  # return path string for later pygame use
 
 
 
-
+"""
+implement usage iof Vectorz!!!!!
+"""
 
 class Bullet:
 
-    def __init__(self, bullet_speed: float, static_bullet_sprite: pg.surface, bullet_position: tuple, alpha: float = 0):
-
+    def __init__(self, bullet_speed: float, static_bullet_sprite: pg.surface, bullet_position: tuple, alpha: float = 0, lifetime: float = 200):
+        
         self.speed = bullet_speed
         self.sprite = static_bullet_sprite
         self.position = bullet_position
         self.alpha = alpha
         self.alpha_radians = alpha * np.pi / 180
+        self.lifetime = lifetime
 
+
+        self.pierce = None
         # [self.move() for _ in range(5)]
 
 
@@ -126,10 +135,17 @@ class Bullet:
         
         velocity_vector = np.cos(self.alpha_radians) * self.speed, -np.sin(self.alpha_radians) * self.speed
         self.position = (self.position[0] + velocity_vector[0], self.position[1] + velocity_vector[1])
+        self.lifetime -= 1
+
+    def draw(self, screen: pg.display, view_field_xy_position):
+
+        bullet_image_rotated = pg.transform.rotate(self.sprite, self.alpha - 90)
+        # bullet_rect = bullet_image_rotated.get_rect(center = (self.position[0] + 16, self.position[1] + 16))  # 16 --> bullet sprite size # 
+        self.move()
+        screen.blit(bullet_image_rotated, world_to_screen_coords(self.position, view_field_xy_position))
      
 
-
-
+        
 
 
 
