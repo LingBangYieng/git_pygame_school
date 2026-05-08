@@ -1,0 +1,213 @@
+import pygame
+import sys
+
+pygame.init()
+
+# --------------------------------------------------
+# Grundeinstellungen
+# --------------------------------------------------
+WIDTH, HEIGHT = 800, 600
+FPS = 60
+show_programmers = False
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("SWAT Force")
+clock = pygame.time.Clock()
+
+# Farben
+BG = (30, 30, 35)
+PANEL = (60, 45, 30)
+BUTTON = (80, 60, 40)
+BUTTON_HOVER = (120, 90, 60)
+WHITE = (255, 255, 255)
+YELLOW = (255, 215, 50)
+GRAY = (170, 170, 170)
+BLACK = (0, 0, 0)
+
+# Fonts
+font_big = pygame.font.Font(None, 72)
+font_med = pygame.font.Font(None, 40)
+font_small = pygame.font.Font(None, 28)
+
+
+# --------------------------------------------------
+# Hilfsfunktionen
+# --------------------------------------------------
+def draw_text(text, font, color, x, y):
+    """Zeichnet Text zentriert an Position (x, y)."""
+    img = font.render(text, True, color)
+    rect = img.get_rect(center=(x, y))
+    screen.blit(img, rect)
+
+
+def draw_button(rect, text, mouse_pos):
+    """Zeichnet einen Button. Gibt True zurück, wenn Maus drüber ist."""
+    hovering = rect.collidepoint(mouse_pos)
+    color = BUTTON_HOVER if hovering else BUTTON
+    pygame.draw.rect(screen, color, rect)
+    pygame.draw.rect(screen, WHITE, rect, 2)
+    draw_text(text, font_small, WHITE, rect.centerx, rect.centery)
+    return hovering
+
+
+def clicked(rect, event):
+    """Prüft, ob ein Button geklickt wurde."""
+    return (event.type == pygame.MOUSEBUTTONDOWN
+            and event.button == 1
+            and rect.collidepoint(event.pos))
+
+
+# --------------------------------------------------
+# Buttons (als Rechtecke)
+# --------------------------------------------------
+start_button = pygame.Rect(WIDTH // 2 - 140, 260, 280, 50)
+programmer_button = pygame.Rect(WIDTH // 2 - 140, 330, 280, 50)
+quit_button = pygame.Rect(WIDTH // 2 - 140, 400, 280, 50)
+
+load_button = pygame.Rect(450, 390, 200, 45)
+new_button = pygame.Rect(450, 450, 200, 45)
+close_button = pygame.Rect(680, 90, 40, 40)
+
+
+# --------------------------------------------------
+# Spielzustand
+# --------------------------------------------------
+saves = [None, None, None, None, None]   # 5 Slots, leer = None
+selected_slot = 0
+show_save_menu = False
+typing_name = False
+new_name = ""
+
+
+def slot_rect(index):
+    """Rechteck eines Save-Slots."""
+    return pygame.Rect(130, 160 + index * 60, 250, 45)
+
+
+# --------------------------------------------------
+# Zeichnen
+# --------------------------------------------------
+def draw_lobby(mouse_pos):
+    screen.fill(BG)
+
+    # Titel
+    pygame.draw.rect(screen, PANEL, (180, 60, 440, 90))
+    draw_text("SWAT FORCE", font_big, YELLOW, WIDTH // 2, 92)
+    draw_text("TACTICAL OPERATIONS", font_small, GRAY, WIDTH // 2, 130)
+
+    # Buttons
+    draw_button(start_button, "START", mouse_pos)
+    draw_button(programmer_button, "PROGRAMMERS", mouse_pos)
+    draw_button(quit_button, "QUIT", mouse_pos)
+
+
+def draw_save_menu(mouse_pos):
+    # dunkler Hintergrund
+    pygame.draw.rect(screen, (20, 20, 20), (0, 0, WIDTH, HEIGHT))
+
+    # Hauptpanel
+    pygame.draw.rect(screen, PANEL, (80, 90, 640, 420))
+    draw_text("SPEICHERSTÄNDE", font_med, YELLOW, WIDTH // 2, 120)
+    draw_text("MEINE SAVES", font_small, WHITE, 255, 145)
+
+    # Slots links
+    for i in range(5):
+        rect = slot_rect(i)
+        color = BUTTON_HOVER if i == selected_slot else BUTTON
+        pygame.draw.rect(screen, color, rect)
+        pygame.draw.rect(screen, WHITE, rect, 2)
+
+        if saves[i]:
+            draw_text(saves[i], font_small, WHITE, rect.centerx, rect.centery)
+        else:
+            draw_text("Leerer Slot", font_small, GRAY, rect.centerx, rect.centery)
+
+    # Infofeld rechts
+    pygame.draw.rect(screen, (50, 38, 25), (430, 160, 250, 150))
+    draw_text("AUSGEWÄHLT", font_small, WHITE, 555, 185)
+
+    if saves[selected_slot]:
+        draw_text(saves[selected_slot], font_med, YELLOW, 555, 240)
+    else:
+        draw_text("Leerer Slot", font_small, GRAY, 555, 240)
+
+    # Eingabefeld
+    if typing_name:
+        pygame.draw.rect(screen, (40, 40, 40), (430, 320, 250, 40))
+        pygame.draw.rect(screen, WHITE, (430, 320, 250, 40), 2)
+        draw_text(new_name + "|", font_small, WHITE, 555, 340)
+    else:
+        draw_text("'NEUER SAVE' für neuen Spielstand", font_small, GRAY, 555, 340)
+
+    draw_button(load_button, "LADEN", mouse_pos)
+    draw_button(new_button, "NEUER SAVE", mouse_pos)
+    draw_button(close_button, "X", mouse_pos)
+
+
+# --------------------------------------------------
+# Hauptschleife
+# --------------------------------------------------
+while True:
+    mouse_pos = pygame.mouse.get_pos()
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+        # --- Save-Menü ist offen ---
+        if show_save_menu:
+            # Slot anklicken
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                for i in range(5):
+                    if slot_rect(i).collidepoint(event.pos):
+                        selected_slot = i
+                        typing_name = False
+                        new_name = ""
+
+            if clicked(close_button, event):
+                show_save_menu = False
+                typing_name = False
+                new_name = ""
+            # save laden
+            elif clicked(load_button, event):
+                if saves[selected_slot]:
+                    print("Lade Save:", saves[selected_slot])
+            # neuer save
+            elif clicked(new_button, event):
+                typing_name = True
+                new_name = ""
+
+            # Tastatur-Eingabe für Namen (AI)
+            if typing_name and event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    if new_name.strip():
+                        saves[selected_slot] = new_name.strip()
+                    typing_name = False
+                    new_name = ""
+                elif event.key == pygame.K_BACKSPACE:
+                    new_name = new_name[:-1]
+                elif event.key == pygame.K_ESCAPE:
+                    typing_name = False
+                    new_name = ""
+                elif len(new_name) < 16:
+                    new_name += event.unicode
+
+        # --- Lobby ist offen ---
+        else:
+            if clicked(start_button, event):
+                show_save_menu = True
+            elif clicked(programmer_button, event):
+                show_programmers = True
+                if show_programmers:
+                    screen.fill(BLACK)
+            elif clicked(quit_button, event):
+                pygame.quit()
+                sys.exit()
+            
+
+    # Zeichnen
+    draw_lobby(mouse_pos)
+    if show_save_menu:
+        draw_save_menu(mouse_pos)
+    pygame.display.flip()
+    clock.tick(FPS)

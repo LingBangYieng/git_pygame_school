@@ -1,0 +1,137 @@
+import pygame
+import sys
+ 
+pygame.init()
+ 
+# --- Einstellungen ---
+WIDTH, HEIGHT = 800, 600
+FPS = 60
+TITLE = "Mein Spiel"
+ 
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption(TITLE)
+clock = pygame.time.Clock()
+ 
+# --- Farben ---
+BG_TOP    = (15, 12, 41)
+BG_BOT    = (48, 43, 99)
+BTN_COLOR = (80, 70, 160)
+BTN_HOVER = (110, 100, 200)
+BTN_TEXT  = (255, 255, 255)
+TITLE_COL = (220, 210, 255)
+SUBTITLE  = (160, 150, 220)
+ 
+# --- Fonts ---
+font_title    = pygame.font.SysFont("segoeui", 64, bold=True)
+font_subtitle = pygame.font.SysFont("segoeui", 22)
+font_btn      = pygame.font.SysFont("segoeui", 26, bold=True)
+ 
+# --- Hintergrund Gradient ---
+def draw_gradient(surface, top_color, bot_color):
+    for y in range(HEIGHT):
+        t = y / HEIGHT
+        r = int(top_color[0] + (bot_color[0] - top_color[0]) * t)
+        g = int(top_color[1] + (bot_color[1] - top_color[1]) * t)
+        b = int(top_color[2] + (bot_color[2] - top_color[2]) * t)
+        pygame.draw.line(surface, (r, g, b), (0, y), (WIDTH, y))
+ 
+# --- Button-Klasse ---
+class Button:
+    def __init__(self, text, x, y, w=260, h=55):
+        self.text = text
+        self.rect = pygame.Rect(x - w // 2, y, w, h)
+        self.hovered = False
+ 
+    def draw(self, surface):
+        color = BTN_HOVER if self.hovered else BTN_COLOR
+ 
+        # Schatten
+        shadow = self.rect.move(0, 4)
+        pygame.draw.rect(surface, (20, 15, 50), shadow, border_radius=14)
+ 
+        # Button-Körper
+        pygame.draw.rect(surface, color, self.rect, border_radius=14)
+ 
+        # Rahmen
+        pygame.draw.rect(surface, (160, 140, 255), self.rect, width=2, border_radius=14)
+ 
+        # Text
+        txt = font_btn.render(self.text, True, BTN_TEXT)
+        surface.blit(txt, txt.get_rect(center=self.rect.center))
+ 
+    def check_hover(self, pos):
+        self.hovered = self.rect.collidepoint(pos)
+ 
+    def is_clicked(self, pos, event):
+        return (event.type == pygame.MOUSEBUTTONDOWN
+                and event.button == 1
+                and self.rect.collidepoint(pos))
+ 
+# --- Buttons erstellen ---
+cx = WIDTH // 2
+buttons = {
+    "start":    Button("▶  Start",        cx, 230),
+    "settings": Button("⚙  Einstellungen", cx, 305),
+    "credits":  Button("★  Credits",      cx, 380),
+    "quit":     Button("✕  Beenden",       cx, 455),
+}
+ 
+# --- Sterne im Hintergrund ---
+import random
+random.seed(42)
+stars = [(random.randint(0, WIDTH), random.randint(0, HEIGHT),
+          random.randint(1, 3), random.random()) for _ in range(120)]
+ 
+tick = 0
+ 
+# --- Hauptschleife ---
+def run_lobby():
+    global tick
+    running = True
+    while running:
+        clock.tick(FPS)
+        tick += 1
+        mouse_pos = pygame.mouse.get_pos()
+ 
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit(); sys.exit()
+ 
+            for name, btn in buttons.items():
+                if btn.is_clicked(mouse_pos, event):
+                    if name == "quit":
+                        pygame.quit(); sys.exit()
+                    elif name == "start":
+                        print("Spiel startet!")   # <-- hier dein Game-Loop aufrufen
+                    elif name == "settings":
+                        print("Einstellungen öffnen")
+                    elif name == "credits":
+                        print("Credits anzeigen")
+ 
+        # Zeichnen
+        draw_gradient(screen, BG_TOP, BG_BOT)
+ 
+        # Sterne (blinken)
+        for sx, sy, size, phase in stars:
+            alpha = int(180 + 75 * abs(pygame.math.Vector2(1, 0).rotate(
+                tick * 0.5 + phase * 360).x))
+            surf = pygame.Surface((size * 2, size * 2), pygame.SRCALPHA)
+            pygame.draw.circle(surf, (255, 255, 255, alpha), (size, size), size)
+            screen.blit(surf, (sx - size, sy - size))
+ 
+        # Titel
+        title_surf = font_title.render(TITLE, True, TITLE_COL)
+        screen.blit(title_surf, title_surf.get_rect(center=(cx, 120)))
+ 
+        # Untertitel
+        sub_surf = font_subtitle.render("Wähle eine Option", True, SUBTITLE)
+        screen.blit(sub_surf, sub_surf.get_rect(center=(cx, 185)))
+ 
+        # Buttons
+        for btn in buttons.values():
+            btn.check_hover(mouse_pos)
+            btn.draw(screen)
+ 
+        pygame.display.flip()
+ 
+run_lobby() 

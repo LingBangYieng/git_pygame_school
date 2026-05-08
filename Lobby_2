@@ -1,0 +1,219 @@
+import pygame
+import sys
+import random
+ 
+pygame.init()
+ 
+WIDTH, HEIGHT = 800, 600
+FPS = 60
+ 
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("SWAT Force")
+clock = pygame.time.Clock()
+ 
+# --- Farben ---
+SKY_TOP      = (70, 110, 170)
+SKY_BOT      = (140, 185, 230)
+GRASS        = (58, 110, 40)
+GRASS_DARK   = (38, 80, 22)
+DIRT         = (120, 80, 45)
+DIRT_DARK    = (80, 50, 25)
+STONE        = (120, 115, 108)
+STONE_DARK   = (85, 80, 73)
+BRICK        = (155, 75, 48)
+BRICK_DARK   = (105, 48, 28)
+WIN_COL      = (55, 75, 115)
+WIN_LIGHT    = (130, 185, 235)
+PANEL_BG     = (35, 28, 20)
+BTN_BASE     = (55, 45, 32)
+BTN_HOVER    = (95, 82, 58)
+BTN_SHADOW   = (18, 14, 8)
+BTN_BORDER   = (145, 122, 82)
+PANEL_BORDER = (100, 85, 60)
+PANEL_LIGHT  = (120, 105, 78)
+WHITE        = (255, 255, 255)
+YELLOW       = (255, 215, 50)
+ORANGE       = (225, 135, 35)
+RED          = (190, 40, 40)
+ 
+P = 8  # Pixel-Blockgrösse
+ 
+# --- Anti-Aliasing AUS = pixeliger Look ---
+AA = False
+ 
+def pixel_text(surface, text, font, color, x, y, shadow=True):
+    if shadow:
+        s = font.render(text, AA, (0, 0, 0))
+        surface.blit(s, (x + 2, y + 2))
+    t = font.render(text, AA, color)
+    surface.blit(t, (x, y))
+ 
+def pixel_text_center(surface, text, font, color, cx, y, shadow=True):
+    t = font.render(text, AA, color)
+    pixel_text(surface, text, font, color, cx - t.get_width() // 2, y, shadow)
+ 
+# --- Fonts (pygame default = pixelig genug) ---
+font_big   = pygame.font.Font(None, 74)
+font_med   = pygame.font.Font(None, 38)
+font_small = pygame.font.Font(None, 24)
+font_btn   = pygame.font.Font(None, 30)
+ 
+# --- Einzelnen Block zeichnen ---
+def draw_block(surface, color, dark_color, x, y, size=P):
+    pygame.draw.rect(surface, color, (x, y, size, size))
+    light = tuple(min(255, c + 38) for c in color)
+    pygame.draw.line(surface, light,     (x, y),              (x + size - 2, y))
+    pygame.draw.line(surface, light,     (x, y),              (x, y + size - 2))
+    pygame.draw.line(surface, dark_color,(x, y + size - 1),   (x + size - 1, y + size - 1))
+    pygame.draw.line(surface, dark_color,(x + size - 1, y),   (x + size - 1, y + size - 1))
+ 
+# --- Himmel (Gradient, zeilenweise) ---
+def draw_sky(surface):
+    for y in range(GROUND_Y):
+        t = y / GROUND_Y
+        r = int(SKY_TOP[0] + (SKY_BOT[0] - SKY_TOP[0]) * t)
+        g = int(SKY_TOP[1] + (SKY_BOT[1] - SKY_TOP[1]) * t)
+        b = int(SKY_TOP[2] + (SKY_BOT[2] - SKY_TOP[2]) * t)
+        pygame.draw.line(surface, (r, g, b), (0, y), (WIDTH, y))
+ 
+# --- Gebäude ---
+random.seed(13)
+buildings = []
+bx = 0
+while bx < WIDTH + 100:
+    bw = random.randint(7, 13) * P
+    bh = random.randint(6, 15) * P
+    typ = random.choice(["brick", "stone", "stone"])
+    buildings.append((bx, bw, bh, typ))
+    bx += bw
+ 
+GROUND_Y = HEIGHT - 5 * P
+ 
+def draw_buildings(surface):
+    for (bx, bw, bh, typ) in buildings:
+        top_y    = GROUND_Y - bh
+        base_col = BRICK  if typ == "brick" else STONE
+        dark_col = BRICK_DARK if typ == "brick" else STONE_DARK
+        cols = bw // P
+        rows = bh // P
+        for row in range(rows):
+            for col in range(cols):
+                draw_block(surface, base_col, dark_col,
+                           bx + col * P, top_y + row * P)
+        # Fenster
+        for wy in range(1, rows - 1, 3):
+            for wx in range(1, cols - 1, 2):
+                fx = bx + wx * P
+                fy = top_y + wy * P
+                pygame.draw.rect(surface, WIN_COL, (fx, fy, P, P))
+                pygame.draw.rect(surface, WIN_LIGHT, (fx + 1, fy + 1, P // 2 - 1, P // 2 - 1))
+ 
+def draw_ground(surface):
+    cols = WIDTH // P + 2
+    # Gras-Reihe
+    for col in range(cols):
+        draw_block(surface, GRASS, GRASS_DARK, col * P, GROUND_Y)
+    # Erde darunter
+    for row in range(1, 5):
+        shade = max(0, DIRT[0] - row * 8)
+        col_d = (max(0, DIRT_DARK[0] - row * 5),
+                 max(0, DIRT_DARK[1] - row * 5),
+                 max(0, DIRT_DARK[2] - row * 3))
+        base  = (shade + 8, max(0, shade - 10), max(0, shade - 25))
+        for col in range(cols):
+            draw_block(surface, base, col_d, col * P, GROUND_Y + row * P)
+ 
+# --- Panel-Rahmen ---
+def draw_pixel_panel(surface, x, y, w, h, hover=False):
+    bg = BTN_HOVER if hover else BTN_BASE
+    pygame.draw.rect(surface, bg, (x, y, w, h))
+    light = (120, 105, 75) if not hover else (145, 128, 95)
+    pygame.draw.rect(surface, light,      (x, y, w, 3))
+    pygame.draw.rect(surface, light,      (x, y, 3, h))
+    pygame.draw.rect(surface, BTN_SHADOW, (x, y + h - 3, w, 3))
+    pygame.draw.rect(surface, BTN_SHADOW, (x + w - 3, y, 3, h))
+    pygame.draw.rect(surface, BTN_BORDER if hover else PANEL_BORDER, (x, y, w, h), 2)
+ 
+def draw_title_panel(surface, x, y, w, h):
+    pygame.draw.rect(surface, PANEL_BG, (x, y, w, h))
+    pygame.draw.rect(surface, PANEL_LIGHT,  (x, y, w, 4))
+    pygame.draw.rect(surface, PANEL_LIGHT,  (x, y, 4, h))
+    pygame.draw.rect(surface, BTN_SHADOW,   (x, y + h - 4, w, 4))
+    pygame.draw.rect(surface, BTN_SHADOW,   (x + w - 4, y, 4, h))
+    pygame.draw.rect(surface, BTN_BORDER,   (x, y, w, h), 3)
+ 
+# --- Button ---
+class Button:
+    def __init__(self, text, cx, y, w=280, h=46):
+        self.text = text
+        self.rect = pygame.Rect(cx - w // 2, y, w, h)
+        self.hovered = False
+ 
+    def draw(self, surface):
+        draw_pixel_panel(surface, self.rect.x, self.rect.y,
+                         self.rect.w, self.rect.h, self.hovered)
+        col = YELLOW if self.hovered else WHITE
+        pixel_text_center(surface, self.text, font_btn, col,
+                          self.rect.centerx, self.rect.y + 11)
+ 
+    def check_hover(self, pos):
+        self.hovered = self.rect.collidepoint(pos)
+ 
+    def is_clicked(self, pos, event):
+        return (event.type == pygame.MOUSEBUTTONDOWN
+                and event.button == 1
+                and self.rect.collidepoint(pos))
+ 
+cx = WIDTH // 2
+ 
+buttons = {
+    "start":    Button("[ START ]",    cx, 295),
+    "settings": Button("[ WATCH CP]",     cx, 357),
+    "quit":  Button("[ BEENDEN ]",           cx, 419),
+}
+ 
+
+tick = 0
+ 
+def run_lobby():
+    global tick
+    while True:
+        clock.tick(FPS)
+        tick += 1
+        mouse_pos = pygame.mouse.get_pos()
+ 
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit(); sys.exit()
+            for name, btn in buttons.items():
+                if btn.is_clicked(mouse_pos, event):
+                    if name == "quit":
+                        pygame.quit(); sys.exit()
+                    elif name == "start":
+                        print("Mission startet!")
+                    elif name == "settings":
+                        print("Einstellungen")
+                    elif name == "credits":
+                        print("Credits")
+ 
+        draw_sky(screen)
+        draw_buildings(screen)
+        draw_ground(screen)
+ 
+        # Figuren
+        gy = GROUND_Y - 8 * 5  # 8 Zeilen * Sprite-Schritt
+        
+        
+        # Titel-Panel
+        pw, ph = 440, 92
+        draw_title_panel(screen, cx - pw // 2, 55, pw, ph)
+        pixel_text_center(screen, "SWAT  FORCE",        font_big,   YELLOW, cx, 80)
+        pixel_text_center(screen, "TACTICAL OPERATIONS", font_small, ORANGE, cx, 129)
+ 
+        for btn in buttons.values():
+            btn.check_hover(mouse_pos)
+            btn.draw(screen)
+ 
+        pygame.display.flip()
+ 
+run_lobby()
