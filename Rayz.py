@@ -46,7 +46,7 @@ while running:
 
 
     pg.draw.circle(screen, "blue", (dotx, doty), 15)
-    pg.draw.circle(screen, "green", pg.mouse.get_pos(), 15)
+    pg.draw.circle(screen, "green", pg.mouse.get_pos(), 10)
     pg.draw.line(screen, "red", (dotx, doty), pg.mouse.get_pos(), 1)
 
     mx,my = pg.mouse.get_pos()
@@ -55,14 +55,16 @@ while running:
         if abs(dotx - pg.mouse.get_pos()[0]) > 0.001:
             m = (doty - pg.mouse.get_pos()[1]) / (dotx - pg.mouse.get_pos()[0])
 
-        c_dotx = (dotx//field_size)
-        c_doty = (doty//field_size)
+
 
         #Help Plus
         if mx > dotx: plus_x = 1
         else: plus_x = -1
         if my > doty: plus_y = 1
         else: plus_y = -1
+
+        c_dotx = (dotx//field_size) + (mx > dotx)
+        c_doty = (doty//field_size) + (my > doty)
 
         #edges
         edge_x = (c_dotx + plus_x * i) * field_size
@@ -74,7 +76,7 @@ while running:
 
         #ca<lc
         x_Y = doty + m * dx
-        if m > 1e-6: y_X = dotx + dy / m
+        if abs(m) > 1e-6: y_X = dotx + dy / m
         else: y_X = dotx + dy * 1000
 
         pg.draw.circle(screen, "yellow", (edge_x, x_Y), 5)
