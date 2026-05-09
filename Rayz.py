@@ -13,8 +13,13 @@ clock = pg.time.Clock()
 running = True
 pg.mouse.set_visible(False)
 
+
+
+
+
+
 visual_grid = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-               [0, 0, 0, 0, 0, 0, 1, 1, 1, 0],                
+               [0, 0, 0, 0, 0, 1, 1, 1, 1, 0],                
                [0, 0, 0, 0, 0, 0, 0, 1, 1, 0], 
                [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
                [0, 0, 0, 0, 0, 0, 0, 1, 1, 0], 
@@ -41,7 +46,7 @@ while running:
     for row in range(len(visual_grid)):
         for col in range(len(visual_grid[row])):
             if visual_grid[row][col] == 1:
-                pg.draw.rect(screen, (field_size, field_size, field_size), (col*field_size, row*field_size, field_size, field_size), field_size)
+                pg.draw.rect(screen, (100, 100, 100), (col*field_size, row*field_size, field_size, field_size), field_size)
             pg.draw.rect(screen, "light grey", (col*field_size, row*field_size, field_size, field_size), 1)
 
 
@@ -50,6 +55,8 @@ while running:
     pg.draw.line(screen, "red", (dotx, doty), pg.mouse.get_pos(), 1)
 
     mx,my = pg.mouse.get_pos()
+    vertical_points = []
+    horizontal_points = []
     for i in range(5):
         m = 1000
         if abs(dotx - pg.mouse.get_pos()[0]) > 0.001:
@@ -80,12 +87,57 @@ while running:
         else: y_X = dotx + dy * 1000
 
         pg.draw.circle(screen, "yellow", (edge_x, x_Y), 5)
+        vertical_points.append((edge_x, x_Y))
+
         pg.draw.circle(screen, "yellow", (y_X, edge_y), 5)
-
-        # pg.draw.line(screen, "yellow", (field_size, 900), (yx,yy), 1)
-
+        horizontal_points.append((y_X, edge_y))
 
 
+
+    for h_x, h_y in horizontal_points:
+        t0_h_y = h_y + field_size/4
+        pg.draw.circle(screen, "orange", (h_x, t0_h_y), 5)
+        t1_h_y = h_y - field_size/4
+        pg.draw.circle(screen, "orange", (h_x, t1_h_y), 5)
+
+        try:
+            if visual_grid[int(t0_h_y) // field_size][int(h_x) // field_size] != 0:
+                pg.draw.rect(screen, "green", ((h_x // field_size)*field_size, (t0_h_y // field_size)*field_size, field_size, field_size), field_size)
+                break
+
+            if visual_grid[int(t1_h_y) // field_size][int(h_x) // field_size] != 0:
+                pg.draw.rect(screen, "green", ((h_x // field_size)*field_size, (t1_h_y // field_size)*field_size, field_size, field_size), field_size)
+                break
+            
+        except Exception as  e:
+            print(e)
+            pass
+
+ 
+    for v_x, v_y in vertical_points:
+        t0_v_x = v_x + field_size/4
+        pg.draw.circle(screen, "orange", (t0_v_x, v_y), 5)
+        t1_v_x = v_x - field_size/4
+        pg.draw.circle(screen, "orange", (t1_v_x, v_y), 5)
+
+        try:
+            if visual_grid[int(v_y) // field_size][int(t0_v_x) // field_size] != 0:
+                pg.draw.rect(screen, "blue", ((t0_v_x // field_size)*field_size, (v_y // field_size)*field_size, field_size, field_size), field_size)
+                break
+
+            if visual_grid[int(v_y) // field_size][int(t1_v_x) // field_size] != 0:
+                pg.draw.rect(screen, "blue", ((t1_v_x // field_size)*field_size, (v_y // field_size)*field_size, field_size, field_size), field_size)
+                break
+
+        except Exception as  e:
+            print(e)
+            pass
+
+
+
+
+
+    
     # length_x = abs(round(field_size//field_size) - round(pg.mouse.get_pos()[0]//field_size))
     # length_y = abs(round(900//field_size) - round(pg.mouse.get_pos()[1]//field_size))
     # length = length_x + length_y
