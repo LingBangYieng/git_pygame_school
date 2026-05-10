@@ -145,9 +145,100 @@ class Bullet:
         screen.blit(bullet_image_rotated, world_to_screen_coords(self.position, view_field_xy_position))
      
 
-        
+
+
+def check_boundaries(row: int, col: int, array: list[list]):
+    if row < len(array) and col < len(array[0]) and row >= 0 and col >= 0:
+        return True
+    return False
 
 
 
+def cast_ray(start_position:tuple, end_position:tuple, length:int, exactness: int, field_size: int, array: list[list]):
 
 
+    start = start_position
+    x0 = start[0]
+    y0 = start[1]
+
+    end = end_position
+    x1 = end[0]
+    y1 = end[1]
+
+    vertical_points = []
+    horizontal_points = []
+
+    exactness = exactness
+    length = length
+    length2= length * length
+
+    m = 1000
+    if abs(x0 - x1) > 0.001:
+        m = (y0 - y1) / (x0 - x1)
+
+    #direction_check
+    if x1 > x0: plus_x = 1
+    else: plus_x = -1
+    if y1 > y0: plus_y = 1
+    else: plus_y = -1
+
+    #get first chunk edge
+    c_x = (x0//field_size) + (x1 > x0)
+    c_y = (y0//field_size) + (y1 > y0)
+
+    for i in range(length//field_size+1):  
+
+        #get second chunk edge, direction applied
+        edge_x = (c_x + plus_x * i) * field_size
+        edge_y = (c_y + plus_y * i) * field_size
+
+        #get distance from start to direfctional chunk line
+        dx = edge_x - x0 
+        dy = edge_y - y0
+
+        #get missing side vertical
+        c_distance_y = y0 + m * dx
+        #get missing side horizontal
+        if abs(m) > 1e-6: c_distance_x = x0 + dy / m
+        else: c_distance_x = x0 + dy * 1000
+
+        # pg.draw.circle(screen, "yellow", (edge_x, c_distance_y), 5)
+        vertical_points.append((edge_x, c_distance_y,"v"))
+
+        # pg.draw.circle(screen, "yellow", (c_distance_x, edge_y), 5)
+        horizontal_points.append((c_distance_x, edge_y,"h"))
+
+        points = vertical_points + horizontal_points
+
+    
+    
+    res = []
+    for x,y,type in points:
+        #get checkpoint
+        if type == "h":
+            y_p = y + field_size/exactness
+            y_n = y - field_size/exactness
+            res.append((x,y_p))
+            res.append((x,y_n))
+        else:
+            x_p = x + field_size/exactness
+            x_n = x - field_size/exactness
+            res.append((x_p, y))
+            res.append((x_n, y))
+    points = res
+
+    res = []
+    for x,y in points:
+        dist = (x-x0)**2+(y-y0)**2
+        if dist <= length2:
+            res.append((x,y,dist))
+    points = res
+
+    points = sorted(points, key=lambda p: p[2])
+    
+    for x, y, distance in points:
+        row, col = int(y/field_size), int(x/field_size)
+        if check_boundaries(row, col, array):
+            if array[row][col] != 0:
+                return ((row, col), (x, y), distance)
+    return None
