@@ -1,7 +1,8 @@
 import pygame
 import sys
 
-pygame.init()
+pygame.display.init()
+pygame.font.init()
 
 # --------------------------------------------------
 # Grundeinstellungen
@@ -67,6 +68,9 @@ load_button = pygame.Rect(450, 390, 200, 45)
 new_button = pygame.Rect(450, 450, 200, 45)
 close_button = pygame.Rect(680, 90, 40, 40)
 
+# Programmers-Screen Buttons
+back_button = pygame.Rect(WIDTH // 2 - 100, 510, 200, 45)
+
 
 # --------------------------------------------------
 # Spielzustand
@@ -76,6 +80,13 @@ selected_slot = 0
 show_save_menu = False
 typing_name = False
 new_name = ""
+
+# Programmer-Namen (hier deine Namen einsetzen!)
+programmer_names = [
+    "Sebastian Abdul Nierlich",
+    "Armin Agmar Krutzler",
+    "Kevin Haadid Dähler",
+]
 
 
 def slot_rect(index):
@@ -98,6 +109,31 @@ def draw_lobby(mouse_pos):
     draw_button(start_button, "START", mouse_pos)
     draw_button(programmer_button, "PROGRAMMERS", mouse_pos)
     draw_button(quit_button, "QUIT", mouse_pos)
+
+
+def draw_programmers(mouse_pos):
+    """Schwarzer Screen mit drei Boxen, in denen die Namen stehen."""
+    screen.fill(BLACK)
+
+    draw_text("PROGRAMMERS", font_big, YELLOW, WIDTH // 2, 90)
+
+    # Drei Boxen untereinander
+    box_width = 480
+    box_height = 70
+    start_y = 180
+    spacing = 90
+
+    for i, name in enumerate(programmer_names):
+        box_x = WIDTH // 2 - box_width // 2
+        box_y = start_y + i * spacing
+        box_rect = pygame.Rect(box_x, box_y, box_width, box_height)
+
+        pygame.draw.rect(screen, PANEL, box_rect)
+        pygame.draw.rect(screen, WHITE, box_rect, 2)
+        draw_text(name, font_med, WHITE, box_rect.centerx, box_rect.centery)
+
+    # Zurück-Button
+    draw_button(back_button, "BACK", mouse_pos)
 
 
 def draw_save_menu(mouse_pos):
@@ -154,8 +190,13 @@ while True:
             pygame.quit()
             sys.exit()
 
+        # --- Programmers-Screen ist offen ---
+        if show_programmers:
+            if clicked(back_button, event):
+                show_programmers = False
+
         # --- Save-Menü ist offen ---
-        if show_save_menu:
+        elif show_save_menu:
             # Slot anklicken
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 for i in range(5):
@@ -198,16 +239,17 @@ while True:
                 show_save_menu = True
             elif clicked(programmer_button, event):
                 show_programmers = True
-                if show_programmers:
-                    screen.fill(BLACK)
             elif clicked(quit_button, event):
                 pygame.quit()
                 sys.exit()
-            
 
     # Zeichnen
-    draw_lobby(mouse_pos)
-    if show_save_menu:
-        draw_save_menu(mouse_pos)
+    if show_programmers:
+        draw_programmers(mouse_pos)
+    else:
+        draw_lobby(mouse_pos)
+        if show_save_menu:
+            draw_save_menu(mouse_pos)
+
     pygame.display.flip()
     clock.tick(FPS)
