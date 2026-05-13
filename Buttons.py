@@ -13,7 +13,7 @@ class Buttonz:
     def __init__(self, position: tuple, size_x: int, size_y: int, screen:pg.surface, shadow: bool, text: str = "", text_color: tuple = (0, 0, 0), text_size: int = 20, round_corner_value : int = 10, button_color: tuple = (120, 120, 120)):
 
 
-        font = pg.font.Font(None, text_size)
+        font = pg.font.Font("assets/born2bsporty-fs.regular.otf", text_size)
         self.screen = screen
 
         self.x = position[0]

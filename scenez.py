@@ -23,7 +23,7 @@ class Scenez:
         Scenez.button_list.append(button)
     
     def add_text(self, text: str, text_color: tuple, text_x: int, text_y: int, text_size: int, three_d: bool = False):
-        font = pg.font.Font(None, text_size)
+        font = pg.font.Font("assets/born2bsporty-fs.regular.otf", text_size)
         if three_d:
             text0: pg.font.Font = font.render(text, True, text_color)
             text1: pg.font.Font = font.render(text, True, (text_color[0]+30, text_color[1]+30, text_color[2]+30))

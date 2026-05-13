@@ -10,9 +10,9 @@ clock = pg.time.Clock()
 running = True
 
 
-button1 = Buttonz((1280//2 - 100, 720//2 - 50), 200, 50, screen, True, "Start Game", (0, 0, 0), 30, 10, (100, 50, 30))
-button2 = Buttonz((1280//2 - 100, 720//2 + 17.5), 200, 50, screen, True, "Settings", (0, 0, 0), 30, 10, (100, 50, 30))
-button3 = Buttonz((1280//2 - 100, 720//2 + 85), 200, 50, screen, True, "Quit", (0, 0, 0), 30, 10, (100, 50, 30))
+button1 = Buttonz((1280//2 - 100, 720//2 - 50), 200, 50, screen, True, "Start Game", (0, 0, 0), 30, 5, (100, 50, 30))
+button2 = Buttonz((1280//2 - 100, 720//2 + 17.5), 200, 50, screen, True, "Settings", (0, 0, 0), 30, 5, (100, 50, 30))
+button3 = Buttonz((1280//2 - 100, 720//2 + 85), 200, 50, screen, True, "Quit", (0, 0, 0), 30, 5, (100, 50, 30))
 
 title = "Redundant"
 version = "alpha v0.1"
@@ -25,9 +25,9 @@ lobby.add_button(button1)
 lobby.add_button(button2)
 lobby.add_button(button3)
 
-lobby.add_text(title, (100, 50, 30), 1280//2 , 100, 75, True)
+lobby.add_text(title, (100, 50, 30), 1280//2 , 100, 80, True)
 lobby.add_text(version, (100, 50, 30),  1230, 700, 20, True)
-lobby.add_text(featured, (100, 50, 30),  80, 700, 20, True)
+lobby.add_text(featured, (100, 50, 30),  90, 700, 20, True)
 
 
 
