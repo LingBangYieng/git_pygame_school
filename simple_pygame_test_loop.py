@@ -1,44 +1,57 @@
-# Example file showing a basic pygame "game loop"
-import pygame
+import pygame as pg
 from Buttons import Buttonz
 from class_collide_rect import HitBox
+from scenez import Scenez
 
-# pygame setup
-pygame.display.init()
-screen = pygame.display.set_mode((1280, 720))
-clock = pygame.time.Clock()
+
+pg.display.init()
+screen = pg.display.set_mode((1280, 720))
+clock = pg.time.Clock()
 running = True
 
-button1 = Buttonz((1280//2, 720//2), 200, 50, screen, True)
+
+button1 = Buttonz((1280//2 - 100, 720//2 - 50), 200, 50, screen, True, "Start Game", (0, 0, 0), 30, 10, (100, 50, 30))
+button2 = Buttonz((1280//2 - 100, 720//2 + 17.5), 200, 50, screen, True, "Settings", (0, 0, 0), 30, 10, (100, 50, 30))
+button3 = Buttonz((1280//2 - 100, 720//2 + 85), 200, 50, screen, True, "Quit", (0, 0, 0), 30, 10, (100, 50, 30))
+
+title = "Redundant"
+version = "alpha v0.1"
+featured = "Abdul, Agmar, Kreatin"
+
+lobby = Scenez(screen)
+
+
+lobby.add_button(button1)
+lobby.add_button(button2)
+lobby.add_button(button3)
+
+lobby.add_text(title, (100, 50, 30), 1280//2 , 100, 75, True)
+lobby.add_text(version, (100, 50, 30),  1230, 700, 20, True)
+lobby.add_text(featured, (100, 50, 30),  80, 700, 20, True)
+
+
 
 mouse_HB = HitBox(0, 0, 1, 1)
 
 
 while running:
-    # poll for events
-    # pygame.QUIT event means the user clicked X to close your window
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
             running = False
 
-    # fill the screen with a color to wipe away anything from last frame
-    screen.fill("purple")
+    screen.fill("black")
 
 
 
-    mx, my = pygame.mouse.get_pos()
+    mx, my = pg.mouse.get_pos()
     mouse_HB.x = mx
     mouse_HB.y = my
 
+    lobby.draw_scene()
 
-    button1.draw_button()
-    print(button1.hitbox.check_collision(mouse_HB))
 
-    # RENDER YOUR GAME HERE
+    pg.display.flip()
 
-    # flip() the display to put your work on screen
-    pygame.display.flip()
+    clock.tick(60)
 
-    clock.tick(60)  # limits FPS to 60
-
-pygame.quit()
+pg.quit()
