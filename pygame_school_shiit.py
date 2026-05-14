@@ -3,6 +3,7 @@ os.environ["SDL_VIDEODRIVER"] = "windows"
 import pygame as pg
 import numpy as np
 from helper_pygame import *
+from class_collide_rect import *
 
 
 game_loop = True
@@ -17,7 +18,7 @@ size = 12
 scale_player = 4
 width, height = 200, 100
 screen = pg.display.set_mode((width*size, height*size))
-pg.mouse.set_visible(False)
+pg.mouse.set_visible(True)
 laser_data_list: list[Bullet] = []
 
 
@@ -52,6 +53,7 @@ sprinting= False
 radius = 20
 view_field_xy_position = pg.Rect(0, 0, width*size, height*size)
 
+mouse_HB = HitBox((0, 0, 1, 1))
 
 
 # grenade launch with size rescaling
@@ -184,19 +186,29 @@ while game_loop:
         laser_data.draw(screen, view_field_xy_position)
 
 
-
+    mx, my = pg.mouse.get_pos()
+    mouse_HB.x = mx
+    mouse_HB.y = my
 
     
     
 
     screen.blit(player, player_rect)   
+    pg.draw.rect(screen, "red", (world_to_screen_coords((position_circle), view_field_xy_position)[0], world_to_screen_coords((position_circle), view_field_xy_position)[1], 50, 50), 3)
+    player_HB = HitBox(rect=(world_to_screen_coords((position_circle), view_field_xy_position)[0], world_to_screen_coords((position_circle), view_field_xy_position)[1], 50, 50))
+
     screen.blit(item0, (world_to_screen_coords((500,500), view_field_xy_position)))
+    item0_HB = HitBox((world_to_screen_coords((500,500), view_field_xy_position)[0], world_to_screen_coords((500,500), view_field_xy_position)[1],  item0.get_size()[0], item0.get_size()[1]))
+    pg.draw.rect(screen, "red", (world_to_screen_coords((500,500), view_field_xy_position)[0], world_to_screen_coords((500,500), view_field_xy_position)[1],  item0.get_size()[0], item0.get_size()[1]), 3)
+
+
     screen.blit(item1, (world_to_screen_coords((400,400), view_field_xy_position)))
     screen.blit(entrance, (world_to_screen_coords((600,600), view_field_xy_position)))
     
     screen.blit(crosshair, (mouse_position[0] - 16, mouse_position[1] - 16))
 
-
+    if item0_HB.check_collision(player_HB): print("true")
+    else: print("false")
 
     old_position_circle = position_circle.copy()
     pg.display.update()

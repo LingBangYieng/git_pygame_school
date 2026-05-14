@@ -1,15 +1,16 @@
+import pygame as pg
 class HitBox:
 
-    def __init__(self, x, y, w, h):
+    def __init__(self, rect = None):
         
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
+        if isinstance(rect, pg.Rect):
+            self.x, self.y, self.w, self.h = tuple(rect)
+        else:
+            self.x, self.y, self.w, self.h = rect
 
     def check_collision(self, other)->bool:
 
-        if (self.x < other.x) and (other.x < self.x + self.w) and (self.y < other.y) and (other.y < self.y + self.h):
+        if ((self.x < other.x + other.w) and (other.x < self.x + self.w) and (self.y < other.y + other.h) and (other.y < self.y + self.h)):
             return True
         else:
             return False

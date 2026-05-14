@@ -4,7 +4,7 @@ import numpy as np
 game_loop = True
 
     
-pg.init()
+# pg.init()
 pg.display.init()
 
 size = 8
