@@ -1,4 +1,7 @@
 import pygame as pg
+from helper_pygame import *
+from globals import *
+
 class HitBox:
 
     def __init__(self, rect = None, ):
@@ -19,9 +22,13 @@ class HitBox:
                 return True
         return False
     
-    def show_HB(self, screen: pg.surface, color: tuple = (0, 0, 255)):
+    def show_HB(self, inMenu: bool =False, color: tuple = (0, 0, 255)):
+        loc_vwp = vwp.copy()
+        if inMenu:
+            loc_vwp.topleft = (0,0)
         if self.exists:
-            pg.draw.rect(screen, color, (self.x, self.y, self.w, self.h), 3)
+            x,y = world_to_screen_coords((self.x, self.y), loc_vwp)
+            pg.draw.rect(screen, color, (x,y, self.w, self.h), 3)
 
     def get_size(self):
         return (self.w, self.h)
