@@ -17,7 +17,7 @@ pg.mixer.init()
 
 
 
-pg.mouse.set_visible(True)
+pg.mouse.set_visible(False)
 # laser_data_list: list[Bullet] = []
 
 
@@ -41,8 +41,8 @@ static_player = pg.transform.scale_by(static_player, scale_player)
 laser_sound = pg.mixer.Sound(f"assets/goofy_laser.mp3")
 launch_missile = pg.mixer.Sound("assets/rocket_launch.mp3")
 missile_explo = pg.mixer.Sound("assets/rocket_explosion.mp3")
-# launch_missile.set_volume(0.1)
-# missile_explo.set_volume(0.1)
+launch_missile.set_volume(0.5)
+missile_explo.set_volume(0.5)
 laser_sound.set_volume(0.1)
 # lobby_song = pg.mixer.music.load("assets/retrowave_song.mp3")
 # pg.mixer.music.set_volume(0,125)
@@ -189,7 +189,7 @@ while game_loop:
                 laser_data_list.append(Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/goofy_laser.png", image_scale=2, bullet_speed=25, lifetime=200))
                 laser_sound.play()
             if event.button == 3:
-                laser_data_list.append(Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/rockety.png", image_scale=2, bullet_speed=10, lifetime=600, remote_control=True, isDiag=True))
+                laser_data_list.append(Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/rockety.png", image_scale=2, bullet_speed=15, lifetime=600, remote_control=True, isDiag=True))
                 launch_missile.play()
                 # laser_data_list.append((mouse_position[0] + position_circle[0] - width*size/2, mouse_position[1] + position_circle[1] - height*size/2, alpha))
         # elif keys[pg.K_r]:
@@ -213,7 +213,7 @@ while game_loop:
     for i in range(len(laser_data_list)):
         laser_data = laser_data_list[i]
         laser_data.draw()
-        laser_data.hitbox.show_HB()
+        # laser_data.hitbox.show_HB()
         # laser_data = 
         # pg.draw.rect(screen, "red", (laser_data_list[i].position[0], laser_data_list[i].position[1], 50, 50), 3)
         # laser_HB = HitBox((world_to_screen_coords(laser_data_list[i].position, view_field_xy_position), (25, 25)))
@@ -229,13 +229,13 @@ while game_loop:
     screen.blit(player, player_rect)   
     # pg.draw.rect(screen, "red", (world_to_screen_coords((position_circle), view_field_xy_position)[0] - 50, world_to_screen_coords((position_circle), view_field_xy_position)[1] - 50, 100, 100), 3)
     player_HB = HitBox(rect=((e-37.5 for e in(position_circle)), (75, 75)))
-    player_HB.show_HB()
+    # player_HB.show_HB()
 
 
     screen.blit(item0, (world_to_screen_coords((500,500), view_field_xy_position)))
     item0_HB = HitBox(((500,500), item0.get_size()))
     # pg.draw.rect(screen, "red", (world_to_screen_coords((500,500), view_field_xy_position)[0], world_to_screen_coords((500,500), view_field_xy_position)[1],  item0.get_size()[0], item0.get_size()[1]), 3)
-    item0_HB.show_HB()
+    # item0_HB.show_HB()
 
     screen.blit(item1, (world_to_screen_coords((400,400), view_field_xy_position)))
     screen.blit(entrance, (world_to_screen_coords((600,600), view_field_xy_position)))
@@ -250,11 +250,11 @@ while game_loop:
 
     if enemy_alive:
         screen.blit(enemy, world_to_screen_coords(enemy_rect, vwp))
-        enemy_HB.show_HB()
+        # enemy_HB.show_HB()
 
     if laser_data is not None:
         if enemy_HB.check_collision(laser_data.hitbox): 
-            enemy_HB.show_HB(color=(0, 255, 0))
+            # enemy_HB.show_HB(color=(0, 255, 0))
             missile_explo.play()
             enemy_alive = False
             laser_data.alive = False

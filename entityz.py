@@ -80,7 +80,7 @@ class Bulletz(Entityz):
 
         self.velo = (0.01,0.01)
 
-        self.alpha = 0
+        self.calc_alpha()
         self.turnability = turnability
 
         if remote_control:
@@ -181,7 +181,7 @@ class Bulletz(Entityz):
             self.image = pg.transform.rotate(self.original_image, self.alpha - 90 + self.diag) #why here
             screen.blit(self.image, world_to_screen_coords(self.top_left_position, vwp))
 
-            rect = self.image.get_rect(topleft = self.top_left_position)
-            rect.topleft = world_to_screen_coords(rect.topleft, vwp)
-            pg.draw.rect(screen, "white", rect , 3)
+            # rect = self.image.get_rect(topleft = self.top_left_position)
+            # rect.topleft = world_to_screen_coords(rect.topleft, vwp)
+            # pg.draw.rect(screen, "white", rect , 3)
 
