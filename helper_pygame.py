@@ -2,6 +2,7 @@ import pygame as pg
 import numpy as np
 from PIL import Image
 from class_vectorz import Vectorz
+from globals import *
 
 
 # def random_pos_gen(old_random):
@@ -242,3 +243,54 @@ def cast_ray(start_position:tuple, end_position:tuple, length:int, exactness: in
             if array[row][col] != 0:
                 return ((row, col), (x, y), distance)
     return None
+
+
+
+class Animationz:
+
+    def __init__(self, pathToSpriteSheet:str = "assets/walk_anim.png", frameSizeSpriteOnSpriteSheet:tuple = (32, 32), numFrames: int = 12, imageScale: float = 1, animationSpeed: float = 0.2):
+
+        self.scale = imageScale
+        self.animationSpeed = animationSpeed
+        self.frameIndex = 0.0
+        self.alive = True
+
+        self.imageRaw = pg.image.load(pathToSpriteSheet)
+        self.imageList = spritesheet_cutter_2d(frameSizeSpriteOnSpriteSheet[0], frameSizeSpriteOnSpriteSheet[1], numFrames, self.imageRaw)
+
+        for i, image in enumerate(self.imageList):
+            if self.scale != 1:
+                image = pg.transform.scale_by(image, self.scale)
+            self.imageList[i] = image
+
+
+    def play_looped(self, position:tuple = (0, 0), rotation: float = 0):
+
+        self.frameIndex += self.animationSpeed
+
+        if self.frameIndex >= len(self.imageList):
+            self.frameIndex = 0
+
+        frame = self.imageList[int(self.frameIndex)]
+
+        frame = pg.transform.rotate(frame, rotation - 90)
+        frame_rect = frame.get_rect(center = position) 
+        frame_rect.center = world_to_screen_coords(position, vwp)
+        # print(self.frameIndex)
+        screen.blit(frame, frame_rect.topleft)
+    
+    def play(self, position:tuple = (0, 0), rotation: float = 0):
+        if self.alive:
+            self.frameIndex += self.animationSpeed
+
+            if self.frameIndex >= len(self.imageList):
+                self.alive = False
+                return
+
+            frame = self.imageList[int(self.frameIndex)]
+
+            frame = pg.transform.rotate(frame, rotation - 90)
+            frame_rect = frame.get_rect(center = position) 
+            frame_rect.center = world_to_screen_coords(position, vwp)
+            # print(self.frameIndex)
+            screen.blit(frame, frame_rect.topleft)

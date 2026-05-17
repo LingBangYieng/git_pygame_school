@@ -54,10 +54,7 @@ class Entityz:
 
 
 
-    
-
 class Bulletz(Entityz):
-
 
     def __init__(self, 
                  position = (0, 0), 
@@ -123,10 +120,6 @@ class Bulletz(Entityz):
         self.alpha_radians = np.radians(self.alpha)
 
 
-
-        
-
-
     def move(self):
         if self.remote_control:
             self.remote_calc_alpha()
@@ -185,3 +178,8 @@ class Bulletz(Entityz):
             # rect.topleft = world_to_screen_coords(rect.topleft, vwp)
             # pg.draw.rect(screen, "white", rect , 3)
 
+
+class Itemz(Entityz):
+
+    def __init__(self, position = (0, 0), hitbox = None, path_to_image = "assets/middled_player", image_scale = 1, image_rotation = 0):
+        super().__init__(position, hitbox, path_to_image, image_scale, image_rotation)
