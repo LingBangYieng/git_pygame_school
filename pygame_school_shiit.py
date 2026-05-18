@@ -22,31 +22,25 @@ pg.mouse.set_visible(False)
 
 
 
+# item0 = pg.image.load(f"assets/goofy_revolver_highlighted.png")
+# item1 = pg.image.load(f"assets/goofy_katana_highlighted.png")
+# entrance = pg.image.load(f"assets/goofy_entrance.png")
 background = pg.image.load(f"assets/big_background.jpg")
-item0 = pg.image.load(f"assets/goofy_revolver.png")
-item1 = pg.image.load(f"assets/goofy_katana.png")
-entrance = pg.image.load(f"assets/goofy_entrance.png")
 static_laser = pg.image.load(f"assets/goofy_laser.png")
 crosshair = pg.image.load(f"assets/goofy_crosshair.png")
 static_player = pg.image.load(f"assets/middled_player.png")
-# sprite_sheet_player_walking = pg.image.load(f"assets/goofy_player_walk_forward.png")
-# frame_width_player_walking = 32
-# frame_height_player_walking = 32
-# num_frames_player_walking = 13
-# frames_player_walking = spritesheet_cutter_2d(32, 32, 13, sprite_sheet_player_walking)
 
 player_walk = Animationz(numFrames=13, imageScale=scale_player)
 
-
 crosshair = pg.transform.scale_by(crosshair, 4)
 static_laser = pg.transform.scale_by(static_laser, 2)
-entrance = pg.transform.scale_by(entrance, 1)
+# entrance = pg.transform.scale_by(entrance, 1)
 static_player = pg.transform.scale_by(static_player, scale_player)
 laser_sound = pg.mixer.Sound(f"assets/goofy_laser.mp3")
 launch_missile = pg.mixer.Sound("assets/rocket_launch.mp3")
 missile_explo = pg.mixer.Sound("assets/rocket_explosion.mp3")
-launch_missile.set_volume(0.2)
-missile_explo.set_volume(0.2)
+launch_missile.set_volume(0.1)
+missile_explo.set_volume(0.1)
 laser_sound.set_volume(0.1)
 # lobby_song = pg.mixer.music.load("assets/retrowave_song.mp3")
 # pg.mixer.music.set_volume(0,125)
@@ -60,7 +54,7 @@ sprinting= False
 radius = 20
 
 
-mouse_HB = HitBox(((0, 0),( 1, 1)))
+mouse_HB = HitBox(((0, 0),(1, 1)))
 
 
 
@@ -194,7 +188,7 @@ while game_loop:
         laser_data.draw()
 
 
-    mx, my = pg.mouse.get_pos()
+    mx, my = screen_to_world_coords_rare_use(pg.mouse.get_pos(), vwp)
     mouse_HB.x = mx
     mouse_HB.y = my
 
@@ -204,17 +198,20 @@ while game_loop:
     
     if not moving:
         screen.blit(frame, frame_rect)   
-    # pg.draw.rect(screen, "red", (world_to_screen_coords((position_circle), view_field_xy_position)[0] - 50, world_to_screen_coords((position_circle), view_field_xy_position)[1] - 50, 100, 100), 3)
     player_HB = HitBox(rect=((e-37.5 for e in(position_circle)), (75, 75)))
+    # pg.draw.rect(screen, "red", (world_to_screen_coords((position_circle), view_field_xy_position)[0] - 50, world_to_screen_coords((position_circle), view_field_xy_position)[1] - 50, 100, 100), 3)
     # player_HB.show_HB()
 
-
-    screen.blit(item0, (world_to_screen_coords((500,500), view_field_xy_position)))
-    item0_HB = HitBox(((500,500), item0.get_size()))
-
-    screen.blit(item1, (world_to_screen_coords((400,400), view_field_xy_position)))
-    screen.blit(entrance, (world_to_screen_coords((600,600), view_field_xy_position)))
     screen.blit(crosshair, (mouse_position[0] - 16, mouse_position[1] - 16))
+
+
+    # screen.blit(item0, (world_to_screen_coords((500,500), view_field_xy_position)))
+    # item0_HB = HitBox(((500,500), item0.get_size()))
+
+    # screen.blit(item1, (world_to_screen_coords((400,400), view_field_xy_position)))
+    # screen.blit(entrance, (world_to_screen_coords((600,600), view_field_xy_position)))
+
+    item0 = Itemz(position=(500, 500), path_to_image_non_highlighted="assets/goofy_revolver.png", image_scale=1.5, image_rotation=45)
 
 
     enemy_rect = enemy.get_rect(center=enemy_pos)
@@ -227,7 +224,7 @@ while game_loop:
     if laser_data is not None:
         if enemy_HB.check_collision(laser_data.hitbox): 
             # enemy_HB.show_HB(color=(0, 255, 0))
-            explosion = Animationz(pathToSpriteSheet="assets/may_explosion.png", numFrames=6, imageScale=4, animationSpeed=0.5)
+            explosion = Animationz(pathToSpriteSheet="assets/may_explosion.png", numFrames=6, imageScale=4, animationSpeed=0.3)
             missile_explo.play()
             enemy_alive = False
             laser_data.alive = False
@@ -235,6 +232,11 @@ while game_loop:
     if enemy_HB is not None:
         if enemy_alive == False:
                 explosion.play((enemy_HB.x + enemy_HB.w/2, enemy_HB.y + enemy_HB.h/2))
+            
+    item0.draw()
+    item0.hitbox.show_HB()
+
+    mouse_HB.show_HB()
 
     old_position_circle = position_circle.copy()
     pg.display.update()

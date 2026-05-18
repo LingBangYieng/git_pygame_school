@@ -1,6 +1,6 @@
 import pygame as pg
 from helper_pygame import *
-from globals import *
+from globals import screen, vwp
 
 class HitBox:
 
@@ -33,3 +33,4 @@ class HitBox:
     def get_size(self):
         return (self.w, self.h)
     
+

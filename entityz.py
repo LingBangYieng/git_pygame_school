@@ -1,12 +1,12 @@
 from class_collide_rect import HitBox
 import pygame as pg
 import numpy as np
-from helper_pygame import world_to_screen_coords
-
+from helper_pygame import *
 from globals import *
 
 def get_topleft(image: pg.Surface, position: tuple):
     return image.get_rect(center=position).topleft
+
 
 
 class Entityz:
@@ -23,7 +23,6 @@ class Entityz:
         self.original_image = self.adjustImage(pg.image.load(path_to_image), image_scale, image_rotation)
         self.image = self.original_image
         
-
         #physics
         if hitbox:
             self.hitbox = HitBox((self.top_left_position, hitbox.get_size()))
@@ -51,6 +50,13 @@ class Entityz:
         y -= self.hitbox.get_size()[1]/2
         pos = (x,y)
         self.hitbox = HitBox((pos, self.hitbox.get_size()))
+    
+    def update_HB_non_center(self):
+        self.hitbox = HitBox((self.position, self.hitbox.get_size()))
+    
+    def draw(self):
+        screen.blit(self.image, self.position)
+
 
 
 
@@ -130,56 +136,73 @@ class Bulletz(Entityz):
 
         if self.lifetime < 0:
             self.die()
-
-
-    def nmove(self):
-        if self.remote_control:
-            self.calc_alpha()
-
-        mx, my = pg.mouse.get_pos()
-        px, py = world_to_screen_coords(self.position, vwp)
-        fac = 1/((mx-px)**2+(my-py)**2)
-        force = (mx-px)*fac, (my-py)*fac
-
-        self.velo = (
-            self.velo[0] + force[0] * self.lightweight,
-            self.velo[1] + force[1] * self.lightweight
-        )
-
-        # Cap speed
-        speed = np.linalg.norm(self.velo)
-
-        if speed > self.speed:
-            self.velo = (
-                self.velo[0] / speed * self.speed,
-                self.velo[1] / speed * self.speed
-            )
-
-        self.position = (
-            self.position[0] + self.velo[0],
-            self.position[1] + self.velo[1]
-        )
-
-        self.update_HB()
-        self.lifetime -= 1
-
-        if self.lifetime < 0:
-            self.die()
-
-
-
+    
     def draw(self):
         if self.alive:
             self.move()
             self.image = pg.transform.rotate(self.original_image, self.alpha - 90 + self.diag) #why here
             screen.blit(self.image, world_to_screen_coords(self.top_left_position, vwp))
-
             # rect = self.image.get_rect(topleft = self.top_left_position)
             # rect.topleft = world_to_screen_coords(rect.topleft, vwp)
             # pg.draw.rect(screen, "white", rect , 3)
 
 
+    # def nmove(self):
+    #     if self.remote_control:
+    #         self.calc_alpha()
+
+    #     mx, my = pg.mouse.get_pos()
+    #     px, py = world_to_screen_coords(self.position, vwp)
+    #     fac = 1/((mx-px)**2+(my-py)**2)
+    #     force = (mx-px)*fac, (my-py)*fac
+
+    #     self.velo = (
+    #         self.velo[0] + force[0] * self.lightweight,
+    #         self.velo[1] + force[1] * self.lightweight
+    #     )
+
+    #     # Cap speed
+    #     speed = np.linalg.norm(self.velo)
+
+    #     if speed > self.speed:
+    #         self.velo = (
+    #             self.velo[0] / speed * self.speed,
+    #             self.velo[1] / speed * self.speed
+    #         )
+
+    #     self.position = (
+    #         self.position[0] + self.velo[0],
+    #         self.position[1] + self.velo[1]
+    #     )
+
+    #     self.update_HB()
+    #     self.lifetime -= 1
+
+    #     if self.lifetime < 0:
+    #         self.die()
+
+
+
+
 class Itemz(Entityz):
 
-    def __init__(self, position = (0, 0), hitbox = None, path_to_image = "assets/middled_player", image_scale = 1, image_rotation = 0):
-        super().__init__(position, hitbox, path_to_image, image_scale, image_rotation)
+    def __init__(self, position = (0, 0), hitbox = None, path_to_image_non_highlighted = "assets/goofy_revolver.png", image_scale = 1, image_rotation = 0):
+        super().__init__(position=position, hitbox=hitbox, path_to_image=path_to_image_non_highlighted, image_scale=image_scale, image_rotation=image_rotation)
+
+        path_to_image_non_highlighted = path_to_image_non_highlighted.replace(".png", "", 1)
+        self.image_highlighted = pg.image.load(path_to_image_non_highlighted + "_highlighted.png")
+        self.image_highlighted = super().adjustImage(self.image_highlighted, image_scale, image_rotation)
+
+
+    def draw(self):
+
+        super().update_HB_non_center()
+        mouse_HB = HitBox((screen_to_world_coords_rare_use(pg.mouse.get_pos(), vwp), (1, 1)))
+
+        if mouse_HB.check_collision(self.hitbox):
+            screen.blit(self.image_highlighted, world_to_screen_coords(self.position, vwp))
+            print(True)
+        else:
+            screen.blit(self.image, world_to_screen_coords(self.position, vwp))
+            print(False)
+            

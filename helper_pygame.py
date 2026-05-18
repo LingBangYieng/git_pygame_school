@@ -17,9 +17,14 @@ from globals import *
 
 
 def world_to_screen_coords(world_coords_object, view_field_xy_position):
-    
     screen_coords = (world_coords_object[0] - view_field_xy_position.topleft[0], world_coords_object[1] - view_field_xy_position.topleft[1])
     return screen_coords
+
+
+
+def screen_to_world_coords_rare_use(screen_coords_object, view_field_xy_position):
+    return (screen_coords_object[0] + view_field_xy_position.topleft[0], screen_coords_object[1] + view_field_xy_position.topleft[1])
+
 
 
 
