@@ -1,6 +1,6 @@
 import pygame as pg
 from helper_pygame import *
-from globals import screen, vwp
+#from globals import screen, vwp
 
 class HitBox:
 

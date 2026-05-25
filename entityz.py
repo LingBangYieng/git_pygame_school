@@ -2,7 +2,8 @@ from class_collide_rect import HitBox
 import pygame as pg
 import numpy as np
 from helper_pygame import *
-from globals import *
+#from globals import *
+from pathfind_non_visual import a_star
 
 def get_topleft(image: pg.Surface, position: tuple):
     return image.get_rect(center=position).topleft
@@ -28,7 +29,12 @@ class Entityz:
             self.hitbox = HitBox((self.top_left_position, hitbox.get_size()))
         else:
             #do this when hitbox is none, so its genertated
-            self.hitbox = HitBox((self.top_left_position, self.image.get_size()))
+            HB_w,HB_h = tuple(e*image_scale for e in (get_hitbox_size(path_to_image)))
+            image_w, image_h = self.image.get_size()
+            self.hitbox = HitBox(((self.top_left_position[0] + (image_w - HB_w)/2, self.top_left_position[1] + (image_h - HB_h)/2), (HB_w, HB_h)))
+
+
+        self.deathEvent = None
 
     @property
     def top_left_position(self):
@@ -43,6 +49,8 @@ class Entityz:
     
     def die(self):
         self.alive = False
+        if self.deathEvent is not None:
+            self.deathEvent()
 
     def update_HB(self):
         x, y = self.position
@@ -71,13 +79,18 @@ class Bulletz(Entityz):
                  lifetime: float = 200, 
                  remote_control: bool = False,
                  isDiag = False,
-                 turnability:float = 3):
+                 turnability:float = 3,
+                 explosive = False,
+                 explosionRadius = 0):
         '''lifetime is in frames'''
         super().__init__(position=position, hitbox=hitbox, path_to_image=path_to_image, image_scale=image_scale)
 
         self.speed = bullet_speed
         self.remote_control = remote_control
         self.lifetime = lifetime
+
+        # state["entitySceneMain"].add_bullet(self)
+
 
         self.diag = 45 if isDiag else 0
 
@@ -91,6 +104,17 @@ class Bulletz(Entityz):
         else:
             self.calc_alpha()
 
+
+
+        self.isExplosive = explosive
+        self.explosionRadius = explosionRadius
+        if self.isExplosive:
+            self.deathEvent = lambda: entityScenes[0].castRectExplosion(self.position, self.explosionRadius)
+
+
+
+        self.animation = Animationz(pathToSpriteSheet="assets/rockety_anim.png", numFrames=4, imageScale=2, animationSpeed=0.3)
+
     def calc_alpha(self):
         if self.alive:
             middle_screen_x, middle_screen_y = world_to_screen_coords(self.position, vwp)
@@ -99,7 +123,6 @@ class Bulletz(Entityz):
             dy = pg.mouse.get_pos()[1] - middle_screen_y
 
             self.alpha_radians = np.arctan2(-dy, dx)
-
             self.alpha = np.degrees(self.alpha_radians)
 
 
@@ -116,15 +139,12 @@ class Bulletz(Entityz):
         diff = (target_alpha - self.alpha + 180) % 360 - 180
 
         if abs(diff) > self.turnability:
-
             self.alpha += self.turnability * np.sign(diff)
         else:
             self.alpha = target_alpha
 
         self.alpha %= 360
-
         self.alpha_radians = np.radians(self.alpha)
-
 
     def move(self):
         if self.remote_control:
@@ -140,47 +160,17 @@ class Bulletz(Entityz):
     def draw(self):
         if self.alive:
             self.move()
-            self.image = pg.transform.rotate(self.original_image, self.alpha - 90 + self.diag) #why here
-            screen.blit(self.image, world_to_screen_coords(self.top_left_position, vwp))
-            # rect = self.image.get_rect(topleft = self.top_left_position)
-            # rect.topleft = world_to_screen_coords(rect.topleft, vwp)
-            # pg.draw.rect(screen, "white", rect , 3)
 
+            self.animation.play_looped(self.position, rotation=self.alpha + self.diag)
 
-    # def nmove(self):
-    #     if self.remote_control:
-    #         self.calc_alpha()
-
-    #     mx, my = pg.mouse.get_pos()
-    #     px, py = world_to_screen_coords(self.position, vwp)
-    #     fac = 1/((mx-px)**2+(my-py)**2)
-    #     force = (mx-px)*fac, (my-py)*fac
-
-    #     self.velo = (
-    #         self.velo[0] + force[0] * self.lightweight,
-    #         self.velo[1] + force[1] * self.lightweight
-    #     )
-
-    #     # Cap speed
-    #     speed = np.linalg.norm(self.velo)
-
-    #     if speed > self.speed:
-    #         self.velo = (
-    #             self.velo[0] / speed * self.speed,
-    #             self.velo[1] / speed * self.speed
-    #         )
-
-    #     self.position = (
-    #         self.position[0] + self.velo[0],
-    #         self.position[1] + self.velo[1]
-    #     )
-
-    #     self.update_HB()
-    #     self.lifetime -= 1
-
-    #     if self.lifetime < 0:
-    #         self.die()
-
+            # self.image = pg.transform.rotate(self.original_image, self.alpha - 90 + self.diag) #why here
+            # screen.blit(self.image, world_to_screen_coords(self.top_left_position, vwp))
+            # self.hitbox.show_HB()
+            # # rect = self.image.get_rect(topleft = self.top_left_position)
+            # # rect.topleft = world_to_screen_coords(rect.topleft, vwp)
+            # # pg.draw.rect(screen, "white", rect , 3)
+        else:
+            self.animation.alive = False
 
 
 
@@ -196,13 +186,142 @@ class Itemz(Entityz):
 
     def draw(self):
 
-        super().update_HB_non_center()
+        super().update_HB()
         mouse_HB = HitBox((screen_to_world_coords_rare_use(pg.mouse.get_pos(), vwp), (1, 1)))
 
         if mouse_HB.check_collision(self.hitbox):
-            screen.blit(self.image_highlighted, world_to_screen_coords(self.position, vwp))
-            print(True)
+            screen.blit(self.image_highlighted, world_to_screen_coords(self.top_left_position, vwp))
         else:
-            screen.blit(self.image, world_to_screen_coords(self.position, vwp))
-            print(False)
+            screen.blit(self.image, world_to_screen_coords(self.top_left_position, vwp))
+        self.hitbox.show_HB()
+
+
+def C(pos, col="red"):
+    pg.draw.circle(screen, col, world_to_screen_coords(pos, vwp), 3)
+def px(coord):
+    return coord[0]*CellSize,coord[1]*CellSize
+
+
+class Enemyz(Entityz):
+
+    def __init__(self, position = (0, 0), hitbox = None, path_to_image = "assets/middled_player", image_scale = 1, image_rotation = 0):
+        super().__init__(position=position, hitbox=hitbox, path_to_image=path_to_image, image_scale=image_scale, image_rotation=image_rotation)
+        self.alpha = self.calc_alpha_to_player()
+
+    def draw(self):
+        if self.alive:
+            self.alpha = self.calc_alpha_to_player()
+            self.image = pg.transform.rotate(self.original_image, self.alpha - 90)
+            screen.blit(self.image, world_to_screen_coords(self.top_left_position, vwp))
+            self.hitbox.show_HB()
+            self.a_move()
+            self.update_HB()
+
+    def calc_alpha_to_player(self):
+        middle_screen_x, middle_screen_y = world_to_screen_coords(self.position, vwp)
+        if playerPos[0]:player_x, player_y = world_to_screen_coords(playerPos[0], vwp)
+        else: player_x, player_y = (0, 0)
+        dx = player_x - middle_screen_x
+        dy = player_y - middle_screen_y
+
+        self.alpha_radians = np.arctan2(-dy, dx)
+        return np.degrees(self.alpha_radians)
+    
+
+    def a_move(self):
+        c_ene_pos = int(self.position[0]/CellSize+0.5), int(self.position[1]/CellSize+0.5)
+        c_player_pos = int(playerPos[0][0]/CellSize+0.5) , int(playerPos[0][1]/CellSize+0.5)
+
+
+
+        path = a_star(c_ene_pos, c_player_pos, state["HB_layer"])
+
+        # C(c_ene_pos)
+        C(px(c_player_pos), "blue")
+
+
+        if path is not None:
             
+            if len(path) > 2:
+                c_next_goal_pos = path[1]
+                for i in range(len(path)-1):
+                    pg.draw.line(screen, "green", world_to_screen_coords(px(path[i]), vwp), world_to_screen_coords(px(path[i+1]), vwp))
+            else:
+                c_next_goal_pos = c_player_pos
+
+            next_goal_pos = c_next_goal_pos[0]*CellSize, c_next_goal_pos[1]*CellSize
+            C(next_goal_pos)
+            dx, dy = next_goal_pos[0] - self.position[0], next_goal_pos[1] - self.position[1]
+            dist = max(np.sqrt(dx**2 + dy**2), 0.1)
+            velo = (dx / dist, dy / dist)
+            self.position = velo[0]*10 + self.position[0], velo[1]*10 + self.position[1]
+
+
+
+class EntityScenez:
+
+    def __init__(self):
+        self.enemyBulletList = []
+        self.friendlyBulletList = []
+
+        self.enemyList = []
+
+        self.itemList = []
+    
+
+    def update_EntityScene(self):
+        self.kill_enemy()
+        self.updateList(self.enemyBulletList)
+        self.updateList(self.friendlyBulletList)
+        self.updateList(self.enemyList)
+        self.updateList(self.itemList)
+
+    def draw_EntityScene(self):
+        self.update_EntityScene()
+
+        for bullet in self.enemyBulletList: bullet.draw()
+        for fbullet in self.friendlyBulletList: fbullet.draw()
+        for enemy in self.enemyList: enemy.draw()
+        for item in self.itemList: item.draw()
+
+    def kill_enemy(self):
+        for enemy in self.enemyList:
+            if enemy.alive:
+                for bullet in self.friendlyBulletList:
+                    
+
+                    if bullet.alive and enemy.hitbox.check_collision(bullet.hitbox):
+                        if bullet.isExplosive:
+                            self.castRectExplosion(bullet.position, 75)
+                        enemy.die()
+                        bullet.die()
+
+    def castRectExplosion(self, position, radius):
+        explosionHitbox = HitBox((tuple(e-radius for e in position), (2*radius, 2*radius)))
+        explosionHitbox.show_HB()
+        Animationz("assets/may_explosion.png", (32, 32), 6, 4/32*radius*0.8, 0.2).play(position, 0)
+        for enemy in self.enemyList:
+            if enemy.alive:
+                if enemy.hitbox.check_collision(explosionHitbox):
+                    enemy.die()
+
+
+    
+    def add_enemy(self, enemy:Enemyz):
+        self.enemyList.append(enemy)
+    
+    def add_enemyBullet(self, bullet:Bulletz):
+        self.enemyBulletList.append(bullet)
+    
+    def add_friendlyBulletList(self, bullet: Bulletz):
+        self.friendlyBulletList.append(bullet)
+    
+    def add_item(self, item:Itemz):
+        self.itemList.append(item)
+
+
+    def updateList(self, lst):
+        lst = [e for e in lst if e.alive]
+
+
+        

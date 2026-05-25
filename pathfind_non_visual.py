@@ -31,12 +31,12 @@ def surrounder(box, grid):  # takes a Box object and the grid (matrix), gets cal
 
     for dx, dy in directions:         # easier access of directions[0] and directions[1] and loop through items in directions --> len(direction) will always be 8
         nx, ny = x + dx, y + dy       # calculate new neighbor coords through index vector + current box index
-        if 0 <= nx < len(grid) and 0 <= ny < len(grid[0]) and grid[nx][ny] == 0:    # clamp so obstacles dont get overwritten by an option field, edge case for leaving grid (matrix)
+        if 0 <= nx < len(grid[0]) and 0 <= ny < len(grid) and grid[ny][nx] == 0:    # clamp so obstacles dont get overwritten by an option field, edge case for leaving grid (matrix)
             move_cost = math.sqrt(2) if dx != 0 and dy != 0 else 1      # calculate walking cost --> later important to calculate a_cost (distance from a to current position) can either be 1 or 1.4 (orthogonal or diagonal)
             neighbors.append(((nx, ny), move_cost))     # add position and move_cost (attributes of a neighbor) to the list neighbors (things needed to define a neighbour)
     return neighbors    # return the neighbors list when finished looping through directions (can be everything between 0 and 8)
 
-def a_star(start, goal, grid):  # function that combines is the only one that is called --> it calls the other functions in itself
+def a_star(start, goal, grid, max_iter=5000):  # function that combines is the only one that is called --> it calls the other functions in itself
 
     open_list = []      # creates list that'll contain all option boxes which one can choose, will not be chosen randomly but rather by the total cost and if more than one the same then chosen by lowest b cost
     
@@ -46,7 +46,12 @@ def a_star(start, goal, grid):  # function that combines is the only one that is
     
     visited = {}  # stores the current box object in a dictionary (visited) and uses tuples as keys tuples which have the positions (index)on the grid on which will be box object, stores the already checked boxes (boxes on which surrounder was already called on)
 
-    while open_list:    
+    iterations =0
+    while open_list:   
+        iterations+=1
+        if iterations > max_iter:
+            return None
+
         current = heapq.heappop(open_list)   # heappop deletes the smallest item of the list ad returns it at the same time, so current was the smallest object in heap before deleting
         
         if current.position == goal:       # chack if goal was reached, if position of current box is the same as position of goal 
@@ -71,7 +76,8 @@ def a_star(start, goal, grid):  # function that combines is the only one that is
 
     # return None  # this will only run if goal is never hitted, and will return None instead of list
 
-grid = [[0]*100]*100
+
+grid = [[0 for _ in range(100)] for _ in range(100)]
 start = (0,0)
 goal = (99,99)
 start_t = time.perf_counter_ns()

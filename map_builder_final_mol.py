@@ -1,7 +1,51 @@
 import pygame as pg
 from pathlib import Path
-from helper_pygame import image_color_shifter
+# from helper_pygame import image_color_shifter
 import tkinter as tk
+import numpy as np
+from PIL import Image
+def image_color_shifter(path_to_image: str, color_shift: str, name: str, strength: int = 0.25) -> str:       # adds a color shift (white'll look greenish or other color'ish) to an image
+
+    possible_color_shifts = {               # dict that stores color tuples (rgb) keys are strings that are given in arguments
+        "white":  (255, 255, 255),
+        "red":    (255, 0, 0),
+        "yellow": (255, 255, 0),
+        "green":  (0, 255, 0),
+        "cyan":   (0, 255, 255),
+        "blue":   (0, 0, 255),
+        "purple": (255, 0, 255),
+        "black":  (0, 0, 0),
+        "best":   (46, 150, 172)
+    }
+
+
+    if color_shift in possible_color_shifts:      # iterates over list and finds corresponding tuple for key (string given in args)
+        color_shift_tuple = possible_color_shifts[color_shift]  # dict syntax set a variable to dict(key-->(color_shift))
+        
+    else:   
+        raise ValueError(
+        f"Invalid color_shift '{color_shift}'. "
+        f"Must be one of: {list(possible_color_shifts.keys())}"     # if that isnt true the key doesnt exist --> function cant work, returns error
+        )           
+
+    original_image = Image.open(path_to_image)  # loads the image for later edits
+
+    img_array = np.array(original_image)    # converts the original image into an np.array (matrix conatining tuples)
+
+    img_array = np.array(original_image, dtype=np.float32)  # sets the value in the rgb tuples to be higher than uint8 (8 bits) --> allows for better adjustements in color to not overflow the uint 8 --> (setting it to its max (255))
+
+    for row in range(len(img_array)):
+        for col in range(len(img_array[row])):      # iterates through image matrix
+
+            img_array[row, col, 0] += (1 - strength) + color_shift_tuple[0] * strength  # applies at row, col and index of tuple the effect which is calculated through / blends the pixel toward the target color based on strength (higher strength = stronger tint)
+            img_array[row, col, 1] += (1 - strength) + color_shift_tuple[1] * strength
+            img_array[row, col, 2] += (1 - strength) + color_shift_tuple[2] * strength
+
+    img_array = np.clip(img_array, 0, 255).astype(np.uint8) # turns it back into uint8 to be valid for rgb tuples
+    new_img = Image.fromarray(img_array)    # opposite to np.array --> converts np.array into an image
+    new_img.save(f"assets/color_shifted/{name}_image.png")  # saves to image to given path / folder
+    path_to_new_img = f"assets/color_shifted/{name}_image.png"  # saves the exact saving location in variable
+    return path_to_new_img  # return path string for later pygame use
 
 
 pg.font.init()
@@ -31,10 +75,12 @@ def update_color_shifted():
                 pg.image.save(timage, f"assets/color_shifted/{i*90}_{file.stem}_image.png")
 
 
-def save_save_grid(visual_grid, filename="temp_save"):
+def save_save_grid(visual_grid, filename="temp_save", saveImg=False):
     save_grid = [[[(tup[1],tup[2]) if isinstance(tup, tuple) else 0 for tup in row ] for row in layer] for layer in visual_grid]
     with open(f"saves/{filename}.map", "w") as f:
         f.write(f"{save_grid}")
+    if saveImg:
+        pg.image.save(screen, f"saves/{filename}_as.png")
 
 def tup_to_sprite(tup):
     rotation, current_sprite_name = tup
@@ -138,7 +184,7 @@ def in_menu_func(events):
 
 
 game_loop = True
-size = 0.5
+size = 1
 width, height = 2560, 1440
 screen = pg.display.set_mode((width*size, height*size))  
 fade = pg.Surface((width, height))
@@ -166,6 +212,7 @@ preview = True
 ignore_next_click = False
 do_transition = False
 transition_backwards = False
+save_rewuest =False
 
 
 
@@ -228,7 +275,7 @@ while game_loop:
         in_menu_func(events)
     
     else:
-        screen.fill((150, 150, 150))
+        screen.fill((0, 0, 0))
         pg.mouse.set_visible(False)
 
 
@@ -256,7 +303,7 @@ while game_loop:
                 if event.key == pg.K_s:
                     keys = pg.key.get_pressed()
                     if keys[pg.K_LCTRL] or keys[pg.K_RCTRL]:
-                        save_save_grid(visual_grid, input("enter filename: "))
+                        save_rewuest = True
 
                 if event.key == pg.K_o:
                     keys = pg.key.get_pressed()
@@ -369,32 +416,37 @@ while game_loop:
                         iteration_image = visual_grid[local_layer][row][col][0]
                         screen.blit(iteration_image, (x, y))
 
+                    if not save_rewuest:
+                        if local_layer == build_layer:
 
-                    if local_layer == build_layer:
-
-                        if draw_grid:
-                            pg.draw.rect(screen, (255, 255, 255), (x, y, field_size, field_size), 1)
-                                        
-                        if preview and place_delete:
-                            screen.blit(current_sprite_preview, (round(mouse_pos[0] // field_size) * field_size + field_size/8, round(mouse_pos[1] // field_size) * field_size + field_size/8))
-
-
-                    #LAYER
-                    if layer_mode and visual_grid[local_layer][row][col]==0:
-                        screen.blit(red_layer, (x,y))
+                            if draw_grid:
+                                pg.draw.rect(screen, (255, 255, 255), (x, y, field_size, field_size), 1)
+                                            
+                            if preview and place_delete:
+                                screen.blit(current_sprite_preview, (round(mouse_pos[0] // field_size) * field_size + field_size/8, round(mouse_pos[1] // field_size) * field_size + field_size/8))
 
 
+                        #LAYER
+                        if layer_mode and visual_grid[local_layer][row][col]==0:
+                            screen.blit(red_layer, (x,y))
 
 
-            screen.blit(place_crosshair, (mouse_pos[0]-8, mouse_pos[1]-8))
 
-    if True or layer_mode:
-        font = pg.font.Font(None, 30)
-        text = font.render(f"layer: {build_layer}", True, (0,0,0))
-        screen.blit(text, (5, 5))
+            if not save_rewuest:
+                screen.blit(place_crosshair, (mouse_pos[0]-8, mouse_pos[1]-8))
+    if not save_rewuest:
+        if True or layer_mode:
+            font = pg.font.Font(None, 30)
+            text = font.render(f"layer: {build_layer}", True, (0,0,0))
+            screen.blit(text, (5, 5))
 
 
     counter += 1
 
     pg.display.update()
+
+    if save_rewuest:
+        save_save_grid(visual_grid, input("enter filename: "), True)
+        save_rewuest = False
+
 pg.quit()

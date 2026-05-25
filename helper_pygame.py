@@ -2,18 +2,43 @@ import pygame as pg
 import numpy as np
 from PIL import Image
 from class_vectorz import Vectorz
-from globals import *
+from settings import *
+#from globals import *
 
 
-# def random_pos_gen(old_random):
+def get_hitbox_size(pathToImage:str):
+        originalImage = Image.open(pathToImage)
+        imgArray = np.array(originalImage)
+        alphaArray = imgArray[:, :, 3]
 
-#     while True:
-#         random_start = r.choice(r.choice(sqaure_matrix))
-#         random_end = r.choice(r.choice(sqaure_matrix))
+        RMax, RMin = 0, 100000
 
-#         if (random_start != random_end and (random_start, random_end) != old_random and random_start not in obstacle_set and random_end not in obstacle_set):
-#             print(random_start, random_end)
-#             return random_start, random_end
+        for row in range(len(alphaArray)):
+            rowValueList = []
+            for col in range(len(alphaArray[row])):
+                if alphaArray[row,col] > 0:
+                    rowValueList.append(col)
+            if rowValueList:
+                RMax = max(RMax, max(rowValueList))
+                RMin  = min(RMin , min(rowValueList))
+        
+
+
+        CMax, CMin = 0, 100000
+
+        for col in range(len(alphaArray[0])):
+            colValueList = []
+            for row in range(len(alphaArray)):
+                if alphaArray[row,col] > 0:
+                    colValueList.append(row)
+            if colValueList: 
+                CMax = max(CMax, max(colValueList))
+                CMin  = min(CMin , min(colValueList))
+
+        w = max(RMax - RMin, CMax - CMin)
+        return (w,w)
+                    
+
 
 
 def world_to_screen_coords(world_coords_object, view_field_xy_position):
@@ -121,34 +146,34 @@ def image_color_shifter(path_to_image: str, color_shift: str, name: str, strengt
 implement usage iof Vectorz!!!!!
 """
 
-class Bullet:
+# class Bullet:
 
-    def __init__(self, bullet_speed: float, static_bullet_sprite: pg.surface, bullet_position: tuple, alpha: float = 0, lifetime: float = 200):
+#     def __init__(self, bullet_speed: float, static_bullet_sprite: pg.surface, bullet_position: tuple, alpha: float = 0, lifetime: float = 200):
         
-        self.speed = bullet_speed
-        self.sprite = static_bullet_sprite
-        self.position = bullet_position
-        self.alpha = alpha
-        self.alpha_radians = alpha * np.pi / 180
-        self.lifetime = lifetime
+#         self.speed = bullet_speed
+#         self.sprite = static_bullet_sprite
+#         self.position = bullet_position
+#         self.alpha = alpha
+#         self.alpha_radians = alpha * np.pi / 180
+#         self.lifetime = lifetime
 
 
-        self.pierce = None
-        # [self.move() for _ in range(5)]
+#         self.pierce = None
+#         # [self.move() for _ in range(5)]
 
 
-    def move(self):
+#     def move(self):
         
-        velocity_vector = np.cos(self.alpha_radians) * self.speed, -np.sin(self.alpha_radians) * self.speed
-        self.position = (self.position[0] + velocity_vector[0], self.position[1] + velocity_vector[1])
-        self.lifetime -= 1
+#         velocity_vector = np.cos(self.alpha_radians) * self.speed, -np.sin(self.alpha_radians) * self.speed
+#         self.position = (self.position[0] + velocity_vector[0], self.position[1] + velocity_vector[1])
+#         self.lifetime -= 1
 
-    def draw(self, screen: pg.display, view_field_xy_position):
+#     def draw(self, screen: pg.display, view_field_xy_position):
 
-        bullet_image_rotated = pg.transform.rotate(self.sprite, self.alpha - 90)
-        # bullet_rect = bullet_image_rotated.get_rect(center = (self.position[0] + 16, self.position[1] + 16))  # 16 --> bullet sprite size # 
-        self.move()
-        screen.blit(bullet_image_rotated, world_to_screen_coords(self.position, view_field_xy_position))
+#         bullet_image_rotated = pg.transform.rotate(self.sprite, self.alpha - 90)
+#         # bullet_rect = bullet_image_rotated.get_rect(center = (self.position[0] + 16, self.position[1] + 16))  # 16 --> bullet sprite size # 
+#         self.move()
+#         screen.blit(bullet_image_rotated, world_to_screen_coords(self.position, view_field_xy_position))
      
 
 
@@ -253,12 +278,21 @@ def cast_ray(start_position:tuple, end_position:tuple, length:int, exactness: in
 
 class Animationz:
 
+    counter = 0
+
     def __init__(self, pathToSpriteSheet:str = "assets/walk_anim.png", frameSizeSpriteOnSpriteSheet:tuple = (32, 32), numFrames: int = 12, imageScale: float = 1, animationSpeed: float = 0.2):
 
         self.scale = imageScale
         self.animationSpeed = animationSpeed
         self.frameIndex = 0.0
         self.alive = True
+        self.loop = False
+
+        self.isActive = True
+
+        self.pos = (0, 0)
+        self.rot = 0
+
 
         self.imageRaw = pg.image.load(pathToSpriteSheet)
         self.imageList = spritesheet_cutter_2d(frameSizeSpriteOnSpriteSheet[0], frameSizeSpriteOnSpriteSheet[1], numFrames, self.imageRaw)
@@ -268,34 +302,99 @@ class Animationz:
                 image = pg.transform.scale_by(image, self.scale)
             self.imageList[i] = image
 
+        Animationz.counter += 1
+        self.hashCounter = Animationz.counter
+        self.stringPath = pathToSpriteSheet
+
+    def update(self):
+        if self.alive:
+            if self.isActive:
+                self.frameIndex += self.animationSpeed
+
+                if self.frameIndex >= len(self.imageList):
+                    if self.loop:
+                        self.frameIndex = 0
+                    else:
+                        self.alive = False
+                self.draw()
+
+
+    def addToQueue(self):
+        # print(len(allAnimsList), allAnimsList)
+        if self.alive and self not in allAnimsList:
+            allAnimsList.append(self)
+        # if self.alive:
+        #     print("alive", end="")
+        # if self not in allAnimsList:
+        #     print("      in List",  end="")
+        # print()
+
+
+    def draw(self):
+        if self.alive:
+            if self.isActive:
+                frame = self.imageList[int(self.frameIndex)]
+
+                frame = pg.transform.rotate(frame, self.rot - 90)
+                frame_rect = frame.get_rect(center = self.pos) 
+                frame_rect.center = world_to_screen_coords(self.pos, vwp)
+                screen.blit(frame, frame_rect.topleft)
+
 
     def play_looped(self, position:tuple = (0, 0), rotation: float = 0):
+        self.pos = position
+        self.rot = rotation
+        self.loop = True
 
-        self.frameIndex += self.animationSpeed
-
-        if self.frameIndex >= len(self.imageList):
-            self.frameIndex = 0
-
-        frame = self.imageList[int(self.frameIndex)]
-
-        frame = pg.transform.rotate(frame, rotation - 90)
-        frame_rect = frame.get_rect(center = position) 
-        frame_rect.center = world_to_screen_coords(position, vwp)
-        # print(self.frameIndex)
-        screen.blit(frame, frame_rect.topleft)
+        self.isActive = True
+        self.addToQueue()
     
+
     def play(self, position:tuple = (0, 0), rotation: float = 0):
-        if self.alive:
-            self.frameIndex += self.animationSpeed
+        self.pos = position
+        self.rot = rotation
+        self.addToQueue()
 
-            if self.frameIndex >= len(self.imageList):
-                self.alive = False
-                return
+    def revive(self):
+        self.alive = True
+        self.frameIndex = 0
 
-            frame = self.imageList[int(self.frameIndex)]
 
-            frame = pg.transform.rotate(frame, rotation - 90)
-            frame_rect = frame.get_rect(center = position) 
-            frame_rect.center = world_to_screen_coords(position, vwp)
-            # print(self.frameIndex)
-            screen.blit(frame, frame_rect.topleft)
+    # def __hash__(self):
+    #     return  hash(f"{self.stringPath},{self.hashCounter}")
+    # def __eq__(self, value):
+    #     return hash(self) == hash(value)
+    
+
+    def __repr__(self):
+        return self.stringPath
+    
+    
+
+
+
+
+
+
+
+
+
+
+    
+#####Globals#####
+
+screen = pg.display.set_mode((width*size, height*size))
+view_field_xy_position = vwp = pg.Rect(0, 0, width*size, height*size)
+MHB_rect = [None]
+events = [pg.event.get()]
+playerPos = [None]
+
+state = {"HB_layer" : None}
+
+allAnimsList = []
+
+animDict = {"player_walk":Animationz(imageScale=4, numFrames=13),
+            "rocket" : Animationz(pathToSpriteSheet="assets/rockety_anim.png", numFrames=4, imageScale=2, animationSpeed=0.3)}
+
+entityScenes = [None]
+################
