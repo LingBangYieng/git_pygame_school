@@ -81,7 +81,8 @@ class Bulletz(Entityz):
                  isDiag = False,
                  turnability:float = 3,
                  explosive = False,
-                 explosionRadius = 0):
+                 explosionRadius = 0,
+                 isAnimated = False):
         '''lifetime is in frames'''
         super().__init__(position=position, hitbox=hitbox, path_to_image=path_to_image, image_scale=image_scale)
 
@@ -93,6 +94,7 @@ class Bulletz(Entityz):
 
 
         self.diag = 45 if isDiag else 0
+        self.isAnimated= isAnimated 
 
         self.velo = (0.01,0.01)
 
@@ -161,16 +163,18 @@ class Bulletz(Entityz):
         if self.alive:
             self.move()
 
-            self.animation.play_looped(self.position, rotation=self.alpha + self.diag)
-
-            # self.image = pg.transform.rotate(self.original_image, self.alpha - 90 + self.diag) #why here
-            # screen.blit(self.image, world_to_screen_coords(self.top_left_position, vwp))
-            # self.hitbox.show_HB()
-            # # rect = self.image.get_rect(topleft = self.top_left_position)
-            # # rect.topleft = world_to_screen_coords(rect.topleft, vwp)
-            # # pg.draw.rect(screen, "white", rect , 3)
+            if self.isAnimated:
+                self.animation.play_looped(self.position, rotation=self.alpha + self.diag)
+            else:
+                self.image = pg.transform.rotate(self.original_image, self.alpha - 90 + self.diag) #why here
+                screen.blit(self.image, world_to_screen_coords(self.top_left_position, vwp))
+                self.hitbox.show_HB()
+                rect = self.image.get_rect(topleft = self.top_left_position)
+                rect.topleft = world_to_screen_coords(rect.topleft, vwp)
+                # pg.draw.rect(screen, "white", rect , 3)
         else:
-            self.animation.alive = False
+            if self.isAnimated:
+                self.animation.alive = False
 
 
 
@@ -293,6 +297,8 @@ class EntityScenez:
                     if bullet.alive and enemy.hitbox.check_collision(bullet.hitbox):
                         if bullet.isExplosive:
                             self.castRectExplosion(bullet.position, 75)
+                        else:
+                            Animationz("assets/goofy_blood.png", (32, 32), 9, 4*0.8, 0.5, stain=True).play(enemy.position, 0)
                         enemy.die()
                         bullet.die()
 

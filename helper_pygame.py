@@ -3,6 +3,7 @@ import numpy as np
 from PIL import Image
 from class_vectorz import Vectorz
 from settings import *
+import random
 #from globals import *
 
 
@@ -280,13 +281,16 @@ class Animationz:
 
     counter = 0
 
-    def __init__(self, pathToSpriteSheet:str = "assets/walk_anim.png", frameSizeSpriteOnSpriteSheet:tuple = (32, 32), numFrames: int = 12, imageScale: float = 1, animationSpeed: float = 0.2):
+    def __init__(self, pathToSpriteSheet:str = "assets/walk_anim.png", frameSizeSpriteOnSpriteSheet:tuple = (32, 32), numFrames: int = 12, imageScale: float = 1, animationSpeed: float = 0.2, stain=False):
 
         self.scale = imageScale
         self.animationSpeed = animationSpeed
         self.frameIndex = 0.0
         self.alive = True
         self.loop = False
+
+        self.stain = stain
+        self.stainIndex = None
 
         self.isActive = True
 
@@ -316,6 +320,17 @@ class Animationz:
                         self.frameIndex = 0
                     else:
                         self.alive = False
+                    
+                    if self.stain:
+                        self.alive = True
+                        if self.stainIndex == None:
+                            print("iujhsdfu")
+                            self.frameIndex = random.randint(0, len(self.imageList) - 1) 
+                            self.stainIndex = self.frameIndex
+                        else:
+                            self.frameIndex = self.stainIndex
+                elif self.stainIndex != None:
+                    self.frameIndex = self.stainIndex
                 self.draw()
 
 

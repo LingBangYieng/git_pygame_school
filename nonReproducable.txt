@@ -1,0 +1,9 @@
+c:\dev\Python\git_pygame_school\pygame_school_shiit.py:128: RuntimeWarning: invalid value encountered in scalar divide
+  alpha = -(np.acos(mouse_pos[0]/ np.linalg.norm(np.array(mouse_pos)))) * 180 / np.pi
+Traceback (most recent call last):
+  File "c:\dev\Python\git_pygame_school\pygame_school_shiit.py", line 209, in <module>
+    frame = pg.transform.rotate(static_player, alpha - 90)
+pygame.error: Parameter 'width' is invalid
+
+
+--> fixced 27.5.

@@ -63,11 +63,11 @@ entityScenes[0] = entitySceneMain
 item0 = Itemz(position=(500, 500), path_to_image_non_highlighted="assets/goofy_revolver.png", image_scale=1.5, image_rotation=45)
 
 enemy0 = Enemyz(position=(1000, 1000), path_to_image="assets/middled_player2.png", image_scale=scale_player)
-enemy1 = Enemyz(position=(500, 1000), path_to_image="assets/middled_player2.png", image_scale=scale_player)
-for i in range(10):
-    entitySceneMain.add_enemy(Enemyz(position=(i*10, 1000), path_to_image="assets/middled_player2.png", image_scale=scale_player))
+# enemy1 = Enemyz(position=(500, 1000), path_to_image="assets/middled_player2.png", image_scale=scale_player)
+# for i in range(10):
+#     entitySceneMain.add_enemy(Enemyz(position=(i*10, 1000), path_to_image="assets/middled_player2.png", image_scale=scale_player))
 entitySceneMain.add_enemy(enemy0)
-entitySceneMain.add_enemy(enemy1)
+# entitySceneMain.add_enemy(enemy1)
 entitySceneMain.add_item(item0)
 
 
@@ -83,9 +83,6 @@ def spawn(entityType="enemy", position=(1000, 1000)):
     if entity is not None:
         entitySceneMain.add_enemy(entity)
         print("hehe")
-
-
-
 
 # grenade launch with size rescaling
 
@@ -125,10 +122,13 @@ def move(position_circle,speed):
 
     mouse_pos = (pg.mouse.get_pos()[0] - width*size//2, pg.mouse.get_pos()[1] - height*size//2)
     alpha = None
-    if mouse_pos[1] < 0:
-        alpha = (np.acos(mouse_pos[0]/ np.linalg.norm(np.array(mouse_pos)))) * 180 / np.pi
+    save_mouse_pos = tuple(0.001 if abs(p)<0.001 else p for p in mouse_pos)
+    print(save_mouse_pos)
+    if save_mouse_pos[1] < 0:
+        alpha = (np.acos(save_mouse_pos[0]/ np.linalg.norm(np.array(save_mouse_pos)))) * 180 / np.pi
     else:
-        alpha = -(np.acos(mouse_pos[0]/ np.linalg.norm(np.array(mouse_pos)))) * 180 / np.pi
+        alpha = -(np.acos(save_mouse_pos[0]/ np.linalg.norm(np.array(save_mouse_pos)))) * 180 / np.pi
+    
 
     moving = position_circle != old_position_circle
 
@@ -165,7 +165,7 @@ while game_loop:
             game_loop = False
         
         if keys[pg.K_SPACE]:
-            enemy0.alive = True
+            # enemy0.alive = True
             spawn(position=(mx,my))
 
         if keys[pg.K_f]:
@@ -201,7 +201,7 @@ while game_loop:
                 entitySceneMain.add_friendlyBulletList(laser)
                 laser_sound.play()
             if event.button == 3:
-                rockety = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/rockety.png", image_scale=2, bullet_speed=60, lifetime=600, remote_control=True, isDiag=True, explosive=True, explosionRadius=75)
+                rockety = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/rockety.png", image_scale=2, bullet_speed=15, lifetime=600, remote_control=True, isDiag=True, explosive=True, explosionRadius=75, isAnimated=True)
                 entitySceneMain.add_friendlyBulletList(rockety)
                 launch_missile.play()
 
@@ -228,7 +228,7 @@ while game_loop:
     pg.draw.circle(screen, "red", world_to_screen_coords((0, 0), vwp), 5)
     # print(playerPos[0])
 
-    print(len(allAnimsList))
+    # print(len(allAnimsList))
     for anim in allAnimsList:
         if not anim.alive: 
             allAnimsList.remove(anim)
