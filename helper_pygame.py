@@ -279,9 +279,7 @@ def cast_ray(start_position:tuple, end_position:tuple, length:int, exactness: in
 
 class Animationz:
 
-    counter = 0
-
-    def __init__(self, pathToSpriteSheet:str = "assets/walk_anim.png", frameSizeSpriteOnSpriteSheet:tuple = (32, 32), numFrames: int = 12, imageScale: float = 1, animationSpeed: float = 0.2, stain=False):
+    def __init__(self, pathToSpriteSheet:str = "assets/walk_anim.png", frameSizeSpriteOnSpriteSheet:tuple = (32, 32), numFrames: int = 12, imageScale: float = 1, animationSpeed: float = 0.2, stain=False, randomRot = False):
 
         self.scale = imageScale
         self.animationSpeed = animationSpeed
@@ -289,8 +287,6 @@ class Animationz:
         self.alive = True
         self.loop = False
 
-        self.stain = stain
-        self.stainIndex = None
 
         self.isActive = True
 
@@ -306,8 +302,20 @@ class Animationz:
                 image = pg.transform.scale_by(image, self.scale)
             self.imageList[i] = image
 
-        Animationz.counter += 1
-        self.hashCounter = Animationz.counter
+
+        #randoms
+        if randomRot:
+            self.randomRotation = random.random()*360
+        else:
+            self.randomRotation = 0
+
+
+        #Stain
+        self.stain = stain
+        self.lastIndex = random.randint(0, len(self.imageList) - 2)
+
+
+
         self.stringPath = pathToSpriteSheet
 
     def update(self):
@@ -315,7 +323,13 @@ class Animationz:
             if self.isActive:
                 self.frameIndex += self.animationSpeed
 
-                if self.frameIndex >= len(self.imageList):
+
+
+                if not self.stain:
+                    self.lastIndex = len(self.imageList)
+
+
+                if self.frameIndex >= self.lastIndex:
                     if self.loop:
                         self.frameIndex = 0
                     else:
@@ -323,14 +337,9 @@ class Animationz:
                     
                     if self.stain:
                         self.alive = True
-                        if self.stainIndex == None:
-                            print("iujhsdfu")
-                            self.frameIndex = random.randint(0, len(self.imageList) - 1) 
-                            self.stainIndex = self.frameIndex
-                        else:
-                            self.frameIndex = self.stainIndex
-                elif self.stainIndex != None:
-                    self.frameIndex = self.stainIndex
+                        self.frameIndex = self.lastIndex
+                    
+
                 self.draw()
 
 
@@ -367,7 +376,7 @@ class Animationz:
 
     def play(self, position:tuple = (0, 0), rotation: float = 0):
         self.pos = position
-        self.rot = rotation
+        self.rot = rotation + self.randomRotation
         self.addToQueue()
 
     def revive(self):

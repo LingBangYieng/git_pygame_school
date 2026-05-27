@@ -12,7 +12,7 @@ def get_topleft(image: pg.Surface, position: tuple):
 
 class Entityz:
 
-    def __init__(self, position:tuple = (0, 0), hitbox: HitBox = None, path_to_image: str = "assets/middled_player", image_scale: float = 1, image_rotation: float = 0):
+    def __init__(self, position:tuple = (0, 0), hitbox: HitBox = None, path_to_image: str = "assets/middled_player", image_scale: float = 1, image_rotation: float = 0, isAnimated = False, path_to_animation = ""):
         '''position should be center position of the object'''
         #genral
         self.alive = True
@@ -36,6 +36,11 @@ class Entityz:
 
         self.deathEvent = None
 
+        #Animation
+        self.isAnimated= isAnimated
+        if isAnimated:
+            self.animation = Animationz(pathToSpriteSheet=path_to_animation, numFrames=4, imageScale=2, animationSpeed=0.3)
+
     @property
     def top_left_position(self):
         return get_topleft(self.image, self.position)
@@ -49,6 +54,8 @@ class Entityz:
     
     def die(self):
         self.alive = False
+        if self.isAnimated:
+            self.animation.alive = False 
         if self.deathEvent is not None:
             self.deathEvent()
 
@@ -82,9 +89,10 @@ class Bulletz(Entityz):
                  turnability:float = 3,
                  explosive = False,
                  explosionRadius = 0,
-                 isAnimated = False):
+                 isAnimated = False,
+                 path_to_animation = "assets/rockety_anim.png"):
         '''lifetime is in frames'''
-        super().__init__(position=position, hitbox=hitbox, path_to_image=path_to_image, image_scale=image_scale)
+        super().__init__(position=position, hitbox=hitbox, path_to_image=path_to_image, image_scale=image_scale, isAnimated=isAnimated, path_to_animation=path_to_animation)
 
         self.speed = bullet_speed
         self.remote_control = remote_control
@@ -94,7 +102,7 @@ class Bulletz(Entityz):
 
 
         self.diag = 45 if isDiag else 0
-        self.isAnimated= isAnimated 
+
 
         self.velo = (0.01,0.01)
 
@@ -115,7 +123,7 @@ class Bulletz(Entityz):
 
 
 
-        self.animation = Animationz(pathToSpriteSheet="assets/rockety_anim.png", numFrames=4, imageScale=2, animationSpeed=0.3)
+        
 
     def calc_alpha(self):
         if self.alive:
@@ -175,6 +183,7 @@ class Bulletz(Entityz):
         else:
             if self.isAnimated:
                 self.animation.alive = False
+
 
 
 
@@ -327,7 +336,7 @@ class EntityScenez:
 
 
     def updateList(self, lst):
-        lst = [e for e in lst if e.alive]
+        lst[:] = [e for e in lst if e.alive]
 
 
         

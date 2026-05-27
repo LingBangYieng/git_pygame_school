@@ -123,7 +123,6 @@ def move(position_circle,speed):
     mouse_pos = (pg.mouse.get_pos()[0] - width*size//2, pg.mouse.get_pos()[1] - height*size//2)
     alpha = None
     save_mouse_pos = tuple(0.001 if abs(p)<0.001 else p for p in mouse_pos)
-    print(save_mouse_pos)
     if save_mouse_pos[1] < 0:
         alpha = (np.acos(save_mouse_pos[0]/ np.linalg.norm(np.array(save_mouse_pos)))) * 180 / np.pi
     else:
@@ -239,6 +238,8 @@ while game_loop:
 
     old_position_circle = position_circle.copy()
     pg.display.update()
+
+    print(len(entitySceneMain.enemyList))
 pg.quit()
 
 
