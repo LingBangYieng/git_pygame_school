@@ -152,7 +152,7 @@ state["HB_layer"] = HB_layer
 background = pg.image.load(f"saves/test_as.png")
 background = pg.transform.scale_by(background, scale_player)
 
-
+HB_layerHBs = getHitBox_HBLayer()
 
 
 
@@ -182,16 +182,17 @@ while game_loop:
 
 
     screen.fill(tuple(e for e in (0, 0, 0)))  
-    screen.blit(background, world_to_screen_coords((0,0), vwp))
+    # screen.blit(background, world_to_screen_coords((0,0), vwp))
 
     move(position_circle, speed)
 
 
 
-    # for row in range(len(HB_layer)):
-    #     for col in range(len(HB_layer[0])):
-    #         if HB_layer[row][col]:
-    #             pg.draw.rect(screen, "white", (world_to_screen_coords((col*CellSize, row*CellSize), vwp),(CellSize, CellSize)))
+
+    for row in range(len(HB_layer)):
+        for col in range(len(HB_layer[0])):
+            if HB_layer[row][col]:
+                pg.draw.rect(screen, "white", (world_to_screen_coords((col*CellSize, row*CellSize), vwp),(CellSize, CellSize)))
 
 
     if moving:
@@ -243,7 +244,7 @@ while game_loop:
 
     if CorpseList:
         for corpseImage, pos in CorpseList:
-            screen.blit(corpseImage, tuple(e-32 for e in world_to_screen_coords(pos, vwp)))
+            screen.blit(corpseImage, tuple(e-32 * scale_player/1.5 for e in world_to_screen_coords(pos, vwp)))
 
     # print(len(allAnimsList))
     for anim in allAnimsList:
@@ -251,6 +252,16 @@ while game_loop:
             allAnimsList.remove(anim)
             anim.revive() #amimdict support - required for repeating (non looping) animationsz
         else: anim.update()
+
+    for HBs in HB_layerHBs:
+        HBs.show_HB()
+        pushvec = player_HB.get_push_vector(HBs)
+        velocity[0] += pushvec[0]
+        velocity[1] += pushvec[1]
+
+        
+
+
 
     entitySceneMain.draw_EntityScene()
 
@@ -261,10 +272,10 @@ while game_loop:
     old_position_circle = position_circle.copy()
     pg.display.update()
 
-    print(len(entitySceneMain.enemyList))
+    # print(len(entitySceneMain.enemyList))
 
     counter += 1
-    print(counter)
+    # print(counter)
 pg.quit()
 
 

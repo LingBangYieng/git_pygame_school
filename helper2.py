@@ -31,6 +31,7 @@ def getHitBox_HBLayer():
     for row in range(len(HBLayer)):
         for col in range(len(HBLayer[0])):
             if HBLayer[row][col]:
-                MapHitBoxList.append(HitBox(tuple(e*CellSize for e in (row, col)), (CellSize, CellSize)))
+                MapHitBoxList.append(HitBox((tuple(e*CellSize*2 for e in (col, row)), (CellSize*2, CellSize*2))))
                 #may fiddle arround with placement of (row, col)
+    return MapHitBoxList
     

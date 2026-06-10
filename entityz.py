@@ -270,6 +270,13 @@ class Enemyz(Entityz):
             velo = (dx / dist, dy / dist)
             self.position = velo[0]*10 + self.position[0], velo[1]*10 + self.position[1]
 
+    def die(self):
+        super().die()
+        if self.type == "bombi":
+            corpse = pg.image.load(f"assets/bombiCorpse_{random.randint(1,2)}.png")
+            corpse = pg.transform.scale_by(corpse, scale_player/1.5)
+            corpse = pg.transform.rotate(corpse, random.randint(0, 360))
+            CorpseList.append((corpse, self.position))
 
 
 class EntityScenez:
@@ -315,11 +322,7 @@ class EntityScenez:
                         enemyHit_sound.play()
 
                         enemy.die()
-                        if enemy.type == "bombi":
-                            corpse = pg.image.load(f"assets/bombiCorpse_{random.randint(1,2)}.png")
-                            corpse = pg.transform.scale_by(corpse, scale_player/1.25)
-                            corpse = pg.transform.rotate(corpse, random.randint(0, 360))
-                            CorpseList.append((corpse, enemy.position))
+
                         bullet.die()
 
     def castRectExplosion(self, position, radius):
