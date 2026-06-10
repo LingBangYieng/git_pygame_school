@@ -28,20 +28,20 @@ pg.mouse.set_visible(False)
 background = pg.image.load(f"assets/big_background.jpg")
 static_laser = pg.image.load(f"assets/goofy_laser.png")
 crosshair = pg.image.load(f"assets/goofy_crosshair.png")
-static_player = pg.image.load(f"assets/middled_player.png")
+static_player = pg.image.load(f"assets/player_gun_static.png")
 
 player_walk = Animationz(numFrames=13, imageScale=scale_player)
 
 crosshair = pg.transform.scale_by(crosshair, 4)
 static_laser = pg.transform.scale_by(static_laser, 2)
 # entrance = pg.transform.scale_by(entrance, 1)
-static_player = pg.transform.scale_by(static_player, scale_player)
-laser_sound = pg.mixer.Sound(f"assets/goofy_laser.mp3")
+static_player = pg.transform.scale_by(static_player, scale_player/2)
+gunshot_sound = pg.mixer.Sound(f"assets/silenced_gunshot.mp3")
 launch_missile = pg.mixer.Sound("assets/rocket_launch.mp3")
 missile_explo = pg.mixer.Sound("assets/rocket_explosion.mp3")
 launch_missile.set_volume(0.1)
 missile_explo.set_volume(0.1)
-laser_sound.set_volume(0.1)
+gunshot_sound.set_volume(0.1)
 # lobby_song = pg.mixer.music.load("assets/retrowave_song.mp3")
 # pg.mixer.music.set_volume(0,125)
 # pg.mixer.music.play(-1)
@@ -52,6 +52,7 @@ velocity = pg.Vector2((0, 0))
 moving = False
 sprinting= False
 radius = 20
+counter = 0
 
 
 mouse_HB = MHB_rect[0] = HitBox(((0, 0),(1, 1)))
@@ -60,9 +61,9 @@ entitySceneMain = EntityScenez()
 entityScenes[0] = entitySceneMain
 
 
-item0 = Itemz(position=(500, 500), path_to_image_non_highlighted="assets/goofy_revolver.png", image_scale=1.5, image_rotation=45)
+item0 = Itemz(position=(500, 500), path_to_image_non_highlighted="assets/hk_416.png", image_scale=1.5)
 
-enemy0 = Enemyz(position=(1000, 1000), path_to_image="assets/middled_player2.png", image_scale=scale_player)
+enemy0 = Enemyz(position=(1000, 1000), path_to_image="assets/bombi_static.png", image_scale=scale_player)
 # enemy1 = Enemyz(position=(500, 1000), path_to_image="assets/middled_player2.png", image_scale=scale_player)
 # for i in range(10):
 #     entitySceneMain.add_enemy(Enemyz(position=(i*10, 1000), path_to_image="assets/middled_player2.png", image_scale=scale_player))
@@ -77,11 +78,17 @@ def spawn(entityType="enemy", position=(1000, 1000)):
     entity = None
     match entityType:
         case "enemy":
-            entity = Enemyz(position=position, path_to_image="assets/middled_player2.png", image_scale=scale_player)
+            entity = Enemyz(position=position, path_to_image="assets/bombi_static.png", image_scale=scale_player)
         case "item":
             entity = Itemz(position=position, path_to_image_non_highlighted="assets/goofy_revolver.png", image_scale=1.5, image_rotation=45)
     if entity is not None:
+        for enemy in entitySceneMain.enemyList:
+            if enemy.position == position:
+                return
         entitySceneMain.add_enemy(entity)
+        # isreali_ambient = pg.mixer.Sound("assets/israeli_ambient_quiet.mp3")
+        # isreali_ambient.set_volume(0.05)
+        # isreali_ambient.play()
         print("hehe")
 
 # grenade launch with size rescaling
@@ -174,17 +181,17 @@ while game_loop:
 
 
 
-    screen.fill((0, 0, 0))  
+    screen.fill(tuple(e for e in (0, 0, 0)))  
     screen.blit(background, world_to_screen_coords((0,0), vwp))
 
     move(position_circle, speed)
 
 
 
-    for row in range(len(HB_layer)):
-        for col in range(len(HB_layer[0])):
-            if HB_layer[row][col]:
-                pg.draw.rect(screen, "white", (world_to_screen_coords((col*CellSize, row*CellSize), vwp),(CellSize, CellSize)))
+    # for row in range(len(HB_layer)):
+    #     for col in range(len(HB_layer[0])):
+    #         if HB_layer[row][col]:
+    #             pg.draw.rect(screen, "white", (world_to_screen_coords((col*CellSize, row*CellSize), vwp),(CellSize, CellSize)))
 
 
     if moving:
@@ -195,19 +202,28 @@ while game_loop:
 
     for event in events: 
         if event.type == pg.MOUSEBUTTONDOWN:
-            if event.button == 1 or keys[pg.K_f]:  # Left mouse button
-                laser = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/goofy_laser.png", image_scale=2, bullet_speed=25, lifetime=200)
-                entitySceneMain.add_friendlyBulletList(laser)
-                laser_sound.play()
+            # if event.button == 1:  # Left mouse button
+            #     laser = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/bullet_new.png", image_scale=2, bullet_speed=35, lifetime=200)
+            #     entitySceneMain.add_friendlyBulletList(laser)
+            #     gunshot_sound.play()
             if event.button == 3:
                 rockety = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/rockety.png", image_scale=2, bullet_speed=15, lifetime=600, remote_control=True, isDiag=True, explosive=True, explosionRadius=75, isAnimated=True)
                 entitySceneMain.add_friendlyBulletList(rockety)
                 launch_missile.play()
+    
+    if pg.mouse.get_pressed()[0] and counter % 4 == 0:
+        laser = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/bullet_new.png", image_scale=2, bullet_speed=35, lifetime=200)
+        entitySceneMain.add_friendlyBulletList(laser)
+        gunshot_sound.play()
+    
+    # if pg.mouse.get_pressed()[1] and counter % 1 == 0:
+    #     rockety = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/rockety.png", image_scale=2, bullet_speed=15, lifetime=600, remote_control=True, isDiag=True, explosive=True, explosionRadius=75, isAnimated=True)
+    #     entitySceneMain.add_friendlyBulletList(rockety)
+    #     launch_missile.play()
 
     mx, my = screen_to_world_coords_rare_use(pg.mouse.get_pos(), vwp)
     mouse_HB.x = mx
     mouse_HB.y = my
-
     frame = pg.transform.rotate(static_player, alpha - 90)
     frame_rect = frame.get_rect(center = position_circle) 
     frame_rect.center = world_to_screen_coords(position_circle, vwp)
@@ -220,12 +236,14 @@ while game_loop:
 
     mouse_HB.show_HB()
 
-    entitySceneMain.draw_EntityScene()
 
-    screen.blit(crosshair, (mouse_position[0] - 16, mouse_position[1] - 16))
 
     pg.draw.circle(screen, "red", world_to_screen_coords((0, 0), vwp), 5)
     # print(playerPos[0])
+
+    if CorpseList:
+        for corpseImage, pos in CorpseList:
+            screen.blit(corpseImage, tuple(e-32 for e in world_to_screen_coords(pos, vwp)))
 
     # print(len(allAnimsList))
     for anim in allAnimsList:
@@ -234,12 +252,19 @@ while game_loop:
             anim.revive() #amimdict support - required for repeating (non looping) animationsz
         else: anim.update()
 
+    entitySceneMain.draw_EntityScene()
+
+    screen.blit(crosshair, (mouse_position[0] - 16, mouse_position[1] - 16))
+
 
 
     old_position_circle = position_circle.copy()
     pg.display.update()
 
     print(len(entitySceneMain.enemyList))
+
+    counter += 1
+    print(counter)
 pg.quit()
 
 

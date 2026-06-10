@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image
 def image_color_shifter(path_to_image: str, color_shift: str, name: str, strength: int = 0.25) -> str:       # adds a color shift (white'll look greenish or other color'ish) to an image
 
-    possible_color_shifts = {               # dict that stores color tuples (rgb) keys are strings that are given in arguments
+    possible_color_shifts = {               # dict that stores color tuples (rgb) keys are strings that are given in argumentss
         "white":  (255, 255, 255),
         "red":    (255, 0, 0),
         "yellow": (255, 255, 0),

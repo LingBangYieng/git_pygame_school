@@ -417,8 +417,9 @@ state = {"HB_layer" : None}
 
 allAnimsList = []
 
-animDict = {"player_walk":Animationz(imageScale=4, numFrames=13),
+animDict = {"player_walk":Animationz(imageScale=2, numFrames=14, frameSizeSpriteOnSpriteSheet=(64, 64), pathToSpriteSheet="assets/player_walk_gun.png", animationSpeed=0.4),
             "rocket" : Animationz(pathToSpriteSheet="assets/rockety_anim.png", numFrames=4, imageScale=2, animationSpeed=0.3)}
 
+CorpseList = []
 entityScenes = [None]
 ################

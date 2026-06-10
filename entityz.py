@@ -217,9 +217,10 @@ def px(coord):
 
 class Enemyz(Entityz):
 
-    def __init__(self, position = (0, 0), hitbox = None, path_to_image = "assets/middled_player", image_scale = 1, image_rotation = 0):
+    def __init__(self, position = (0, 0), hitbox = None, path_to_image = "assets/middled_player", image_scale = 1, image_rotation = 0, type = "bombi"):
         super().__init__(position=position, hitbox=hitbox, path_to_image=path_to_image, image_scale=image_scale, image_rotation=image_rotation)
         self.alpha = self.calc_alpha_to_player()
+        self.type = type
 
     def draw(self):
         if self.alive:
@@ -307,8 +308,18 @@ class EntityScenez:
                         if bullet.isExplosive:
                             self.castRectExplosion(bullet.position, 75)
                         else:
-                            Animationz("assets/goofy_blood.png", (32, 32), 9, 4*0.8, 0.5, stain=True).play(enemy.position, 0)
+                            Animationz("assets/goofy_blood.png", (32, 32), 9, 4*0.8, 1).play(enemy.position, 0)
+
+                        enemyHit_sound = pg.mixer.Sound("assets/enemyHit_sound.mp3")
+                        enemyHit_sound.set_volume(0.1)
+                        enemyHit_sound.play()
+
                         enemy.die()
+                        if enemy.type == "bombi":
+                            corpse = pg.image.load(f"assets/bombiCorpse_{random.randint(1,2)}.png")
+                            corpse = pg.transform.scale_by(corpse, scale_player/1.25)
+                            corpse = pg.transform.rotate(corpse, random.randint(0, 360))
+                            CorpseList.append((corpse, enemy.position))
                         bullet.die()
 
     def castRectExplosion(self, position, radius):

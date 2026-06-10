@@ -8,6 +8,8 @@ from helper_pygame import *
 WIDTH, HEIGHT = 1280, 720
 
 pg.display.init()
+pg.mixer.init()
+
 pg.display.set_caption("Redundant")
 icon = pg.image.load("assets/goofy_revolver.png")
 icon = pg.transform.rotate(icon, 45)
@@ -15,6 +17,11 @@ pg.display.set_icon(icon)
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 clock = pg.time.Clock()
 running = True
+
+lobby_song = pg.mixer.music.load("assets/stragi_existent.mp3")
+pg.mixer.music.set_volume(0.125)
+pg.mixer.music.play(-1)
+
 
 def quit_game():
     global running

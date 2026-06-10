@@ -1,4 +1,6 @@
-import json
+from settings import CellSize
+from class_collide_rect import HitBox
+
 def bitmap():
     grid = None
     with open("saves/test.map", "r") as f:
@@ -19,5 +21,16 @@ def upscale_grid(grid, factor=2):
         # duplicate row vertically
         for _ in range(factor):
             new_grid.append(expanded_row.copy())
-
     return new_grid
+
+def getHitBox_HBLayer():
+    HBLayer = bitmap()
+
+    MapHitBoxList = []
+
+    for row in range(len(HBLayer)):
+        for col in range(len(HBLayer[0])):
+            if HBLayer[row][col]:
+                MapHitBoxList.append(HitBox(tuple(e*CellSize for e in (row, col)), (CellSize, CellSize)))
+                #may fiddle arround with placement of (row, col)
+    
