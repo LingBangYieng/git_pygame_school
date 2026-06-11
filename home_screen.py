@@ -20,7 +20,7 @@ clock = pg.time.Clock()
 running = True
 
 buttonclick = pg.mixer.Sound("assets/buttonclick.mp3")
-buttonclick.set_volume(0.1)
+buttonclick.set_volume(0.5)
 
 lobby_song = pg.mixer.music.load("assets/stragi_existent.mp3")
 pg.mixer.music.set_volume(0.125)

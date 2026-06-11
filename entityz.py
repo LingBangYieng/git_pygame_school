@@ -19,6 +19,7 @@ class Entityz:
 
         #geometry
         self.position = position
+        self.velo = (0, 0)
 
         #draw
         self.original_image = self.adjustImage(pg.image.load(path_to_image), image_scale, image_rotation)
@@ -221,6 +222,7 @@ class Enemyz(Entityz):
         super().__init__(position=position, hitbox=hitbox, path_to_image=path_to_image, image_scale=image_scale, image_rotation=image_rotation)
         self.alpha = self.calc_alpha_to_player()
         self.type = type
+        self.extra = (0,0)
 
     def draw(self):
         if self.alive:
@@ -228,7 +230,7 @@ class Enemyz(Entityz):
             self.image = pg.transform.rotate(self.original_image, self.alpha - 90)
             screen.blit(self.image, world_to_screen_coords(self.top_left_position, vwp))
             self.hitbox.show_HB()
-            self.a_move()
+            self.move()
             self.update_HB()
 
     def calc_alpha_to_player(self):
@@ -242,7 +244,7 @@ class Enemyz(Entityz):
         return np.degrees(self.alpha_radians)
     
 
-    def a_move(self):
+    def aStarPath(self):
         c_ene_pos = int(self.position[0]/CellSize+0.5), int(self.position[1]/CellSize+0.5)
         c_player_pos = int(playerPos[0][0]/CellSize+0.5) , int(playerPos[0][1]/CellSize+0.5)
 
@@ -267,8 +269,33 @@ class Enemyz(Entityz):
             C(next_goal_pos)
             dx, dy = next_goal_pos[0] - self.position[0], next_goal_pos[1] - self.position[1]
             dist = max(np.sqrt(dx**2 + dy**2), 0.1)
-            velo = (dx / dist, dy / dist)
-            self.position = velo[0]*10 + self.position[0], velo[1]*10 + self.position[1]
+            self.velo = (dx / dist, dy / dist)
+            
+
+    def move(self):
+        self.velo = (0, 0)
+        if not self.seePath():
+            self.aStarPath()
+
+        self.position = self.velo[0]*10+self.extra[0] + self.position[0], self.velo[1]*10+self.extra[1] + self.position[1]
+
+
+    def seePath(self) -> bool:
+        _, coll, dist = cast_ray(self.position, playerPos[0], 5000, 100, 32*3, state["HB_layer"])
+
+        gx,gy = playerPos[0]
+        dx, dy =  gx - self.position[0], gy - self.position[1]
+        raw_dist = max(np.sqrt(dx**2 + dy**2), 0.1)
+
+        if not coll or dist > raw_dist:
+            self.velo = (dx / raw_dist, dy / raw_dist)
+            return True
+        else:
+            pg.draw.circle(screen, "red", world_to_screen_coords(coll, vwp), 10)
+
+        
+        return False
+
 
     def die(self):
         super().die()
