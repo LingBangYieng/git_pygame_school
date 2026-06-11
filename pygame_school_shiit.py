@@ -181,6 +181,7 @@ while game_loop:
 
 
 
+
     screen.fill(tuple(e for e in (0, 0, 0)))  
     # screen.blit(background, world_to_screen_coords((0,0), vwp))
 
