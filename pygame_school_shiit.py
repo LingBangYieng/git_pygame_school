@@ -89,7 +89,7 @@ def spawn(entityType="enemy", position=(1000, 1000)):
         # isreali_ambient = pg.mixer.Sound("assets/israeli_ambient_quiet.mp3")
         # isreali_ambient.set_volume(0.05)
         # isreali_ambient.play()
-        print("hehe")
+        # print("hehe")
 
 # grenade launch with size rescaling
 
@@ -146,6 +146,7 @@ def move(position_circle,speed):
 from helper2 import *
 
 HB_layer = upscale_grid(bitmap())
+# HB_layer = bitmap()
 
 state["HB_layer"] = HB_layer
 
@@ -160,9 +161,11 @@ HB_layerHBs = getHitBox_HBLayer()
 clock = pg.time.Clock()
 # (46, 150, 172)
 fps = 69
+cooldown = 0
 while game_loop:
     events = pg.event.get()
     clock.tick(fps)
+    # print(clock.get_fps())
     # pygame.QUIT event means the user clicked X to close your window
     mouse_position = pg.mouse.get_pos()
     keys = pg.key.get_pressed()
@@ -201,22 +204,24 @@ while game_loop:
     else:
         animDict["player_walk"].isActive = False
 
-
+    cooldown -= 1
+    # print(cooldown)
     for event in events: 
         if event.type == pg.MOUSEBUTTONDOWN:
-            # if event.button == 1:  # Left mouse button
-            #     laser = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/bullet_new.png", image_scale=2, bullet_speed=35, lifetime=200)
-            #     entitySceneMain.add_friendlyBulletList(laser)
-            #     gunshot_sound.play()
+            if event.button == 1 and cooldown<=0:  # Left mouse button
+                laser = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/bullet_new.png", image_scale=2, bullet_speed=35, lifetime=200)
+                entitySceneMain.add_friendlyBulletList(laser)
+                gunshot_sound.play()
+                cooldown = fps/2
             if event.button == 3:
                 rockety = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/rockety.png", image_scale=2, bullet_speed=15, lifetime=600, remote_control=True, isDiag=True, explosive=True, explosionRadius=75, isAnimated=True)
                 entitySceneMain.add_friendlyBulletList(rockety)
                 launch_missile.play()
     
-    if pg.mouse.get_pressed()[0] and counter % 4 == 0:
-        laser = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/bullet_new.png", image_scale=2, bullet_speed=35, lifetime=200)
-        entitySceneMain.add_friendlyBulletList(laser)
-        gunshot_sound.play()
+    # if pg.mouse.get_pressed()[0] and counter % 70 == 0:
+    #     laser = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/bullet_new.png", image_scale=2, bullet_speed=35, lifetime=200)
+    #     entitySceneMain.add_friendlyBulletList(laser)
+    #     gunshot_sound.play()
     
     # if pg.mouse.get_pressed()[1] and counter % 1 == 0:
     #     rockety = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/rockety.png", image_scale=2, bullet_speed=15, lifetime=600, remote_control=True, isDiag=True, explosive=True, explosionRadius=75, isAnimated=True)
@@ -259,6 +264,11 @@ while game_loop:
         pushvec = player_HB.get_push_vector(HBs)
         velocity[0] += pushvec[0]
         velocity[1] += pushvec[1]
+        # for enemy in entitySceneMain.enemyList:
+        #     pushvec = enemy.hitbox.get_push_vector(HBs)
+        #     enemy.extra = pushvec
+
+
 
         
 

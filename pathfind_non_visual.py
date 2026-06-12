@@ -24,7 +24,7 @@ def surrounder(box, grid):  # takes a Box object and the grid (matrix), gets cal
 
     directions = [                    # hard coded coords(on matrix) from origin box, list of indieces (multiple of index) of neighboring Box, (directons are  basically vectors)
         (-1,0),(1,0),(0,-1),(0,1),    # orthogonal, straight away from origin box (manhattan (North, South, West, East))
-        (-1,-1),(-1,1),(1,-1),(1,1)   # diagonal, diagonaly away from origin box (square root)
+        # (-1,-1),(-1,1),(1,-1),(1,1)   # diagonal, diagonaly away from origin box (square root)
     ]
 
 
