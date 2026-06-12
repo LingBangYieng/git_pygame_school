@@ -178,7 +178,7 @@ while game_loop:
             spawn(position=(mx,my))
 
         if keys[pg.K_f]:
-            fps = 5
+            fps = 1
         if keys[pg.K_g]:
             fps = 69
 
@@ -259,14 +259,19 @@ while game_loop:
             anim.revive() #amimdict support - required for repeating (non looping) animationsz
         else: anim.update()
 
+    
     for HBs in HB_layerHBs:
         HBs.show_HB()
-        pushvec = player_HB.get_push_vector(HBs)
-        velocity[0] += pushvec[0]
-        velocity[1] += pushvec[1]
+        pushvec = HBs.get_push_vector(player_HB)
+        velocity[0] -= pushvec[0]
+        velocity[1] -= pushvec[1]
         # for enemy in entitySceneMain.enemyList:
         #     pushvec = enemy.hitbox.get_push_vector(HBs)
         #     enemy.extra = pushvec
+
+    if keys[pg.K_RIGHT]:
+        for en in entitySceneMain.enemyList:
+            en.extra = (25, 0)
 
 
 
