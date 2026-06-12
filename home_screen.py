@@ -19,15 +19,18 @@ screen = pg.display.set_mode((WIDTH, HEIGHT))
 clock = pg.time.Clock()
 running = True
 
-buttonclick = pg.mixer.Sound("assets/buttonclick.mp3")
-buttonclick.set_volume(0.1)
+# buttonclick = pg.mixer.Sound("assets/buttonclick.mp3")
+# buttonclick.set_volume(0.1)
 
-lobby_song = pg.mixer.music.load("assets/stragi_existent.mp3")
-pg.mixer.music.set_volume(0.125)
-pg.mixer.music.play(-1)
+# lobby_song = pg.mixer.music.load("assets/stragi_existent.mp3")
+# pg.mixer.music.set_volume(0.125)
+# pg.mixer.music.play(-1)
+
+
 
 def bs():
-    buttonclick.play()
+    # buttonclick.play()
+    pass
 
 def quit_game():
     global running
@@ -54,6 +57,10 @@ def fullscreen():
     lobby = createLobby(w, h)
     current_scene = lobby
     bs()
+
+def startPgSchoolShii():
+    with open("pygame_school_shiit.py") as f:
+        exec(f.read())
 
 
 
@@ -86,7 +93,7 @@ def createLobby(WIDTH, HEIGHT):
 
     background = Imagez(position=(0, 0), pathToImage="assets/may_background.png", isBackground=True)
     content = Buttonz((WIDTH * 0.15 - WIDTH * 0.08, HEIGHT * 0.57), (5, 5), screen, False, "", (0, 0, 0), int(HEIGHT * 0.04), 5, color_theme, switch_scene, [contents], False)
-    buttonStart = Buttonz((WIDTH * 0.5 - WIDTH * 0.08, HEIGHT * 0.43), (WIDTH * 0.16, HEIGHT * 0.07), screen, True, "Start Game", (0, 0, 0), int(HEIGHT * 0.04), 5, color_theme)
+    buttonStart = Buttonz((WIDTH * 0.5 - WIDTH * 0.08, HEIGHT * 0.43), (WIDTH * 0.16, HEIGHT * 0.07), screen, True, "Start Game", (0, 0, 0), int(HEIGHT * 0.04), 5, color_theme, startPgSchoolShii)
     buttonSettings = Buttonz((WIDTH * 0.5 - WIDTH * 0.08, HEIGHT * 0.525), (WIDTH * 0.16, HEIGHT * 0.07), screen, True, "Settings", (0, 0, 0), int(HEIGHT * 0.04), 5, color_theme, switch_scene, [settings])
     buttonQuit = Buttonz((WIDTH * 0.5 - WIDTH * 0.08, HEIGHT * 0.62), (WIDTH * 0.16, HEIGHT * 0.07), screen, True, "Quit", (0, 0, 0), int(HEIGHT * 0.04), 5, color_theme, quit_game)
     title = "Redundant"
