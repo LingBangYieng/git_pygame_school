@@ -94,10 +94,84 @@ def spawn(entityType="enemy", position=(1000, 1000)):
 # grenade launch with size rescaling
 
 
+def chatcalcVTA():
+
+    VTAangle= 55
+    lalpha =- VTAangle
+    ralpha = VTAangle
+
+
+    playerPosScreen = wtsc(playerPos[0], vwp)
+    player_world = playerPos[0]
+
+    mouse_world = screen_to_world_coords_rare_use(mouse_position, vwp)
+
+    MouseVec = np.array([
+        mouse_world[0] - player_world[0],
+        mouse_world[1] - player_world[1]
+    ])
+
+    length = np.linalg.norm(MouseVec)
+
+    dirMV = MouseVec / length
+
+    cone_len = 10000  # same as your sin-law calculation
+
+    theta = np.radians(lalpha)
+    rot_left = np.array([
+        [np.cos(theta), -np.sin(theta)],
+        [np.sin(theta),  np.cos(theta)]
+    ])
+
+    theta = np.radians(ralpha)
+    rot_right = np.array([
+        [np.cos(theta), -np.sin(theta)],
+        [np.sin(theta),  np.cos(theta)]
+    ])
+
+    p0_world = player_world + rot_left @ dirMV * cone_len
+    p1_world = player_world + rot_right @ dirMV * cone_len
 
 
 
- 
+    _, hit0, _ = cast_ray(playerPos[0], p0_world, 5000, 100, 32*3, HB_layer)
+    _, hit1, _ = cast_ray(playerPos[0], p1_world, 5000, 100, 32*3, HB_layer)
+
+
+    pg.draw.polygon(screen, "purple", [playerPosScreen, wtsc(p0_world,vwp), wtsc(p1_world, vwp)])
+    if hit0:
+        print("hit0")
+        pg.draw.circle(screen, "green", wtsc(hit0, vwp), 10)
+    else:
+        print("nonhit0")
+    
+    if hit1:
+        print("hit1")
+        pg.draw.circle(screen, "green", wtsc(hit1, vwp), 10)
+    else:
+        print("nonhit1")
+
+
+
+def RotMat(angle):
+    return np.array([
+        [np.cos(angle), -np.sin(angle)],
+        [np.sin(angle),  np.cos(angle)]
+    ])
+
+
+
+def calcVTA():
+    
+    VTAangle= 55
+    lalpha =- VTAangle
+    ralpha = VTAangle
+
+
+
+
+
+
 def move(position_circle,speed):
     global alpha, moving, old_position_circle, sprinting, velocity
 
@@ -185,18 +259,19 @@ while game_loop:
 
 
 
-    screen.fill(tuple(e for e in (0, 0, 0)))  
-    # screen.blit(background, world_to_screen_coords((0,0), vwp))
+    screen.fill(tuple(e+100 for e in (0, 0, 0)))  
+    # screen.blit(background, wtsc((0,0), vwp))
 
     move(position_circle, speed)
 
+    calcVTA()
 
 
 
     for row in range(len(HB_layer)):
         for col in range(len(HB_layer[0])):
             if HB_layer[row][col]:
-                pg.draw.rect(screen, "white", (world_to_screen_coords((col*CellSize, row*CellSize), vwp),(CellSize, CellSize)))
+                pg.draw.rect(screen, "white", (wtsc((col*CellSize, row*CellSize), vwp),(CellSize, CellSize)))
 
 
     if moving:
@@ -233,24 +308,24 @@ while game_loop:
     mouse_HB.y = my
     frame = pg.transform.rotate(static_player, alpha - 90)
     frame_rect = frame.get_rect(center = position_circle) 
-    frame_rect.center = world_to_screen_coords(position_circle, vwp)
+    frame_rect.center = wtsc(position_circle, vwp)
     
     if not moving:
         screen.blit(frame, frame_rect)   
     player_HB = HitBox(rect=((e-37.5 for e in(position_circle)), (75, 75)))
-    # pg.draw.rect(screen, "red", (world_to_screen_coords((position_circle), view_field_xy_position)[0] - 50, world_to_screen_coords((position_circle), view_field_xy_position)[1] - 50, 100, 100), 3)
+    # pg.draw.rect(screen, "red", (wtsc((position_circle), view_field_xy_position)[0] - 50, wtsc((position_circle), view_field_xy_position)[1] - 50, 100, 100), 3)
     player_HB.show_HB()
 
     mouse_HB.show_HB()
 
 
 
-    pg.draw.circle(screen, "red", world_to_screen_coords((0, 0), vwp), 5)
+    pg.draw.circle(screen, "red", wtsc((0, 0), vwp), 5)
     # print(playerPos[0])
 
     if CorpseList:
         for corpseImage, pos in CorpseList:
-            screen.blit(corpseImage, tuple(e-32 * scale_player/1.5 for e in world_to_screen_coords(pos, vwp)))
+            screen.blit(corpseImage, tuple(e-32 * scale_player/1.5 for e in wtsc(pos, vwp)))
 
     # print(len(allAnimsList))
     for anim in allAnimsList:
@@ -265,6 +340,7 @@ while game_loop:
         pushvec = HBs.get_push_vector(player_HB)
         velocity[0] -= pushvec[0]
         velocity[1] -= pushvec[1]
+
         # for enemy in entitySceneMain.enemyList:
         #     pushvec = enemy.hitbox.get_push_vector(HBs)
         #     enemy.extra = pushvec

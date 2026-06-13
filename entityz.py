@@ -128,7 +128,7 @@ class Bulletz(Entityz):
 
     def calc_alpha(self):
         if self.alive:
-            middle_screen_x, middle_screen_y = world_to_screen_coords(self.position, vwp)
+            middle_screen_x, middle_screen_y = wtsc(self.position, vwp)
 
             dx = pg.mouse.get_pos()[0] - middle_screen_x
             dy = pg.mouse.get_pos()[1] - middle_screen_y
@@ -141,7 +141,7 @@ class Bulletz(Entityz):
         if not self.alive:
             return
 
-        middle_screen_x, middle_screen_y = world_to_screen_coords(self.position, vwp)
+        middle_screen_x, middle_screen_y = wtsc(self.position, vwp)
 
         dx = pg.mouse.get_pos()[0] - middle_screen_x
         dy = pg.mouse.get_pos()[1] - middle_screen_y
@@ -176,10 +176,10 @@ class Bulletz(Entityz):
                 self.animation.play_looped(self.position, rotation=self.alpha + self.diag)
             else:
                 self.image = pg.transform.rotate(self.original_image, self.alpha - 90 + self.diag) #why here
-                screen.blit(self.image, world_to_screen_coords(self.top_left_position, vwp))
+                screen.blit(self.image, wtsc(self.top_left_position, vwp))
                 self.hitbox.show_HB()
                 rect = self.image.get_rect(topleft = self.top_left_position)
-                rect.topleft = world_to_screen_coords(rect.topleft, vwp)
+                rect.topleft = wtsc(rect.topleft, vwp)
                 # pg.draw.rect(screen, "white", rect , 3)
         else:
             if self.isAnimated:
@@ -204,14 +204,14 @@ class Itemz(Entityz):
         mouse_HB = HitBox((screen_to_world_coords_rare_use(pg.mouse.get_pos(), vwp), (1, 1)))
 
         if mouse_HB.check_collision(self.hitbox):
-            screen.blit(self.image_highlighted, world_to_screen_coords(self.top_left_position, vwp))
+            screen.blit(self.image_highlighted, wtsc(self.top_left_position, vwp))
         else:
-            screen.blit(self.image, world_to_screen_coords(self.top_left_position, vwp))
+            screen.blit(self.image, wtsc(self.top_left_position, vwp))
         self.hitbox.show_HB()
 
 
 def C(pos, col="red"):
-    pg.draw.circle(screen, col, world_to_screen_coords(pos, vwp), 3)
+    pg.draw.circle(screen, col, wtsc(pos, vwp), 3)
 def px(coord):
     return coord[0]*CellSize,coord[1]*CellSize
 
@@ -228,14 +228,14 @@ class Enemyz(Entityz):
         if self.alive:
             self.alpha = self.calc_alpha_to_player()
             self.image = pg.transform.rotate(self.original_image, self.alpha - 90)
-            screen.blit(self.image, world_to_screen_coords(self.top_left_position, vwp))
+            screen.blit(self.image, wtsc(self.top_left_position, vwp))
             self.hitbox.show_HB()
             self.move()
             self.update_HB()
 
     def calc_alpha_to_player(self):
-        middle_screen_x, middle_screen_y = world_to_screen_coords(self.position, vwp)
-        if playerPos[0]:player_x, player_y = world_to_screen_coords(playerPos[0], vwp)
+        middle_screen_x, middle_screen_y = wtsc(self.position, vwp)
+        if playerPos[0]:player_x, player_y = wtsc(playerPos[0], vwp)
         else: player_x, player_y = (0, 0)
         dx = player_x - middle_screen_x
         dy = player_y - middle_screen_y
@@ -265,7 +265,7 @@ class Enemyz(Entityz):
                 c_next_goal_pos = path[1]
                 if visual:
                     for i in range(len(path)-1):
-                        pg.draw.line(screen, "green", world_to_screen_coords(px(path[i]), vwp), world_to_screen_coords(px(path[i+1]), vwp))
+                        pg.draw.line(screen, "green", wtsc(px(path[i]), vwp), wtsc(px(path[i+1]), vwp))
             else:
                 c_next_goal_pos = c_player_pos
 
@@ -303,7 +303,7 @@ class Enemyz(Entityz):
         doMove = False
         if coll:
             print("c", end="")
-            pg.draw.circle(screen, "red", world_to_screen_coords(coll, vwp), 10)
+            pg.draw.circle(screen, "red", wtsc(coll, vwp), 10)
             if dist > raw_dist:
                 print("a", end="")
                 doMove = True
@@ -320,11 +320,11 @@ class Enemyz(Entityz):
             # except:
             #     pass
             self.velo = (dx / raw_dist, dy / raw_dist)
-            pg.draw.circle(screen, "pink",  world_to_screen_coords(self.position, vwp), 10)
+            pg.draw.circle(screen, "pink",  wtsc(self.position, vwp), 10)
             return True
         # else:
         #     if coll:
-        #         pg.draw.circle(screen, "red", world_to_screen_coords(coll, vwp), 10)
+        #         pg.draw.circle(screen, "red", wtsc(coll, vwp), 10)
 
         
         return False

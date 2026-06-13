@@ -42,7 +42,7 @@ def get_hitbox_size(pathToImage:str):
 
 
 
-def world_to_screen_coords(world_coords_object, view_field_xy_position):
+def wtsc(world_coords_object, view_field_xy_position):
     screen_coords = (world_coords_object[0] - view_field_xy_position.topleft[0], world_coords_object[1] - view_field_xy_position.topleft[1])
     return screen_coords
 
@@ -174,7 +174,7 @@ implement usage iof Vectorz!!!!!
 #         bullet_image_rotated = pg.transform.rotate(self.sprite, self.alpha - 90)
 #         # bullet_rect = bullet_image_rotated.get_rect(center = (self.position[0] + 16, self.position[1] + 16))  # 16 --> bullet sprite size # 
 #         self.move()
-#         screen.blit(bullet_image_rotated, world_to_screen_coords(self.position, view_field_xy_position))
+#         screen.blit(bullet_image_rotated, wtsc(self.position, view_field_xy_position))
      
 
 
@@ -234,10 +234,10 @@ def cast_ray(start_position:tuple, end_position:tuple, length:int, exactness: in
         if abs(m) > 1e-6: c_distance_x = x0 + dy / m
         else: c_distance_x = x0 + dy * 1000
 
-        pg.draw.circle(screen, "yellow", world_to_screen_coords((edge_x, c_distance_y), vwp), 5)
+        # pg.draw.circle(screen, "yellow", wtsc((edge_x, c_distance_y), vwp), 5)
         vertical_points.append((edge_x, c_distance_y,"v"))
 
-        pg.draw.circle(screen, "yellow", world_to_screen_coords((c_distance_x, edge_y),vwp), 5)
+        # pg.draw.circle(screen, "yellow", wtsc((c_distance_x, edge_y),vwp), 5)
         horizontal_points.append((c_distance_x, edge_y,"h"))
 
         points = vertical_points + horizontal_points
@@ -361,7 +361,7 @@ class Animationz:
 
                 frame = pg.transform.rotate(frame, self.rot - 90)
                 frame_rect = frame.get_rect(center = self.pos) 
-                frame_rect.center = world_to_screen_coords(self.pos, vwp)
+                frame_rect.center = wtsc(self.pos, vwp)
                 screen.blit(frame, frame_rect.topleft)
 
 

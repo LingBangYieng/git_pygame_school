@@ -45,7 +45,7 @@ class HitBox:
         if inMenu:
             loc_vwp.topleft = (0,0)
         if self.exists:
-            x,y = world_to_screen_coords((self.x, self.y), loc_vwp)
+            x,y = wtsc((self.x, self.y), loc_vwp)
             pg.draw.rect(screen, color, (x,y, self.w, self.h), 3)
 
     def get_size(self):
