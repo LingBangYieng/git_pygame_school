@@ -2,6 +2,8 @@ import pygame as pg
 from class_collide_rect import HitBox
 from scenez import *
 from helper_pygame import *
+import time
+
 #from globals import *
 
 

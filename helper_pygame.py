@@ -342,6 +342,8 @@ class Animationz:
 
                 self.draw()
 
+    
+
 
     def addToQueue(self):
         # print(len(allAnimsList), allAnimsList)
@@ -396,9 +398,48 @@ class Animationz:
     
 
 
+def blur_surface(surface, scale_factor=0.25):
+    w, h = surface.get_size()
+    
+    # shrink
+    small = pg.transform.smoothscale(
+        surface,
+        (int(w * scale_factor), int(h * scale_factor))
+    )
+    
+    # scale back up
+    blurred = pg.transform.smoothscale(small, (w, h))
+    
+    return blurred
 
 
 
+
+def checkBases(LTheta, RTheta, sightDistance, grid):
+    hits = []
+    HB_layer = grid
+
+    baseAngles = np.linspace(LTheta,RTheta,512)
+
+    _, LHit, _ = cast_ray(playerPos[0], np.array([sightDistance*np.cos(LTheta), sightDistance*np.sin(LTheta)])+playerPos[0], sightDistance, 100, field_size=32*3, array=HB_layer)
+    if not LHit: LHit = (np.array([sightDistance*np.cos(LTheta), sightDistance*np.sin(LTheta)])+playerPos[0])
+    _, RHit, _ = cast_ray(playerPos[0], np.array([sightDistance*np.cos(RTheta), sightDistance*np.sin(RTheta)])+playerPos[0], sightDistance, 100, field_size=32*3, array=HB_layer)
+    if not RHit: RHit = (np.array([sightDistance*np.cos(RTheta), sightDistance*np.sin(RTheta)])+playerPos[0])
+
+
+    # print(len(baseAngles))
+    hits.append(playerPos[0])
+    hits.append(LHit)
+    for phi in baseAngles:
+        _,hit,_ = cast_ray(playerPos[0], np.array([sightDistance*np.cos(phi), sightDistance*np.sin(phi)])+playerPos[0], sightDistance, 100, field_size=32*3, array=HB_layer)
+        if not hit: hit = (np.array([sightDistance*np.cos(phi), sightDistance*np.sin(phi)])+playerPos[0])
+        hits.append(hit)
+        # if hit:
+            
+        #     pg.draw.circle(screen, "red", hit, 5)
+    hits.append(RHit)
+
+    return hits
 
 
 
@@ -408,6 +449,7 @@ class Animationz:
 #####Globals#####
 
 screen = pg.display.set_mode((width*size, height*size))
+overlay = pg.Surface((width*size, height*size), pg.SRCALPHA)
 view_field_xy_position = vwp = pg.Rect(0, 0, width*size, height*size)
 MHB_rect = [None]
 events = [pg.event.get()]

@@ -275,7 +275,7 @@ while game_loop:
         in_menu_func(events)
     
     else:
-        screen.fill((0, 0, 0))
+        screen.fill((100, 100, 100)) # change for fututer maps
         pg.mouse.set_visible(False)
 
 
