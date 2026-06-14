@@ -41,16 +41,6 @@ def get_hitbox_size(pathToImage:str):
 
 
 
-def wtsc(world_coords_object, view_field_xy_position):
-    screen_coords = (world_coords_object[0] - view_field_xy_position.topleft[0], world_coords_object[1] - view_field_xy_position.topleft[1])
-    return screen_coords
-
-
-
-def screen_to_world_coords_rare_use(screen_coords_object, view_field_xy_position):
-    return (screen_coords_object[0] + view_field_xy_position.topleft[0], screen_coords_object[1] + view_field_xy_position.topleft[1])
-
-
 
 
 def spritesheet_cutter_2d(frame_width: int, frame_height: int, num_frames: int, sprite_sheet: pg.Surface) -> list:
@@ -346,8 +336,8 @@ class Animationz:
 
     def addToQueue(self):
         # print(len(allAnimsList), allAnimsList)
-        if self.alive and self not in allAnimsList:
-            allAnimsList.append(self)
+        if self.alive and self not in state.allAnimsList:
+            state.allAnimsList.append(self)
         # if self.alive:
         #     print("alive", end="")
         # if self not in allAnimsList:
@@ -420,18 +410,18 @@ def checkBases(LTheta, RTheta, sightDistance, grid):
 
     baseAngles = np.linspace(LTheta,RTheta,512)
 
-    _, LHit, _ = cast_ray(playerPos[0], np.array([sightDistance*np.cos(LTheta), sightDistance*np.sin(LTheta)])+playerPos[0], sightDistance, 100, field_size=32*3, array=HB_layer)
-    if not LHit: LHit = (np.array([sightDistance*np.cos(LTheta), sightDistance*np.sin(LTheta)])+playerPos[0])
-    _, RHit, _ = cast_ray(playerPos[0], np.array([sightDistance*np.cos(RTheta), sightDistance*np.sin(RTheta)])+playerPos[0], sightDistance, 100, field_size=32*3, array=HB_layer)
-    if not RHit: RHit = (np.array([sightDistance*np.cos(RTheta), sightDistance*np.sin(RTheta)])+playerPos[0])
+    _, LHit, _ = cast_ray(state.playerPos, np.array([sightDistance*np.cos(LTheta), sightDistance*np.sin(LTheta)])+state.playerPos, sightDistance, 100, field_size=32*3, array=HB_layer)
+    if not LHit: LHit = (np.array([sightDistance*np.cos(LTheta), sightDistance*np.sin(LTheta)])+state.playerPos)
+    _, RHit, _ = cast_ray(state.playerPos, np.array([sightDistance*np.cos(RTheta), sightDistance*np.sin(RTheta)])+state.playerPos, sightDistance, 100, field_size=32*3, array=HB_layer)
+    if not RHit: RHit = (np.array([sightDistance*np.cos(RTheta), sightDistance*np.sin(RTheta)])+state.playerPos)
 
 
     # print(len(baseAngles))
-    hits.append(playerPos[0])
+    hits.append(state.playerPos)
     hits.append(LHit)
     for phi in baseAngles:
-        _,hit,_ = cast_ray(playerPos[0], np.array([sightDistance*np.cos(phi), sightDistance*np.sin(phi)])+playerPos[0], sightDistance, 100, field_size=32*3, array=HB_layer)
-        if not hit: hit = (np.array([sightDistance*np.cos(phi), sightDistance*np.sin(phi)])+playerPos[0])
+        _,hit,_ = cast_ray(state.playerPos, np.array([sightDistance*np.cos(phi), sightDistance*np.sin(phi)])+state.playerPos, sightDistance, 100, field_size=32*3, array=HB_layer)
+        if not hit: hit = (np.array([sightDistance*np.cos(phi), sightDistance*np.sin(phi)])+state.playerPos)
         hits.append(hit)
         # if hit:
             
@@ -446,21 +436,33 @@ def checkBases(LTheta, RTheta, sightDistance, grid):
 
     
 #####Globals#####
-
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 overlay = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
-view_field_xy_position = vwp = pg.Rect(0, 0, WIDTH, HEIGHT)
-MHB_rect = [None]
-events = [pg.event.get()]
-playerPos = [None]
+vwp = pg.Rect(0, 0, WIDTH, HEIGHT)
 
-state = {"HB_layer" : None}
 
-allAnimsList = []
 
-animDict = {"player_walk":Animationz(imageScale=2, numFrames=14, frameSizeSpriteOnSpriteSheet=(64, 64), pathToSpriteSheet="assets/player_walk_gun.png", animationSpeed=0.4),
-            "rocket" : Animationz(pathToSpriteSheet="assets/rockety_anim.png", numFrames=4, imageScale=2, animationSpeed=0.3)}
+def wtsc(world_coords_object, view_field_xy_position=vwp):
+    screen_coords = (world_coords_object[0] - view_field_xy_position.topleft[0], world_coords_object[1] - view_field_xy_position.topleft[1])
+    return screen_coords
 
-CorpseList = []
-entityScenes = [None]
+def screen_to_world_coords_rare_use(screen_coords_object, view_field_xy_position=vwp):
+    return (screen_coords_object[0] + view_field_xy_position.topleft[0], screen_coords_object[1] + view_field_xy_position.topleft[1])
+
+
+
+class state:
+    MHB_rect = None
+    events = pg.event.get()
+    playerPos = None
+
+    HB_layer = None
+
+    allAnimsList = []
+
+    animDict = {"player_walk":Animationz(imageScale=2, numFrames=14, frameSizeSpriteOnSpriteSheet=(64, 64), pathToSpriteSheet="assets/player_walk_gun.png", animationSpeed=0.4),
+                "rocket" : Animationz(pathToSpriteSheet="assets/rockety_anim.png", numFrames=4, imageScale=2, animationSpeed=0.3)}
+
+    CorpseList = []
+    entityScene = None
 ################

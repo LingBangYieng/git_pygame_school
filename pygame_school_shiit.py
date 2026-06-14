@@ -61,7 +61,7 @@ entitySceneMain = EntityScenez()
 
 
 
-state.entityScenes = entitySceneMain
+state.entityScene = entitySceneMain
 
 
 
@@ -131,7 +131,7 @@ def move(position_circle,speed):
 
     velocity.xy = 0, 0 
     
-    state.vwp.topleft = (position_circle[0] - WIDTH/2, position_circle[1] - HEIGHT/2)
+    vwp.topleft = (position_circle[0] - WIDTH/2, position_circle[1] - HEIGHT/2)
 
 
 
@@ -174,7 +174,7 @@ shootCooldown = 0
 
 
 class BottleNeck:
-    def checkN(gg):
+    def checkN(gg, das):
         pass
 
 while game_loop:
@@ -204,10 +204,10 @@ while game_loop:
 
 
 
-    state.screen.fill(tuple(e+100 for e in (0, 0, 0)))  
-    state.overlay.fill((0, 0, 0, 240)) 
+    screen.fill(tuple(e+100 for e in (0, 0, 0)))  
+    overlay.fill((0, 0, 0, 240)) 
 
-    state.screen.blit(background, wtsc((0,0), ))
+    screen.blit(background, wtsc((0,0), ))
 
     P.checkN("pastbackgrnd")
 
@@ -259,7 +259,7 @@ while game_loop:
     frame_rect.center = wtsc(position_circle, )
     
     if not moving:
-        state.screen.blit(frame, frame_rect)   
+        screen.blit(frame, frame_rect)   
     player_HB = HitBox(rect=((e-37.5 for e in(position_circle)), (75, 75)))
     player_HB.show_HB()
 
@@ -269,7 +269,7 @@ while game_loop:
     #draw Corpses
     if state.CorpseList:
         for corpseImage, pos in state.CorpseList:
-            state.screen.blit(corpseImage, tuple(e-32 * GameScale/1.5 for e in wtsc(pos, )))
+            screen.blit(corpseImage, tuple(e-32 * GameScale/1.5 for e in wtsc(pos, )))
     
     if len(state.CorpseList) > 10: #corps cap
         state.CorpseList.pop(0)
@@ -326,7 +326,7 @@ while game_loop:
     entitySceneMain.draw_EntityScene()
     P.checkN("past enemey pathfind and bvlit")
 
-    state.screen.blit(crosshair, (mouse_position[0] - 16,mouse_position[1] - 16))
+    screen.blit(crosshair, (mouse_position[0] - 16,mouse_position[1] - 16))
 
 
     #blit VTA
@@ -334,16 +334,16 @@ while game_loop:
     for hit in hits:
         screenHits.append(wtsc(hit,))
 
-    pg.draw.polygon(state.overlay, (0, 0, 0, 150), screenHits)
-    pg.draw.circle(state.overlay, (0, 0, 0, 150), wtsc(state.playerPos, ), 40)
+    pg.draw.polygon(overlay, (0, 0, 0, 150), screenHits)
+    pg.draw.circle(overlay, (0, 0, 0, 150), wtsc(state.playerPos, ), 40)
 
     for enemy in entitySceneMain.enemyList:
-        pg.draw.circle(state.overlay, (10, 0, 0, 150), wtsc(enemy.position, ), 200)
+        pg.draw.circle(overlay, (10, 0, 0, 150), wtsc(enemy.position, ), 200)
     for enemy in entitySceneMain.enemyList:
-        pg.draw.circle(state.overlay, (150, 0, 0, 30), wtsc(enemy.position, ), counter%8*10+20)
+        pg.draw.circle(overlay, (150, 0, 0, 30), wtsc(enemy.position, ), counter%8*10+20)
 
-    state.screen.blit(blur_surface(state.overlay, 0.2), (0, 0))
-    state.screen.blit(state.overlay, (0, 0))
+    screen.blit(blur_surface(overlay, 0.2), (0, 0))
+    screen.blit(overlay, (0, 0))
     
 
 
