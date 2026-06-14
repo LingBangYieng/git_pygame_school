@@ -43,8 +43,8 @@ gunshot_sound.set_volume(0.1)
 
 
 speed = 10
-position_circle = pg.Vector2((WIDTH)/2, (HEIGHT)/2)
-old_position_circle = pg.Vector2((WIDTH)/2, (HEIGHT)/2)
+position_circle = pg.Vector2((state.WIDTH)/2, (state.HEIGHT)/2)
+old_position_circle = pg.Vector2((state.WIDTH)/2, (state.HEIGHT)/2)
 velocity = pg.Vector2((0, 0))
 moving = False
 sprinting= False
@@ -56,7 +56,7 @@ game_loop = True
 
 #own Class init
 player_walk = Animationz(numFrames=13, imageScale=GameScale)
-mouse_HB = state.MHB = HitBox(((0, 0),(1, 1)))
+mouse_HB = state.MHB_rect = HitBox(((0, 0),(1, 1)))
 entitySceneMain = EntityScenez()
 
 
@@ -131,11 +131,11 @@ def move(position_circle,speed):
 
     velocity.xy = 0, 0 
     
-    vwp.topleft = (position_circle[0] - WIDTH/2, position_circle[1] - HEIGHT/2)
+    vwp.topleft = (position_circle[0] - state.WIDTH/2, position_circle[1] - state.HEIGHT/2)
 
 
 
-    mouse_pos = (pg.mouse.get_pos()[0] - WIDTH // 2, pg.mouse.get_pos()[1] - HEIGHT // 2)
+    mouse_pos = (pg.mouse.get_pos()[0] - state.WIDTH // 2, pg.mouse.get_pos()[1] - state.HEIGHT // 2)
     alpha = np.degrees(np.arctan2(-mouse_pos[1], mouse_pos[0]))
     
 
@@ -335,12 +335,12 @@ while game_loop:
         screenHits.append(wtsc(hit,))
 
     pg.draw.polygon(overlay, (0, 0, 0, 150), screenHits)
-    pg.draw.circle(overlay, (0, 0, 0, 150), wtsc(state.playerPos, ), 40)
+    pg.draw.circle(overlay, (0, 0, 0, 150), wtsc(state.playerPos), 40)
 
     for enemy in entitySceneMain.enemyList:
-        pg.draw.circle(overlay, (10, 0, 0, 150), wtsc(enemy.position, ), 200)
+        pg.draw.circle(overlay, (10, 0, 0, 150), wtsc(enemy.position), 200)
     for enemy in entitySceneMain.enemyList:
-        pg.draw.circle(overlay, (150, 0, 0, 30), wtsc(enemy.position, ), counter%8*10+20)
+        pg.draw.circle(overlay, (150, 0, 0, 30), wtsc(enemy.position), counter%8*10+20)
 
     screen.blit(blur_surface(overlay, 0.2), (0, 0))
     screen.blit(overlay, (0, 0))

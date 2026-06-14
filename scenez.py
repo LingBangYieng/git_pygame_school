@@ -66,7 +66,7 @@ class Buttonz:
             self.screen.blit(self.text_object, (self.x + self.w//2 - self.text_w//2 , self.y + self.h//2 - self.text_h//2 ))
 
     def check_click(self):
-        for event in events[0]: 
+        for event in state.events: 
             if event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     return True
@@ -74,7 +74,7 @@ class Buttonz:
                     return False
     
     def check_hover(self):
-        if self.hitbox.check_collision(MHB_rect[0]):
+        if self.hitbox.check_collision(state.MHB_rect):
             return True
         else:
             return False

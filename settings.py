@@ -1,7 +1,8 @@
 #User
-WIDTH, HEIGHT = 1920, 1080
 MAX_FPS = 69
 SFX_VOLUME = 1
+RESOLUTION = "1920x1080"
+
 
 #Engine
 CellSize = 24*4

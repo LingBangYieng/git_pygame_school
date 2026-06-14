@@ -5,6 +5,8 @@ from settings import *
 import random
 #from globals import *
 
+pg.display.init()
+
 
 def get_hitbox_size(pathToImage:str):
         originalImage = Image.open(pathToImage)
@@ -436,22 +438,22 @@ def checkBases(LTheta, RTheta, sightDistance, grid):
 
     
 #####Globals#####
-screen = pg.display.set_mode((WIDTH, HEIGHT))
-overlay = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
-vwp = pg.Rect(0, 0, WIDTH, HEIGHT)
-
-
-
-def wtsc(world_coords_object, view_field_xy_position=vwp):
-    screen_coords = (world_coords_object[0] - view_field_xy_position.topleft[0], world_coords_object[1] - view_field_xy_position.topleft[1])
-    return screen_coords
-
-def screen_to_world_coords_rare_use(screen_coords_object, view_field_xy_position=vwp):
-    return (screen_coords_object[0] + view_field_xy_position.topleft[0], screen_coords_object[1] + view_field_xy_position.topleft[1])
-
-
+import json
+with open("settings.json", "r") as f:
+    sett = json.load(f)
 
 class state:
+   
+    SETTINGS = sett
+    WIDTH,HEIGHT = (int(e) for e in SETTINGS["RESOLUTION"].split("x"))
+    FULLSCREEN = False
+    # HEIGHT = 1080
+
+
+
+
+
+
     MHB_rect = None
     events = pg.event.get()
     playerPos = None
@@ -465,4 +467,25 @@ class state:
 
     CorpseList = []
     entityScene = None
+
+
+
+
+print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+
+
+
+    
+screen = pg.display.set_mode((state.WIDTH, state.HEIGHT))
+overlay = pg.Surface((state.WIDTH, state.HEIGHT), pg.SRCALPHA)
+vwp = pg.Rect(0, 0, state.WIDTH, state.HEIGHT)
+
+
+
+def wtsc(world_coords_object, view_field_xy_position=vwp):
+    screen_coords = (world_coords_object[0] - view_field_xy_position.topleft[0], world_coords_object[1] - view_field_xy_position.topleft[1])
+    return screen_coords
+
+def screen_to_world_coords_rare_use(screen_coords_object, view_field_xy_position=vwp):
+    return (screen_coords_object[0] + view_field_xy_position.topleft[0], screen_coords_object[1] + view_field_xy_position.topleft[1])
 ################

@@ -308,7 +308,7 @@ class Enemyz(Entityz):
         self.velo = (0, 0)
 
         self.hasSeenAgo += 1
-        print(self.hasSeenAgo)
+        # print(self.hasSeenAgo)
         if self.seePath():
             if self.hasSeenAgo != 1:
                 isreali_ambient = pg.mixer.Sound("assets/israeli_ambient_quiet.mp3")
