@@ -1,6 +1,6 @@
 import pygame as pg
 import numpy as np
-from class_vectorz import *
+# from stuff.class_vectorz import *
 from class_collide_rect import *
 #from globals import *
 

@@ -1,7 +1,6 @@
 import pygame as pg
 import numpy as np
 from PIL import Image
-from class_vectorz import Vectorz
 from settings import *
 import random
 #from globals import *
