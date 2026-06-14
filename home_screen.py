@@ -46,9 +46,9 @@ def switch_scene(scene:Scenez):
 
 def change_resolution(args):
     global screen, current_scene
-    width, height = args[0], args[1]
-    screen = pg.display.set_mode((width, height))
-    lobby = createLobby(width, height)
+    WIDTH, HEIGHT = args[0], args[1]
+    screen = pg.display.set_mode((WIDTH, HEIGHT))
+    lobby = createLobby(WIDTH, HEIGHT)
     current_scene = lobby
     bs()
 

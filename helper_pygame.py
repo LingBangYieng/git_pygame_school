@@ -447,9 +447,9 @@ def checkBases(LTheta, RTheta, sightDistance, grid):
     
 #####Globals#####
 
-screen = pg.display.set_mode((width*size, height*size))
-overlay = pg.Surface((width*size, height*size), pg.SRCALPHA)
-view_field_xy_position = vwp = pg.Rect(0, 0, width*size, height*size)
+screen = pg.display.set_mode((WIDTH, HEIGHT))
+overlay = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
+view_field_xy_position = vwp = pg.Rect(0, 0, WIDTH, HEIGHT)
 MHB_rect = [None]
 events = [pg.event.get()]
 playerPos = [None]

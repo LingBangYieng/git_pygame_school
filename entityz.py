@@ -387,7 +387,7 @@ class Enemyz(Entityz):
         super().die()
         if self.type == "bombi":
             corpse = pg.image.load(f"assets/bombiCorpse_{random.randint(1,2)}.png")
-            corpse = pg.transform.scale_by(corpse, scale_player/1.5)
+            corpse = pg.transform.scale_by(corpse, GameScale/1.5)
             corpse = pg.transform.rotate(corpse, random.randint(0, 360))
             CorpseList.append((corpse, self.position))
 
