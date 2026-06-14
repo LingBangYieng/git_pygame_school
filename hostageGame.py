@@ -35,14 +35,16 @@ while running:
 
 
     pg.draw.line(screen, "purple", Center, mousePos, 5)
-
     pg.draw.line(screen, "orange", Center, posAim, 5)
 
 
 
     if counter % 180 == 0:
-        randVec = pg.Vector2(r.randint(0, 1000), r.randint(0, 1000)) - Center
-        randStrength = r.uniform(0, 0.02)
+        x = r.choice([r.randint(0, 400), r.randint(600, 1000)])
+        y = r.choice([r.randint(0, 400), r.randint(600, 1000)])
+
+        randVec = pg.Vector2(x, y) - Center
+        randStrength = r.uniform(0.01, 0.02)
         # randStrength = 0.01
 
     if randVec and randStrength:
