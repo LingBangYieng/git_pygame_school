@@ -1,0 +1,9 @@
+{
+    "MAX_FPS": 69,
+    "SFX_VOLUME": 1,
+    "RESOLUTION": "1280x720",
+    "CellSize": 96,
+    "fov_degr": 90,
+    "GameScale": 4,
+    "FULLSCREEN": false
+}

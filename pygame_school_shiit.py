@@ -2,83 +2,94 @@ import os
 os.environ["SDL_VIDEODRIVER"] = "windows"
 import pygame as pg
 import numpy as np
+import time
 from entityz import *
 from helper_pygame import *
-from class_collide_rect import *
-
-#from globals import *
-
-game_loop = True
+from globals import *
+from settings import *
+from helper2 import *
 
 
 
+#inits
 pg.display.init()
 pg.mixer.init()
-
-
-
 pg.mouse.set_visible(False)
-# laser_data_list: list[Bullet] = []
 
 
-
-# item0 = pg.image.load(f"assets/goofy_revolver_highlighted.png")
-# item1 = pg.image.load(f"assets/goofy_katana_highlighted.png")
-# entrance = pg.image.load(f"assets/goofy_entrance.png")
-background = pg.image.load(f"assets/big_background.jpg")
-static_laser = pg.image.load(f"assets/goofy_laser.png")
+#loads
 crosshair = pg.image.load(f"assets/goofy_crosshair.png")
 static_player = pg.image.load(f"assets/player_gun_static.png")
 
-player_walk = Animationz(numFrames=13, imageScale=scale_player)
-
+#transform loads
 crosshair = pg.transform.scale_by(crosshair, 4)
-static_laser = pg.transform.scale_by(static_laser, 2)
-# entrance = pg.transform.scale_by(entrance, 1)
-static_player = pg.transform.scale_by(static_player, scale_player/2)
+static_player = pg.transform.scale_by(static_player, GameScale/2)
+
+
+#Audio
 gunshot_sound = pg.mixer.Sound(f"assets/silenced_gunshot.mp3")
 launch_missile = pg.mixer.Sound("assets/rocket_launch.mp3")
 missile_explo = pg.mixer.Sound("assets/rocket_explosion.mp3")
+# lobby_song = pg.mixer.music.load("assets/retrowave_song.mp3")
+
+#transform Audio 
 launch_missile.set_volume(0.1)
 missile_explo.set_volume(0.1)
 gunshot_sound.set_volume(0.1)
-# lobby_song = pg.mixer.music.load("assets/retrowave_song.mp3")
 # pg.mixer.music.set_volume(0,125)
 # pg.mixer.music.play(-1)
-speed = 1 * size / 1
-position_circle = pg.Vector2((width*size)/2, (height*size)/2)
-old_position_circle = pg.Vector2((width*size)/2, (height*size)/2)
+
+
+
+
+speed = 10
+position_circle = pg.Vector2((state.WIDTH)/2, (state.HEIGHT)/2)
+old_position_circle = pg.Vector2((state.WIDTH)/2, (state.HEIGHT)/2)
 velocity = pg.Vector2((0, 0))
 moving = False
 sprinting= False
 radius = 20
 counter = 0
+game_loop = True
 
 
-mouse_HB = MHB_rect[0] = HitBox(((0, 0),(1, 1)))
 
+#own Class init
+player_walk = Animationz(numFrames=13, imageScale=GameScale)
+mouse_HB = state.MHB_rect = HitBox(((0, 0),(1, 1)))
 entitySceneMain = EntityScenez()
-entityScenes[0] = entitySceneMain
 
 
+
+state.entityScene = entitySceneMain
+
+
+
+
+#debugs
+enemy0 = Enemyz(position=(1000, 1000), path_to_image="assets/bombi_static.png", image_scale=GameScale)
 item0 = Itemz(position=(500, 500), path_to_image_non_highlighted="assets/hk_416.png", image_scale=1.5)
 
-enemy0 = Enemyz(position=(1000, 1000), path_to_image="assets/bombi_static.png", image_scale=scale_player)
-# enemy1 = Enemyz(position=(500, 1000), path_to_image="assets/middled_player2.png", image_scale=scale_player)
-# for i in range(10):
-#     entitySceneMain.add_enemy(Enemyz(position=(i*10, 1000), path_to_image="assets/middled_player2.png", image_scale=scale_player))
 entitySceneMain.add_enemy(enemy0)
-# entitySceneMain.add_enemy(enemy1)
 entitySceneMain.add_item(item0)
 
 
 
+
+#ideas
+"grenade launch with size rescaling"
+
+
+
+
+
+#commands
 def spawn(entityType="enemy", position=(1000, 1000)):
     global entitySceneMain
     entity = None
     match entityType:
         case "enemy":
-            entity = Enemyz(position=position, path_to_image="assets/bombi_static.png", image_scale=scale_player)
+            entity = Enemyz(position=position, path_to_image="assets/bombi_static.png", image_scale=GameScale)
         case "item":
             entity = Itemz(position=position, path_to_image_non_highlighted="assets/goofy_revolver.png", image_scale=1.5, image_rotation=45)
     if entity is not None:
@@ -90,82 +101,6 @@ def spawn(entityType="enemy", position=(1000, 1000)):
         # isreali_ambient.set_volume(0.05)
         # isreali_ambient.play()
         # print("hehe")
-
-# grenade launch with size rescaling
-
-
-def chatcalcVTA():
-
-    VTAangle= 55
-    lalpha =- VTAangle
-    ralpha = VTAangle
-
-
-    playerPosScreen = wtsc(playerPos[0], vwp)
-    player_world = playerPos[0]
-
-    mouse_world = screen_to_world_coords_rare_use(mouse_position, vwp)
-
-    MouseVec = np.array([
-        mouse_world[0] - player_world[0],
-        mouse_world[1] - player_world[1]
-    ])
-
-    length = np.linalg.norm(MouseVec)
-
-    dirMV = MouseVec / length
-
-    cone_len = 10000  # same as your sin-law calculation
-
-    theta = np.radians(lalpha)
-    rot_left = np.array([
-        [np.cos(theta), -np.sin(theta)],
-        [np.sin(theta),  np.cos(theta)]
-    ])
-
-    theta = np.radians(ralpha)
-    rot_right = np.array([
-        [np.cos(theta), -np.sin(theta)],
-        [np.sin(theta),  np.cos(theta)]
-    ])
-
-    p0_world = player_world + rot_left @ dirMV * cone_len
-    p1_world = player_world + rot_right @ dirMV * cone_len
-
-
-
-    _, hit0, _ = cast_ray(playerPos[0], p0_world, 5000, 100, 32*3, HB_layer)
-    _, hit1, _ = cast_ray(playerPos[0], p1_world, 5000, 100, 32*3, HB_layer)
-
-
-    pg.draw.polygon(screen, "purple", [playerPosScreen, wtsc(p0_world,vwp), wtsc(p1_world, vwp)])
-    if hit0:
-        print("hit0")
-        pg.draw.circle(screen, "green", wtsc(hit0, vwp), 10)
-    else:
-        print("nonhit0")
-    
-    if hit1:
-        print("hit1")
-        pg.draw.circle(screen, "green", wtsc(hit1, vwp), 10)
-    else:
-        print("nonhit1")
-
-
-
-def RotMat(angle):
-    return np.array([
-        [np.cos(angle), -np.sin(angle)],
-        [np.sin(angle),  np.cos(angle)]
-    ])
-
-
-
-def calcVTA():
-    
-    VTAangle= 55
-    lalpha =- VTAangle
-    ralpha = VTAangle
 
 
 
@@ -194,56 +129,66 @@ def move(position_circle,speed):
     position_circle[0] += velocity.x
     position_circle[1] += velocity.y
 
-    # velocity.xy *= 0.99 #icy
     velocity.xy = 0, 0 
     
-    view_field_xy_position.topleft = (position_circle[0] - width*size/2, position_circle[1] - height*size/2)
+    vwp.topleft = (position_circle[0] - state.WIDTH/2, position_circle[1] - state.HEIGHT/2)
 
 
 
-    mouse_pos = (pg.mouse.get_pos()[0] - width*size//2, pg.mouse.get_pos()[1] - height*size//2)
-    alpha = None
-    save_mouse_pos = tuple(0.001 if abs(p)<0.001 else p for p in mouse_pos)
-    if save_mouse_pos[1] < 0:
-        alpha = (np.acos(save_mouse_pos[0]/ np.linalg.norm(np.array(save_mouse_pos)))) * 180 / np.pi
-    else:
-        alpha = -(np.acos(save_mouse_pos[0]/ np.linalg.norm(np.array(save_mouse_pos)))) * 180 / np.pi
+    mouse_pos = (pg.mouse.get_pos()[0] - state.WIDTH // 2, pg.mouse.get_pos()[1] - state.HEIGHT // 2)
+    alpha = np.degrees(np.arctan2(-mouse_pos[1], mouse_pos[0]))
     
 
     moving = position_circle != old_position_circle
 
-    playerPos[0] = position_circle 
+    state.playerPos = position_circle 
 
 
 
+#!!Externalize background ahs to be given by homescreen (level like)
 
-from helper2 import *
 
 HB_layer = upscale_grid(bitmap())
 # HB_layer = bitmap()
 
-state["HB_layer"] = HB_layer
+state.HB_layer = HB_layer
 
 background = pg.image.load(f"saves/test_as.png")
-background = pg.transform.scale_by(background, scale_player)
+background = pg.transform.scale_by(background, GameScale)
 
 HB_layerHBs = getHitBox_HBLayer()
 
 
 
 
+
+
+
+fov = np.deg2rad(fov_degr)
+
+
 clock = pg.time.Clock()
 # (46, 150, 172)
-fps = 69
-cooldown = 0
+
+shootCooldown = 0
+
+
+class BottleNeck:
+    def checkN(gg, das):
+        pass
+
 while game_loop:
-    events = pg.event.get()
-    clock.tick(fps)
-    # print(clock.get_fps())
-    # pygame.QUIT event means the user clicked X to close your window
-    mouse_position = pg.mouse.get_pos()
+    clock.tick(MAX_FPS)
+
+    P = BottleNeck()
+
+    state.events = pg.event.get()
     keys = pg.key.get_pressed()
-    for event in events:
+
+    mouse_position = pg.mouse.get_pos()
+
+    #Escape
+    for event in state.events:
         if event.type == pg.QUIT or keys[pg.K_ESCAPE]:
             game_loop = False
         
@@ -252,122 +197,166 @@ while game_loop:
             spawn(position=(mx,my))
 
         if keys[pg.K_f]:
-            fps = 1
+            MAX_FPS = 1
         if keys[pg.K_g]:
-            fps = 69
+            MAX_FPS = 69
 
 
 
 
     screen.fill(tuple(e+100 for e in (0, 0, 0)))  
-    # screen.blit(background, wtsc((0,0), vwp))
+    overlay.fill((0, 0, 0, 240)) 
+
+    screen.blit(background, wtsc((0,0), ))
+
+    P.checkN("pastbackgrnd")
 
     move(position_circle, speed)
 
-    calcVTA()
 
 
+    
+    #calc VTA
+    radAlpha = np.deg2rad(-alpha)
+    LTheta = radAlpha + fov/2
+    RTheta = radAlpha - fov/2
+    baseAngles = []
+    hits = checkBases(LTheta, RTheta, 1400, HB_layer)
 
-    for row in range(len(HB_layer)):
-        for col in range(len(HB_layer[0])):
-            if HB_layer[row][col]:
-                pg.draw.rect(screen, "white", (wtsc((col*CellSize, row*CellSize), vwp),(CellSize, CellSize)))
 
+    P.checkN("pastshadow")
 
+    #cache Player ANimationz
     if moving:
-        animDict["player_walk"].play_looped(position=position_circle, rotation=alpha)
+        state.animDict["player_walk"].play_looped(position=position_circle, rotation=alpha)
     else:
-        animDict["player_walk"].isActive = False
+        state.animDict["player_walk"].isActive = False
 
-    cooldown -= 1
-    # print(cooldown)
-    for event in events: 
+
+    #bullet calc
+    shootCooldown -= 1
+    for event in state.events: 
         if event.type == pg.MOUSEBUTTONDOWN:
-            if event.button == 1 and cooldown<=0:  # Left mouse button
+            if event.button == 1 and shootCooldown<=0:  # Left mouse button
                 laser = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/bullet_new.png", image_scale=2, bullet_speed=35, lifetime=200)
                 entitySceneMain.add_friendlyBulletList(laser)
                 gunshot_sound.play()
-                cooldown = fps/2
+                shootCooldown = MAX_FPS/10
             if event.button == 3:
                 rockety = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/rockety.png", image_scale=2, bullet_speed=15, lifetime=600, remote_control=True, isDiag=True, explosive=True, explosionRadius=75, isAnimated=True)
                 entitySceneMain.add_friendlyBulletList(rockety)
                 launch_missile.play()
     
-    # if pg.mouse.get_pressed()[0] and counter % 70 == 0:
-    #     laser = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/bullet_new.png", image_scale=2, bullet_speed=35, lifetime=200)
-    #     entitySceneMain.add_friendlyBulletList(laser)
-    #     gunshot_sound.play()
     
-    # if pg.mouse.get_pressed()[1] and counter % 1 == 0:
-    #     rockety = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/rockety.png", image_scale=2, bullet_speed=15, lifetime=600, remote_control=True, isDiag=True, explosive=True, explosionRadius=75, isAnimated=True)
-    #     entitySceneMain.add_friendlyBulletList(rockety)
-    #     launch_missile.play()
+    P.checkN("past bullets")
 
-    mx, my = screen_to_world_coords_rare_use(pg.mouse.get_pos(), vwp)
+    #calc static player angle
+    mx, my = screen_to_world_coords_rare_use(mouse_position, )
     mouse_HB.x = mx
     mouse_HB.y = my
     frame = pg.transform.rotate(static_player, alpha - 90)
     frame_rect = frame.get_rect(center = position_circle) 
-    frame_rect.center = wtsc(position_circle, vwp)
+    frame_rect.center = wtsc(position_circle, )
     
     if not moving:
         screen.blit(frame, frame_rect)   
     player_HB = HitBox(rect=((e-37.5 for e in(position_circle)), (75, 75)))
-    # pg.draw.rect(screen, "red", (wtsc((position_circle), view_field_xy_position)[0] - 50, wtsc((position_circle), view_field_xy_position)[1] - 50, 100, 100), 3)
     player_HB.show_HB()
 
-    mouse_HB.show_HB()
 
+    P.checkN("past playerlogf")
 
+    #draw Corpses
+    if state.CorpseList:
+        for corpseImage, pos in state.CorpseList:
+            screen.blit(corpseImage, tuple(e-32 * GameScale/1.5 for e in wtsc(pos, )))
+    
+    if len(state.CorpseList) > 10: #corps cap
+        state.CorpseList.pop(0)
+                
 
-    pg.draw.circle(screen, "red", wtsc((0, 0), vwp), 5)
-    # print(playerPos[0])
+    P.checkN("past coprs")
 
-    if CorpseList:
-        for corpseImage, pos in CorpseList:
-            screen.blit(corpseImage, tuple(e-32 * scale_player/1.5 for e in wtsc(pos, vwp)))
-
-    # print(len(allAnimsList))
-    for anim in allAnimsList:
+    #draw all Animations
+    for anim in state.allAnimsList:
         if not anim.alive: 
-            allAnimsList.remove(anim)
+            state.allAnimsList.remove(anim)
             anim.revive() #amimdict support - required for repeating (non looping) animationsz
         else: anim.update()
 
-    
+
+        
+    P.checkN("past anims")
+
+
+    #avoid clipping logic
     for HBs in HB_layerHBs:
         HBs.show_HB()
         pushvec = HBs.get_push_vector(player_HB)
         velocity[0] -= pushvec[0]
         velocity[1] -= pushvec[1]
+    
 
-        # for enemy in entitySceneMain.enemyList:
-        #     pushvec = enemy.hitbox.get_push_vector(HBs)
-        #     enemy.extra = pushvec
+    for enemy in entitySceneMain.enemyList:
+        for HBs in HB_layerHBs:
+            pushvec = HBs.get_push_vector(enemy.hitbox)
+            enemy.extra = (enemy.extra[0] - pushvec[0],enemy.extra[1] - pushvec[1])
+        
+        for enemy2 in entitySceneMain.enemyList:
+            if enemy != enemy2:
+                pushvec = enemy2.hitbox.get_push_vector(enemy.hitbox)
+                enemy.extra = (enemy.extra[0] - pushvec[0]*0.5,enemy.extra[1] - pushvec[1]*0.5)
+            
 
-    if keys[pg.K_RIGHT]:
-        for en in entitySceneMain.enemyList:
-            en.extra = (25, 0)
+            
+    P.checkN("past HBs colls")
+
+
+
+    # if keys[pg.K_RIGHT]:
+    #     for en in entitySceneMain.enemyList:
+    #         en.extra = (25, 0)
 
 
 
         
 
 
-
+    #draws the entity scene
     entitySceneMain.draw_EntityScene()
+    P.checkN("past enemey pathfind and bvlit")
 
-    screen.blit(crosshair, (mouse_position[0] - 16, mouse_position[1] - 16))
+    screen.blit(crosshair, (mouse_position[0] - 16,mouse_position[1] - 16))
 
 
+    #blit VTA
+    screenHits = []
+    for hit in hits:
+        screenHits.append(wtsc(hit,))
+
+    pg.draw.polygon(overlay, (0, 0, 0, 150), screenHits)
+    pg.draw.circle(overlay, (0, 0, 0, 150), wtsc(state.playerPos), 40)
+
+    for enemy in entitySceneMain.enemyList:
+        pg.draw.circle(overlay, (10, 0, 0, 150), wtsc(enemy.position), 200)
+    for enemy in entitySceneMain.enemyList:
+        pg.draw.circle(overlay, (150, 0, 0, 30), wtsc(enemy.position), counter%8*10+20)
+
+    screen.blit(blur_surface(overlay, 0.2), (0, 0))
+    screen.blit(overlay, (0, 0))
+    
+
+
+    P.checkN("past shadow blit")
 
     old_position_circle = position_circle.copy()
-    pg.display.update()
 
-    # print(len(entitySceneMain.enemyList))
+
 
     counter += 1
-    # print(counter)
+    pg.display.update()
+
+
 pg.quit()
 
 

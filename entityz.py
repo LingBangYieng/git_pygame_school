@@ -120,7 +120,7 @@ class Bulletz(Entityz):
         self.isExplosive = explosive
         self.explosionRadius = explosionRadius
         if self.isExplosive:
-            self.deathEvent = lambda: entityScenes[0].castRectExplosion(self.position, self.explosionRadius)
+            self.deathEvent = lambda: state.entityScene.castRectExplosion(self.position, self.explosionRadius)
 
 
 
@@ -177,6 +177,7 @@ class Bulletz(Entityz):
             else:
                 self.image = pg.transform.rotate(self.original_image, self.alpha - 90 + self.diag) #why here
                 screen.blit(self.image, wtsc(self.top_left_position, vwp))
+
                 self.hitbox.show_HB()
                 rect = self.image.get_rect(topleft = self.top_left_position)
                 rect.topleft = wtsc(rect.topleft, vwp)
@@ -224,6 +225,14 @@ class Enemyz(Entityz):
         self.type = type
         self.extra = (0,0)
 
+        self.genPathBool = True
+        self.oldPath = None
+        self.savedPath = None
+
+        self.hasSeenAgo = 100
+        self.setRandomGoalAgo = 100
+        self.randomGaol = None
+
     def draw(self):
         if self.alive:
             self.alpha = self.calc_alpha_to_player()
@@ -235,7 +244,7 @@ class Enemyz(Entityz):
 
     def calc_alpha_to_player(self):
         middle_screen_x, middle_screen_y = wtsc(self.position, vwp)
-        if playerPos[0]:player_x, player_y = wtsc(playerPos[0], vwp)
+        if state.playerPos:player_x, player_y = wtsc(state.playerPos, vwp)
         else: player_x, player_y = (0, 0)
         dx = player_x - middle_screen_x
         dy = player_y - middle_screen_y
@@ -247,13 +256,30 @@ class Enemyz(Entityz):
         return np.degrees(self.alpha_radians)
     
 
-    def aStarPath(self, visual=False):
+    def aStarPath(self, goal="player", visual=True):
+        
         c_ene_pos = int(self.position[0]/CellSize), int(self.position[1]/CellSize)
-        c_player_pos = int(playerPos[0][0]/CellSize+0.5) , int(playerPos[0][1]/CellSize+0.5)
 
+        if goal == "player":
+            c_player_pos = int(state.playerPos[0]/CellSize+0.5) , int(state.playerPos[1]/CellSize+0.5)
+        else:
+            c_player_pos = int(goal[0]/CellSize+0.5) , int(goal[1]/CellSize+0.5)
 
-
-        path = a_star(c_ene_pos, c_player_pos, state["HB_layer"])
+        playerInHB = state.HB_layer[c_player_pos[1]][c_player_pos[0]]
+        if playerInHB:
+            # print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+            self.genPathBool = False
+            path = self.savedPath.copy()
+        else:
+            if self.genPathBool:
+                path = a_star(c_ene_pos, c_player_pos, state.HB_layer)
+                if path: self.savedPath = path.copy()
+                self.genPathBool = False
+                if path is not None:
+                    self.oldPath = path.copy()
+            else:
+                path = self.oldPath
+                self.genPathBool = True
 
         # C(c_ene_pos)
         C(px(c_player_pos), "blue")
@@ -272,25 +298,40 @@ class Enemyz(Entityz):
             next_goal_pos = c_next_goal_pos[0]*CellSize + CellSize/2, c_next_goal_pos[1]*CellSize + CellSize/2
             C(next_goal_pos)
             dx, dy = next_goal_pos[0] - self.position[0], next_goal_pos[1] - self.position[1]
+            if dx<CellSize and dy<CellSize and self.savedPath:
+                self.savedPath.pop(0)
             dist = max(np.sqrt(dx**2 + dy**2), 0.1)
             self.velo = (dx / dist, dy / dist)
             
 
     def move(self):
         self.velo = (0, 0)
-        # if not self.seePath():
-        #     self.aStarPath()
-        #     pass
-        self.aStarPath()
 
+        self.hasSeenAgo += 1
+        # print(self.hasSeenAgo)
+        if self.seePath():
+            if self.hasSeenAgo != 1:
+                isreali_ambient = pg.mixer.Sound("assets/israeli_ambient_quiet.mp3")
+                isreali_ambient.set_volume(0.1)
+                isreali_ambient.play()
+            self.hasSeenAgo = 0
+
+        elif self.hasSeenAgo < 200:
+            self.aStarPath()
+
+        else:
+            self.randomPath()
+
+
+        # print(self.extra)
         self.position = self.velo[0]*10+self.extra[0] + self.position[0], self.velo[1]*10+self.extra[1] + self.position[1]
         self.extra = (0,0)
 
 
-    def seePath(self) -> bool:
-        _, coll, dist = cast_ray(self.position, playerPos[0], 5000, 100, 32*3, state["HB_layer"])
+    def seePath(self, sprint=2) -> bool:
+        _, coll, dist = cast_ray(self.position, state.playerPos, 5000, 100, 32*3, state.HB_layer)
 
-        gx,gy = playerPos[0]
+        gx,gy = state.playerPos
         dx, dy =  gx - self.position[0], gy - self.position[1]
         raw_dist = max(np.sqrt(dx**2 + dy**2), 0.1)
 
@@ -302,24 +343,24 @@ class Enemyz(Entityz):
 
         doMove = False
         if coll:
-            print("c", end="")
+            # print("c", end="")
             pg.draw.circle(screen, "red", wtsc(coll, vwp), 10)
             if dist > raw_dist:
-                print("a", end="")
+                # print("a", end="")
                 doMove = True
         else:
             doMove = True
         
             
 
-        print(doMove)
+        # print(doMove)
         if doMove:
             # try:
             #     print("coll", coll, "hit ignore", dist > raw_dist)
             #     print(dist, raw_dist)
             # except:
             #     pass
-            self.velo = (dx / raw_dist, dy / raw_dist)
+            self.velo = (dx / raw_dist * sprint, dy / raw_dist * sprint)
             pg.draw.circle(screen, "pink",  wtsc(self.position, vwp), 10)
             return True
         # else:
@@ -328,15 +369,29 @@ class Enemyz(Entityz):
 
         
         return False
+    
+
+    def randomPath(self):
+        self.setRandomGoalAgo += 1
+        if self.setRandomGoalAgo > 400 or self.randomGaol == None:
+            crx, cry = random.randint(0, len(state.HB_layer[0])), random.randint(0, len(state.HB_layer))
+            while not check_boundaries(cry,crx,state.HB_layer) or state.HB_layer[cry][crx]: 
+                crx, cry = random.randint(2, len(state.HB_layer[0])-2), random.randint(2, len(state.HB_layer)-2)
+            self.randomGaol = (crx*CellSize,cry*CellSize)
+            self.setRandomGoalAgo = 0
+
+        if self.setRandomGoalAgo > 70 and self.randomGaol:
+            self.aStarPath(goal=self.randomGaol)
+            
 
 
     def die(self):
         super().die()
         if self.type == "bombi":
             corpse = pg.image.load(f"assets/bombiCorpse_{random.randint(1,2)}.png")
-            corpse = pg.transform.scale_by(corpse, scale_player/1.5)
+            corpse = pg.transform.scale_by(corpse, GameScale/1.5)
             corpse = pg.transform.rotate(corpse, random.randint(0, 360))
-            CorpseList.append((corpse, self.position))
+            state.CorpseList.append((corpse, self.position))
 
 
 class EntityScenez:

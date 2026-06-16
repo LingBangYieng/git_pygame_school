@@ -103,7 +103,7 @@ def checkBases():
     if not RHit: RHit = (np.array([1000*np.cos(RTheta), 1000*np.sin(RTheta)])+pos0)
 
 
-    print(len(baseAngles))
+    # print(len(baseAngles))
     hits.append(pos0)
     hits.append(LHit)
     for phi in baseAngles:

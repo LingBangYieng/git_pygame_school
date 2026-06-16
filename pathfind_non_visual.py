@@ -36,7 +36,7 @@ def surrounder(box, grid):  # takes a Box object and the grid (matrix), gets cal
             neighbors.append(((nx, ny), move_cost))     # add position and move_cost (attributes of a neighbor) to the list neighbors (things needed to define a neighbour)
     return neighbors    # return the neighbors list when finished looping through directions (can be everything between 0 and 8)
 
-def a_star(start, goal, grid, max_iter=5000):  # function that combines is the only one that is called --> it calls the other functions in itself
+def a_star(start, goal, grid, max_iter=2000):  # function that combines is the only one that is called --> it calls the other functions in itself
 
     open_list = []      # creates list that'll contain all option boxes which one can choose, will not be chosen randomly but rather by the total cost and if more than one the same then chosen by lowest b cost
     

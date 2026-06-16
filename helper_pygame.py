@@ -1,10 +1,11 @@
 import pygame as pg
 import numpy as np
 from PIL import Image
-from class_vectorz import Vectorz
 from settings import *
 import random
 #from globals import *
+
+pg.display.init()
 
 
 def get_hitbox_size(pathToImage:str):
@@ -40,16 +41,6 @@ def get_hitbox_size(pathToImage:str):
         return (w,w)
                     
 
-
-
-def wtsc(world_coords_object, view_field_xy_position):
-    screen_coords = (world_coords_object[0] - view_field_xy_position.topleft[0], world_coords_object[1] - view_field_xy_position.topleft[1])
-    return screen_coords
-
-
-
-def screen_to_world_coords_rare_use(screen_coords_object, view_field_xy_position):
-    return (screen_coords_object[0] + view_field_xy_position.topleft[0], screen_coords_object[1] + view_field_xy_position.topleft[1])
 
 
 
@@ -342,11 +333,13 @@ class Animationz:
 
                 self.draw()
 
+    
+
 
     def addToQueue(self):
         # print(len(allAnimsList), allAnimsList)
-        if self.alive and self not in allAnimsList:
-            allAnimsList.append(self)
+        if self.alive and self not in state.allAnimsList:
+            state.allAnimsList.append(self)
         # if self.alive:
         #     print("alive", end="")
         # if self not in allAnimsList:
@@ -396,9 +389,48 @@ class Animationz:
     
 
 
+def blur_surface(surface, scale_factor=0.25):
+    w, h = surface.get_size()
+    
+    # shrink
+    small = pg.transform.smoothscale(
+        surface,
+        (int(w * scale_factor), int(h * scale_factor))
+    )
+    
+    # scale back up
+    blurred = pg.transform.smoothscale(small, (w, h))
+    
+    return blurred
 
 
 
+
+def checkBases(LTheta, RTheta, sightDistance, grid):
+    hits = []
+    HB_layer = grid
+
+    baseAngles = np.linspace(LTheta,RTheta,512)
+
+    _, LHit, _ = cast_ray(state.playerPos, np.array([sightDistance*np.cos(LTheta), sightDistance*np.sin(LTheta)])+state.playerPos, sightDistance, 100, field_size=32*3, array=HB_layer)
+    if not LHit: LHit = (np.array([sightDistance*np.cos(LTheta), sightDistance*np.sin(LTheta)])+state.playerPos)
+    _, RHit, _ = cast_ray(state.playerPos, np.array([sightDistance*np.cos(RTheta), sightDistance*np.sin(RTheta)])+state.playerPos, sightDistance, 100, field_size=32*3, array=HB_layer)
+    if not RHit: RHit = (np.array([sightDistance*np.cos(RTheta), sightDistance*np.sin(RTheta)])+state.playerPos)
+
+
+    # print(len(baseAngles))
+    hits.append(state.playerPos)
+    hits.append(LHit)
+    for phi in baseAngles:
+        _,hit,_ = cast_ray(state.playerPos, np.array([sightDistance*np.cos(phi), sightDistance*np.sin(phi)])+state.playerPos, sightDistance, 100, field_size=32*3, array=HB_layer)
+        if not hit: hit = (np.array([sightDistance*np.cos(phi), sightDistance*np.sin(phi)])+state.playerPos)
+        hits.append(hit)
+        # if hit:
+            
+        #     pg.draw.circle(screen, "red", hit, 5)
+    hits.append(RHit)
+
+    return hits
 
 
 
@@ -406,20 +438,54 @@ class Animationz:
 
     
 #####Globals#####
+import json
+with open("settings.json", "r") as f:
+    sett = json.load(f)
 
-screen = pg.display.set_mode((width*size, height*size))
-view_field_xy_position = vwp = pg.Rect(0, 0, width*size, height*size)
-MHB_rect = [None]
-events = [pg.event.get()]
-playerPos = [None]
+class state:
+   
+    SETTINGS = sett
+    WIDTH,HEIGHT = (int(e) for e in SETTINGS["RESOLUTION"].split("x"))
+    FULLSCREEN = False
+    # HEIGHT = 1080
 
-state = {"HB_layer" : None}
 
-allAnimsList = []
 
-animDict = {"player_walk":Animationz(imageScale=2, numFrames=14, frameSizeSpriteOnSpriteSheet=(64, 64), pathToSpriteSheet="assets/player_walk_gun.png", animationSpeed=0.4),
-            "rocket" : Animationz(pathToSpriteSheet="assets/rockety_anim.png", numFrames=4, imageScale=2, animationSpeed=0.3)}
 
-CorpseList = []
-entityScenes = [None]
+
+
+    MHB_rect = None
+    events = pg.event.get()
+    playerPos = None
+
+    HB_layer = None
+
+    allAnimsList = []
+
+    animDict = {"player_walk":Animationz(imageScale=2, numFrames=14, frameSizeSpriteOnSpriteSheet=(64, 64), pathToSpriteSheet="assets/player_walk_gun.png", animationSpeed=0.4),
+                "rocket" : Animationz(pathToSpriteSheet="assets/rockety_anim.png", numFrames=4, imageScale=2, animationSpeed=0.3)}
+
+    CorpseList = []
+    entityScene = None
+
+
+
+
+print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+
+
+
+    
+screen = pg.display.set_mode((state.WIDTH, state.HEIGHT))
+overlay = pg.Surface((state.WIDTH, state.HEIGHT), pg.SRCALPHA)
+vwp = pg.Rect(0, 0, state.WIDTH, state.HEIGHT)
+
+
+
+def wtsc(world_coords_object, view_field_xy_position=vwp):
+    screen_coords = (world_coords_object[0] - view_field_xy_position.topleft[0], world_coords_object[1] - view_field_xy_position.topleft[1])
+    return screen_coords
+
+def screen_to_world_coords_rare_use(screen_coords_object, view_field_xy_position=vwp):
+    return (screen_coords_object[0] + view_field_xy_position.topleft[0], screen_coords_object[1] + view_field_xy_position.topleft[1])
 ################
