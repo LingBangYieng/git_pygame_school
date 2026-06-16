@@ -3,6 +3,7 @@ import numpy as np
 from PIL import Image
 from settings import *
 import random
+from settingsClass import Settings
 #from globals import *
 
 pg.display.init()
@@ -177,7 +178,7 @@ def check_boundaries(row: int, col: int, array: list[list]):
 
 
 
-def cast_ray(start_position:tuple, end_position:tuple, length:int, exactness: int, field_size: int, array: list[list]):
+def ocast_ray(start_position:tuple, end_position:tuple, length:int, exactness: int, field_size: int, array: list[list]):
 
 
     start = start_position
@@ -266,6 +267,77 @@ def cast_ray(start_position:tuple, end_position:tuple, length:int, exactness: in
                 return ((row, col), (x, y), distance)
     return (None,None,None)
 
+
+
+
+def cast_ray(start, end, unused, unused2, field_size, array, draw=False):
+    x0, y0 = start
+    x1, y1 = end
+
+    dx = x1 - x0
+    dy = y1 - y0
+
+    x = int(x0 // field_size)
+    y = int(y0 // field_size)
+
+    end_x = int(x1 // field_size)
+    end_y = int(y1 // field_size)
+
+    step_x = 1 if dx > 0 else -1
+    step_y = 1 if dy > 0 else -1
+
+    t_delta_x = abs(field_size / dx) if dx != 0 else float('inf')
+    t_delta_y = abs(field_size / dy) if dy != 0 else float('inf')
+
+    next_x_boundary = (x + (step_x > 0)) * field_size
+    next_y_boundary = (y + (step_y > 0)) * field_size
+
+    t_max_x = abs((next_x_boundary - x0) / dx) if dx != 0 else float('inf')
+    t_max_y = abs((next_y_boundary - y0) / dy) if dy != 0 else float('inf')
+
+    step_axis = None  # 0 = x-step, 1 = y-step
+
+    while True:
+
+        if draw:
+            pg.draw.rect(
+                screen,
+                (40, 40, 40),
+                (x * field_size, y * field_size, field_size, field_size),
+                1
+            )
+
+        if 0 <= y < len(array) and 0 <= x < len(array[0]):
+            if array[y][x] != 0:
+
+                # ✔ FRONT-FACE HIT FIX
+                if step_axis == 0:
+                    t_hit = t_max_x - t_delta_x
+                else:
+                    t_hit = t_max_y - t_delta_y
+
+                hit_x = x0 + dx * t_hit
+                hit_y = y0 + dy * t_hit
+
+                if draw:
+                    pg.draw.circle(screen, (255, 0, 0), (int(hit_x), int(hit_y)), 6)
+
+                return True, (hit_x, hit_y), None
+
+        if x == end_x and y == end_y:
+            break
+
+        # step DDA
+        if t_max_x < t_max_y:
+            t_max_x += t_delta_x
+            x += step_x
+            step_axis = 0
+        else:
+            t_max_y += t_delta_y
+            y += step_y
+            step_axis = 1
+
+    return False, None, None
 
 
 class Animationz:
@@ -438,17 +510,13 @@ def checkBases(LTheta, RTheta, sightDistance, grid):
 
     
 #####Globals#####
-import json
-with open("settings.json", "r") as f:
-    sett = json.load(f)
+
+s = Settings()
 
 class state:
-   
-    SETTINGS = sett
-    WIDTH,HEIGHT = (int(e) for e in SETTINGS["RESOLUTION"].split("x"))
+
     FULLSCREEN = False
     # HEIGHT = 1080
-
 
 
 
@@ -457,6 +525,7 @@ class state:
     MHB_rect = None
     events = pg.event.get()
     playerPos = None
+    counter = 0
 
     HB_layer = None
 
@@ -468,6 +537,8 @@ class state:
     CorpseList = []
     entityScene = None
 
+    mx,my = (0,0)
+
 
 
 
@@ -476,9 +547,9 @@ print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 
 
     
-screen = pg.display.set_mode((state.WIDTH, state.HEIGHT))
-overlay = pg.Surface((state.WIDTH, state.HEIGHT), pg.SRCALPHA)
-vwp = pg.Rect(0, 0, state.WIDTH, state.HEIGHT)
+screen = pg.display.set_mode((s.WIDTH, s.HEIGHT))
+overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
+vwp = pg.Rect(0, 0, s.WIDTH, s.HEIGHT)
 
 
 
