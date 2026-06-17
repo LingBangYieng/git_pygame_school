@@ -128,8 +128,8 @@ def in_menu_func(events):
         #DRAW Text,Icon,Box
         text = font.render(f"{file.stem}", True, (255, 255, 255))
 
-        x = (state.WIDTH - text.get_width()) // 2
-        y = state.HEIGHT // 10 + 60 * (i) + scroll_displacement
+        x = (s.WIDTH - text.get_width()) // 2
+        y = s.HEIGHT // 10 + 60 * (i) + scroll_displacement
         w = text.get_width()
         h = text.get_height()
 
@@ -186,9 +186,9 @@ def in_menu_func(events):
 
 game_loop = True
 size = 1
-state.WIDTH, state.HEIGHT = 2560, 1440
-screen = pg.display.set_mode((state.WIDTH, state.HEIGHT))  
-fade = pg.Surface((state.WIDTH, state.HEIGHT))
+s.WIDTH, s.HEIGHT = 2560, 1440
+screen = pg.display.set_mode((s.WIDTH, s.HEIGHT))  
+fade = pg.Surface((s.WIDTH, s.HEIGHT))
 fade.fill((0,0,0)) 
 font = pg.font.Font(None, 36)
 field_size = 48
@@ -203,7 +203,7 @@ scroll_displacement = 0
 library_folder = Path("assets/map_builder_sprites/")
 
 layers = 3
-visual_grid = [[[0]*int(state.WIDTH//field_size) for _ in range(int(state.HEIGHT//field_size))] for __ in range(layers)]
+visual_grid = [[[0]*int(s.WIDTH//field_size) for _ in range(int(s.HEIGHT//field_size))] for __ in range(layers)]
 
 
 in_menu = False
@@ -320,7 +320,7 @@ while game_loop:
                     current_sprite = pg.transform.scale_by(current_sprite, zoom)
 
                 if event.key == pg.K_0:
-                    visual_grid = [[[0]*int(state.WIDTH//field_size) for _ in range(int(state.HEIGHT//field_size))] for __ in range(layers)]
+                    visual_grid = [[[0]*int(s.WIDTH//field_size) for _ in range(int(s.HEIGHT//field_size))] for __ in range(layers)]
 
 
 
@@ -350,7 +350,7 @@ while game_loop:
         
 
 
-        if round(mouse_pos[1] // field_size) < int(state.HEIGHT//field_size) and round(mouse_pos[0] // field_size) < int(state.WIDTH//field_size):
+        if round(mouse_pos[1] // field_size) < int(s.HEIGHT//field_size) and round(mouse_pos[0] // field_size) < int(s.WIDTH//field_size):
             if (lmb_held or rmb_held or event.type == pg.MOUSEBUTTONDOWN) and in_menu == False:
                 if lmb_held or (event.type == pg.MOUSEBUTTONDOWN and event.button == 1): 
                     if ignore_next_click:

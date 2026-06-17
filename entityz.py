@@ -5,6 +5,8 @@ from helper_pygame import *
 #from globals import *
 from pathfind_non_visual import a_star
 
+pg.font.init()
+
 def get_topleft(image: pg.Surface, position: tuple):
     return image.get_rect(center=position).topleft
 
@@ -191,31 +193,65 @@ class Bulletz(Entityz):
 
 class Itemz(Entityz):
 
-    def __init__(self, position = (0, 0), hitbox = None, path_to_image_non_highlighted = "assets/goofy_revolver.png", image_scale = 1, image_rotation = 0):
+    def __init__(self, position = (0, 0), hitbox = None, path_to_image_non_highlighted = "assets/goofy_revolver.png", image_scale = 1, image_rotation = 0, instruction = None, instructionArgs:list = []):
         super().__init__(position=position, hitbox=hitbox, path_to_image=path_to_image_non_highlighted, image_scale=image_scale, image_rotation=image_rotation)
 
         path_to_image_non_highlighted = path_to_image_non_highlighted.replace(".png", "", 1)
         self.image_highlighted = pg.image.load(path_to_image_non_highlighted + "_highlighted.png")
         self.image_highlighted = super().adjustImage(self.image_highlighted, image_scale, image_rotation)
+        self.instrArgs = instructionArgs
+        self.instr = instruction
 
 
     def draw(self):
-
         super().update_HB()
         mouse_HB = HitBox((screen_to_world_coords_rare_use(pg.mouse.get_pos(), vwp), (1, 1)))
 
         if mouse_HB.check_collision(self.hitbox):
             screen.blit(self.image_highlighted, wtsc(self.top_left_position, vwp))
+            keys = pg.key.get_pressed()
+            if keys[pg.K_e]:
+                self.do_instr()
         else:
             screen.blit(self.image, wtsc(self.top_left_position, vwp))
         self.hitbox.show_HB()
 
 
+    def do_instr(self):
+        if self.instrArgs:
+            self.instr(self.instrArgs)
+        else:
+            self.instr() 
+
+
+class Hostage(Itemz):
+    hfont = pg.font.Font("assets/born2bsporty-fs.regular.otf", int(7.5*s.GameScale))
+
+    def __init__(self, position=(0, 0), hitbox=None, path_to_image_non_highlighted="assets/goofy_revolver.png", image_scale=1, image_rotation=0, instruction = None, instructionArgs:list = []):
+        super().__init__(position=position, hitbox=hitbox, path_to_image_non_highlighted=path_to_image_non_highlighted, image_scale=image_scale, image_rotation=image_rotation)
+
+        self.text_object = Hostage.hfont.render("SAVE HOSTAGE", True, "white")
+        self.text_w_d2 = self.text_object.get_width() / 2
+        self.text_h_d2 = self.text_object.get_height() / 2
+        self.image_scale = image_scale
+        self.instrArgs = instructionArgs
+        self.instr = instruction
+
+    def draw(self):
+        super().draw()
+        if state.MHB_rect.check_collision(self.hitbox):
+            screen.blit(self.text_object, wtsc((self.position[0] - self.text_w_d2, self.position[1] - 16*self.image_scale - self.text_h_d2), vwp))
+
+            
+
+
+
+#######################
 def C(pos, col="red"):
     pg.draw.circle(screen, col, wtsc(pos, vwp), 3)
 def px(coord):
-    return coord[0]*CellSize,coord[1]*CellSize
-
+    return coord[0]*s.CellSize,coord[1]*s.CellSize
+#######################
 
 class Enemyz(Entityz):
 
@@ -258,18 +294,19 @@ class Enemyz(Entityz):
 
     def aStarPath(self, goal="player", visual=True):
         
-        c_ene_pos = int(self.position[0]/CellSize), int(self.position[1]/CellSize)
+        c_ene_pos = int(self.position[0]/s.CellSize), int(self.position[1]/s.CellSize)
 
         if goal == "player":
-            c_player_pos = int(state.playerPos[0]/CellSize+0.5) , int(state.playerPos[1]/CellSize+0.5)
+            c_player_pos = int(state.playerPos[0]/s.CellSize+0.5) , int(state.playerPos[1]/s.CellSize+0.5)
         else:
-            c_player_pos = int(goal[0]/CellSize+0.5) , int(goal[1]/CellSize+0.5)
+            c_player_pos = int(goal[0]/s.CellSize+0.5) , int(goal[1]/s.CellSize+0.5)
 
         playerInHB = state.HB_layer[c_player_pos[1]][c_player_pos[0]]
         if playerInHB:
             # print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
             self.genPathBool = False
-            path = self.savedPath.copy()
+            if self.savedPath is not None: path = self.savedPath.copy()
+            else: path = None
         else:
             if self.genPathBool:
                 path = a_star(c_ene_pos, c_player_pos, state.HB_layer)
@@ -295,10 +332,10 @@ class Enemyz(Entityz):
             else:
                 c_next_goal_pos = c_player_pos
 
-            next_goal_pos = c_next_goal_pos[0]*CellSize + CellSize/2, c_next_goal_pos[1]*CellSize + CellSize/2
+            next_goal_pos = c_next_goal_pos[0]*s.CellSize + s.CellSize/2, c_next_goal_pos[1]*s.CellSize + s.CellSize/2
             C(next_goal_pos)
             dx, dy = next_goal_pos[0] - self.position[0], next_goal_pos[1] - self.position[1]
-            if dx<CellSize and dy<CellSize and self.savedPath:
+            if dx<s.CellSize and dy<s.CellSize and self.savedPath:
                 self.savedPath.pop(0)
             dist = max(np.sqrt(dx**2 + dy**2), 0.1)
             self.velo = (dx / dist, dy / dist)
@@ -377,7 +414,7 @@ class Enemyz(Entityz):
             crx, cry = random.randint(0, len(state.HB_layer[0])), random.randint(0, len(state.HB_layer))
             while not check_boundaries(cry,crx,state.HB_layer) or state.HB_layer[cry][crx]: 
                 crx, cry = random.randint(2, len(state.HB_layer[0])-2), random.randint(2, len(state.HB_layer)-2)
-            self.randomGaol = (crx*CellSize,cry*CellSize)
+            self.randomGaol = (crx*s.CellSize,cry*s.CellSize)
             self.setRandomGoalAgo = 0
 
         if self.setRandomGoalAgo > 70 and self.randomGaol:
@@ -389,7 +426,7 @@ class Enemyz(Entityz):
         super().die()
         if self.type == "bombi":
             corpse = pg.image.load(f"assets/bombiCorpse_{random.randint(1,2)}.png")
-            corpse = pg.transform.scale_by(corpse, GameScale/1.5)
+            corpse = pg.transform.scale_by(corpse, s.GameScale/1.5)
             corpse = pg.transform.rotate(corpse, random.randint(0, 360))
             state.CorpseList.append((corpse, self.position))
 
@@ -403,6 +440,7 @@ class EntityScenez:
         self.enemyList = []
 
         self.itemList = []
+        self.hostageList = []
     
 
     def update_EntityScene(self):
@@ -411,6 +449,7 @@ class EntityScenez:
         self.updateList(self.friendlyBulletList)
         self.updateList(self.enemyList)
         self.updateList(self.itemList)
+        self.updateList(self.hostageList)
 
     def draw_EntityScene(self):
         self.update_EntityScene()
@@ -419,6 +458,7 @@ class EntityScenez:
         for fbullet in self.friendlyBulletList: fbullet.draw()
         for enemy in self.enemyList: enemy.draw()
         for item in self.itemList: item.draw()
+        for hostage in self.hostageList: hostage.draw()
 
     def kill_enemy(self):
         for enemy in self.enemyList:
@@ -453,6 +493,9 @@ class EntityScenez:
     
     def add_enemy(self, enemy:Enemyz):
         self.enemyList.append(enemy)
+
+    def add_hostage(self, hostage:Hostage):
+        self.hostageList.append(hostage)
     
     def add_enemyBullet(self, bullet:Bulletz):
         self.enemyBulletList.append(bullet)

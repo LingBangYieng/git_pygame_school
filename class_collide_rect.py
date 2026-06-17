@@ -50,5 +50,8 @@ class HitBox:
 
     def get_size(self):
         return (self.w, self.h)
+    
+    def setPos(self, pos):
+        self.__init__((pos, self.get_size()))
 
 

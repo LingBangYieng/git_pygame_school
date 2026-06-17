@@ -1,11 +1,11 @@
-#User
-MAX_FPS = 69
-SFX_VOLUME = 1
-RESOLUTION = "1920x1080"
+# #User
+# s.MAX_FPS = 69
+# SFX_VOLUME = 1
+# RESOLUTION = "1920x1080"
 
 
-#Engine
-CellSize = 24*4
-fov_degr = 90
-GameScale = 4
+# #Engine
+# s.CellSize = 24*4
+# s.fov_degr = 90
+# s.GameScale = 4
 
