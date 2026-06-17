@@ -1,6 +1,6 @@
 import pygame as pg
 import random as r
-from helper_pygame import s, state
+from helper_pygame import s, state, DebugScreen
 from class_collide_rect import HitBox
 
 def miniGame():
@@ -26,15 +26,27 @@ def miniGame():
 
     randVec, randStrength = None, None
 
-    def checkScreenExit(position):
+    def ocheckScreenExit(position):
         if position[0] < 0:
-            return 1,0
+            return 1,-1
         if position[0] > s.WIDTH:
             return -1,0
         if position[1] < 0:
             return 0,1
         if position[1] > s.HEIGHT:
             return 0,-1
+        
+        return 1,1
+    
+    def checkScreenExit(position):
+        if position[0] < 0:
+            return 1,-1
+        if position[0] > s.WIDTH:
+            return 1,-1
+        if position[1] < 0:
+            return -1,1
+        if position[1] > s.HEIGHT:
+            return -1,1
         
         return 1,1
 
@@ -63,10 +75,10 @@ def miniGame():
     #     posAim += ctm
 
     #     return posAim
-
-
+    Q = DebugScreen()
 
     while running:
+        Q.add("fps", clock.get_fps())
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -100,11 +112,12 @@ def miniGame():
 
         # if checkScreenExit(posAim):
         if counter % 180 == 0:
-            x = r.choice([r.randint(0, 400), r.randint(600, s.WIDTH)])
-            y = r.choice([r.randint(0, 400), r.randint(600, s.HEIGHT)])
+            x = r.choice([r.randint(0, s.WIDTH*0.4), r.randint(s.WIDTH*0.6, s.WIDTH)])
+            y = r.choice([r.randint(0, s.HEIGHT*0.4), r.randint(s.HEIGHT*0.6, s.HEIGHT)])
 
-            dd,ddd = checkScreenExit(posAim)
-            # x = 1
+            # dd,ddd = checkScreenExit(posAim)
+            # x *= dd
+            # y *= ddd
 
             randVec = pg.Vector2(x, y) - CenterCross
             randStrength = r.uniform(0.01, 0.02)
@@ -137,10 +150,10 @@ def miniGame():
         screen.blit(mask, (0, 0))
 
         # print(counter)
-
+        Q.draw()
         pg.display.flip()
         counter += 1
-        clock.tick(60) 
+        clock.tick(69)
 
     pg.quit()
 

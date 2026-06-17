@@ -189,7 +189,7 @@ def pss():
     D = DebugScreen()
     while state.game_loop:
         # clock.tick(s.MAX_FPS)
-        clock.tick()
+        clock.tick(s.MAX_FPS)
 
         D.add("FPS", clock.get_fps(), avg=20)
 
@@ -262,7 +262,7 @@ def pss():
                     gunshot_sound.play()
                     shootCooldown = s.MAX_FPS/10
                 if event.button == 3:
-                    rockety = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/rockety.png", image_scale=2, bullet_speed=15, lifetime=600, remote_control=True, isDiag=True, explosive=True, explosionRadius=75, isAnimated=True)
+                    rockety = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/rockety.png", image_scale=2, bullet_speed=15, lifetime=600, remote_control=True, isDiag=True, explosive=True, explosionRadius=75, isAnimated=True, damage=2000)
                     entitySceneMain.add_friendlyBulletList(rockety)
                     launch_missile.play()
         
@@ -327,14 +327,23 @@ def pss():
                     enemy.extra = (enemy.extra[0] - pushvec[0]*0.5,enemy.extra[1] - pushvec[1]*0.5)
                 
 
+        for bullet in entitySceneMain.friendlyBulletList:
+            for HBs in HB_layerHBs:
+                if bullet.hitbox.check_collision(HBs):
+                    bullet.die()
+
+
                 
         P.checkN("past HBs colls")
 
 
 
         # if keys[pg.K_RIGHT]:
-        #     for en in entitySceneMain.enemyList:
-        #         en.extra = (25, 0)
+        #     entitySceneMain.saveToFile()
+        # if keys[pg.K_LEFT]:
+        #     entitySceneMain.loadFromFile()
+        #     # for en in entitySceneMain.enemyList:
+        #     #     en.extra = (25, 0)"
 
 
 
@@ -360,7 +369,8 @@ def pss():
         for enemy in entitySceneMain.enemyList:
             pg.draw.circle(overlay, (10, 0, 0, 150), wtsc(enemy.position), 200)
         for enemy in entitySceneMain.enemyList:
-            pg.draw.circle(overlay, (150, 0, 0, 30), wtsc(enemy.position), state.counter%8*10+20)
+            if enemy.lit:
+                pg.draw.circle(overlay, (150, 0, 0, 30), wtsc(enemy.position), state.counter%8*10+20)
 
         # screen.blit(blur_surface(overlay, 0.2), (0, 0))
         # screen.blit()

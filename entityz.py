@@ -93,7 +93,8 @@ class Bulletz(Entityz):
                  explosive = False,
                  explosionRadius = 0,
                  isAnimated = False,
-                 path_to_animation = "assets/rockety_anim.png"):
+                 path_to_animation = "assets/rockety_anim.png",
+                 damage = 20):
         '''lifetime is in frames'''
         super().__init__(position=position, hitbox=hitbox, path_to_image=path_to_image, image_scale=image_scale, isAnimated=isAnimated, path_to_animation=path_to_animation)
 
@@ -125,7 +126,7 @@ class Bulletz(Entityz):
             self.deathEvent = lambda: state.entityScene.castRectExplosion(self.position, self.explosionRadius)
 
 
-
+        self.damage = damage
         
 
     def calc_alpha(self):
@@ -255,7 +256,7 @@ def px(coord):
 
 class Enemyz(Entityz):
 
-    def __init__(self, position = (0, 0), hitbox = None, path_to_image = "assets/middled_player", image_scale = 1, image_rotation = 0, type = "bombi"):
+    def __init__(self, position = (0, 0), hitbox = None, path_to_image = "assets/middled_player.png", image_scale = 1, image_rotation = 0, type = "bombi"):
         super().__init__(position=position, hitbox=hitbox, path_to_image=path_to_image, image_scale=image_scale, image_rotation=image_rotation)
         self.alpha = self.calc_alpha_to_player()
         self.type = type
@@ -269,14 +270,29 @@ class Enemyz(Entityz):
         self.setRandomGoalAgo = 100
         self.randomGaol = None
 
+
+
+
+        self.hp = 99
+        self.timer = 100
+        self.lit = False
+
+
+
     def draw(self):
+    
         if self.alive:
+            self.checkHealth()
+            self.checkDist()
+
+
             self.alpha = self.calc_alpha_to_player()
             self.image = pg.transform.rotate(self.original_image, self.alpha - 90)
             screen.blit(self.image, wtsc(self.top_left_position, vwp))
             self.hitbox.show_HB()
             self.move()
             self.update_HB()
+
 
     def calc_alpha_to_player(self):
         middle_screen_x, middle_screen_y = wtsc(self.position, vwp)
@@ -342,6 +358,9 @@ class Enemyz(Entityz):
             
 
     def move(self):
+        if self.lit:
+            return
+        
         self.velo = (0, 0)
 
         self.hasSeenAgo += 1
@@ -349,7 +368,7 @@ class Enemyz(Entityz):
         if self.seePath():
             if self.hasSeenAgo != 1:
                 self.isreali_ambient = pg.mixer.Sound("assets/israeli_ambient_quiet.mp3")
-                self.isreali_ambient.set_volume(0.1)
+                self.isreali_ambient.set_volume(0.4)
                 state.soundChannel.play(self.isreali_ambient)
 
             self.hasSeenAgo = 0
@@ -362,6 +381,7 @@ class Enemyz(Entityz):
 
 
         # print(self.extra)
+        
         self.position = self.velo[0]*10+self.extra[0] + self.position[0], self.velo[1]*10+self.extra[1] + self.position[1]
         self.extra = (0,0)
 
@@ -430,8 +450,65 @@ class Enemyz(Entityz):
             corpse = pg.transform.scale_by(corpse, s.GameScale/1.5)
             corpse = pg.transform.rotate(corpse, random.randint(0, 360))
             state.CorpseList.append((corpse, self.position))
+        try:
+            self.isreali_ambient.stop()
+        except:
+            pass
 
-        self.isreali_ambient.stop()
+    def takeDamage(self, damage=0):
+        self.checkHealth()
+        self.hp -= damage
+
+    def checkHealth(self):
+        if self.hp < 0:
+            self.die()
+
+    def checkDist(self):
+        # print(self.position[0]-state.playerPos[0])
+        if abs(self.position[0]-state.playerPos[0]) < s.CellSize/8:
+            if abs(self.position[1]-state.playerPos[1]) < s.CellSize/8:
+                self.explode()
+        if self.lit:
+            self.explode()
+
+
+    def explode(self):
+        self.timer -= 1
+        self.lit = True
+        if self.timer<0:
+            state.entityScene.castRectExplosion(self.position, 100)
+            self.die()
+        
+
+    # def saveToFile(self):
+    #     return self.saveToString()
+    #     return "&".join(
+    #         f"{attr}={getattr(self, attr)!r}"
+    #         for attr in dir(self)
+    #         if not callable(getattr(self, attr)) 
+    #         and not attr.startswith("__")
+    #         and not callable(getattr(self, attr))
+    #     )
+    
+
+    # def saveToString(self):
+    #     return "&".join(
+    #         f"{name}={repr(value)}"
+    #         for name, value in self.__dict__.items()
+    #     )
+        
+    # def loadFromString(self, s):
+    #     for part in s.split("&"):
+    #         name, value = part.split("=", 1)
+
+    #         # Try to recover basic Python types
+    #         try:
+    #             value = eval(value)
+    #         except:
+    #             pass
+    #         print(name, value, type(name), type(value))
+    #         setattr(self, name, value)
+    #     return self            
 
 
 class EntityScenez:
@@ -479,7 +556,7 @@ class EntityScenez:
                         enemyHit_sound.set_volume(0.1)
                         enemyHit_sound.play()
 
-                        enemy.die()
+                        enemy.takeDamage(bullet.damage)
 
                         bullet.die()
 
@@ -487,6 +564,8 @@ class EntityScenez:
         explosionHitbox = HitBox((tuple(e-radius for e in position), (2*radius, 2*radius)))
         explosionHitbox.show_HB()
         Animationz("assets/may_explosion.png", (32, 32), 6, 4/32*radius*0.8, 0.2).play(position, 0)
+        # pg.draw.polygon(overlay, (0, 0, 0, 50), checkBases(0, 2*np.pi, 2000, state.HB_layer, pos=enemy.position))
+
         for enemy in self.enemyList:
             if enemy.alive:
                 if enemy.hitbox.check_collision(explosionHitbox):
@@ -512,6 +591,17 @@ class EntityScenez:
 
     def updateList(self, lst):
         lst[:] = [e for e in lst if e.alive]
+
+
+    # def saveToFile(self):
+    #     storeAllText = "\n".join([enemy.saveToFile() for enemy in self.enemyList])
+    #     with open("saveTest.txt", "w") as f:
+    #         f.write(storeAllText)
+
+    # def loadFromFile(self):
+    #     with open("saveTest.txt", "r") as f:
+    #         storeAllText = f.read()
+    #     self.enemyBulletList = [Enemyz().loadFromString(singleEnemyString) for singleEnemyString in storeAllText.split("\n")]
 
 
         
