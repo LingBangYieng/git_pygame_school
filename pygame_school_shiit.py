@@ -183,12 +183,15 @@ def pss():
     class BottleNeck:
         def checkN(gg, das):
             pass
+    
 
+
+    D = DebugScreen()
     while state.game_loop:
         # clock.tick(s.MAX_FPS)
         clock.tick()
 
-        # print(clock.get_fps())
+        D.add("FPS", clock.get_fps(), avg=20)
 
         P = BottleNeck()
 
@@ -364,7 +367,7 @@ def pss():
         screen.blit(overlay, (0, 0))
         
 
-        print("HEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+        # print("HEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
                 
 
         P.checkN("past shadow blit")
@@ -374,6 +377,7 @@ def pss():
 
 
         state.counter += 1
+        D.draw()
         pg.display.update()
 
 

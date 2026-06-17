@@ -516,11 +516,6 @@ s = Settings()
 
 class state:
 
-    FULLSCREEN = False
-    # HEIGHT = 1080
-
-
-
 
 
     MHB_rect = None
@@ -552,18 +547,21 @@ class state:
 print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 
 
-def updateScreens():
-    global screen, overlay, overlay2, vwp
-    screen = pg.display.set_mode((s.WIDTH, s.HEIGHT))
-    overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
-    vwp = pg.Rect(0, 0, s.WIDTH, s.HEIGHT)
+
 
     
 screen = pg.display.set_mode((s.WIDTH, s.HEIGHT))
 overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
 vwp = pg.Rect(0, 0, s.WIDTH, s.HEIGHT)
 
-
+def updateScreens():
+    global screen, overlay, vwp
+    num = pg.FULLSCREEN if s.FULLSCREEN else 0
+    screen = pg.display.set_mode((s.WIDTH, s.HEIGHT), num)
+    overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
+    print(overlay.get_size())
+    print(s.WIDTH, s.HEIGHT)
+    vwp.size = (s.WIDTH, s.HEIGHT)
 
 def wtsc(world_coords_object, view_field_xy_position=vwp):
     screen_coords = (world_coords_object[0] - view_field_xy_position.topleft[0], world_coords_object[1] - view_field_xy_position.topleft[1])
@@ -572,3 +570,139 @@ def wtsc(world_coords_object, view_field_xy_position=vwp):
 def screen_to_world_coords_rare_use(screen_coords_object, view_field_xy_position=vwp):
     return (screen_coords_object[0] + view_field_xy_position.topleft[0], screen_coords_object[1] + view_field_xy_position.topleft[1])
 ################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+pg.font.init()
+class DebugScreen:
+    '''use by creating a DebugScreen Variable (D = DebugScreen()), 
+        and at end of gameloop (before screen update) put D.draw()
+        wherever u want to wish to meassure a value, use D.add() to do so'''
+    textSize = 20
+    max_width = 0
+    debugFont = pg.font.Font(None, textSize)
+
+    def __init__(self):
+        self.mainDict = {}
+
+    def draw(self, pos=(50,50)):
+        # res = []
+
+        
+        line_height = self.textSize*1.1
+
+        renders = []
+        for DebugKey in self.mainDict:
+            DebugItem = self.mainDict[DebugKey]
+            DebugValue = DebugItem["value"]
+            DebugUnit = DebugItem["unit"]
+            DebugLine = f"{DebugKey} :   {DebugValue} {DebugUnit}"
+        
+  
+            DebugLineRender = self.debugFont.render(DebugLine, True, (255, 255, 255))
+            renders.append(DebugLineRender)
+            w,h = DebugLineRender.get_size()
+            self.max_width = max(self.max_width, w)
+
+        DebugText = pg.Surface((self.max_width*1.1, line_height*1.25*len(renders)), pg.SRCALPHA)
+        DebugText.fill((0,0,0,255))
+        screen.blit(DebugText, (pos[0]-line_height*0.25, pos[1]-line_height*0.25))
+
+        for i in range(len(renders)):
+            render = renders[i]
+            screen.blit(render, (pos[0], pos[1]+line_height*1.25*i))
+
+    def add(self, key, value="unknown", unit="", dec=1, avg=1,   enable_adaptive_units=False):
+        '''
+        args:
+        key [str]  :  name of the varible that shall be displayed, use only once per Obj (will overwrite)
+        value [any]:  the value to be represented e.g. clock.get_fps()
+        unit [str] :  possible place for unit support (m, cm, L, Newton, meter), will be printed after the value
+        dec [uint] : decimal places
+        avg [uint] : number of elements to calculate temporal average
+        enable_adaptive_units [bool]  :  enables automatic unit conversion between m,km,nm,mm,ns etc
+
+        '''
+        if avg<1:
+            avg=1
+            print("Warning, set avg to one since less makes no sense")
+
+        value = self.__adapt_value(value)
+
+        if key not in self.mainDict:
+            self.mainDict[key] = {}
+            self.mainDict[key]["valueList"] = []
+        
+        self.mainDict[key]["valueList"].append(value)
+        if len(self.mainDict[key]["valueList"]) > avg:
+            self.mainDict[key]["valueList"].pop(0)
+        
+        adaptive_unit_string, adaptive_units_factor =  self.__genAdaptiveUnit(unit, value) if enable_adaptive_units else (unit, 1)
+        
+        self.mainDict[key]["value"] = np.round(np.sum(np.array(self.mainDict[key]["valueList"]), axis=0)/len(self.mainDict[key]["valueList"])  /  adaptive_units_factor, dec)
+        self.mainDict[key]["unit"] = adaptive_unit_string + unit
+
+
+    def __genAdaptiveUnit(self, unit, value):
+        if unit.strip() == "" or value=="unknown" or abs(value) < 1e-12 or not isinstance(value, (int, float)):
+            return ("",1)
+        
+        powerList = ["p", "n", "u", "m", "", "k", "M", "G", "T", "P"]
+
+        index = int(np.log10(abs(value))/3)+4
+        self.add("ind", index)
+        return (powerList[index], 10**((index-4)*3))
+
+
+    def __adapt_value(self, value):
+        if isinstance(value, (tuple, list)):
+            return np.array(value)
+        if isinstance(value, pg.Vector2):
+            return np.array([value[0], value[1]])
+        if isinstance(value, (int, float, str)):
+            return value
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

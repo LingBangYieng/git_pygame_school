@@ -1,12 +1,13 @@
 import pygame as pg
 import random as r
-from helper_pygame import state
+from helper_pygame import s, state
+from class_collide_rect import HitBox
 
 def miniGame():
 
     pg.init()
-    screen = pg.display.set_mode((1000, 1000))
-    mask = pg.Surface((1000, 1000), pg.SRCALPHA)
+    screen = pg.display.set_mode((s.WIDTH, s.HEIGHT))
+    mask = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
     clock = pg.time.Clock()
     running = True
 
@@ -19,9 +20,25 @@ def miniGame():
 
     counter = 0
 
+    posGoal = pg.Vector2(500, 250)
+
+    goalHB = HitBox(((500-180/2, 250-180/2), (180, 180)))
+
     randVec, randStrength = None, None
 
-    # def checkCircleCollision(pos1, r1, pos2, r2):
+    def checkScreenExit(position):
+        if position[0] < 0:
+            return 1,0
+        if position[0] > s.WIDTH:
+            return -1,0
+        if position[1] < 0:
+            return 0,1
+        if position[1] > s.HEIGHT:
+            return 0,-1
+        
+        return 1,1
+
+    # checkCircleCollision(pos1, r1, pos2, r2):
         
     #     pass
 
@@ -55,6 +72,10 @@ def miniGame():
             if event.type == pg.QUIT:
                 running = False
 
+            if goalHB.check_collision(HitBox((tuple(posAim),(1,1)))):
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        return
 
         screen.fill((100, 100, 100))
         mask.fill((0, 0, 0, 255))
@@ -77,10 +98,13 @@ def miniGame():
         # pg.draw.line(screen, "orange", CenterCross, posAim, 5)
 
 
-
+        # if checkScreenExit(posAim):
         if counter % 180 == 0:
-            x = r.choice([r.randint(0, 400), r.randint(600, 1000)])
-            y = r.choice([r.randint(0, 400), r.randint(600, 1000)])
+            x = r.choice([r.randint(0, 400), r.randint(600, s.WIDTH)])
+            y = r.choice([r.randint(0, 400), r.randint(600, s.HEIGHT)])
+
+            dd,ddd = checkScreenExit(posAim)
+            # x = 1
 
             randVec = pg.Vector2(x, y) - CenterCross
             randStrength = r.uniform(0.01, 0.02)
@@ -88,6 +112,10 @@ def miniGame():
 
         if randVec and randStrength:
             posAim += (randVec * randStrength)
+        
+        
+        if not checkScreenExit(posAim):
+            posAim = pg.Vector2(100, 100)
 
 
         ctm = CenterToMouse = mousePos - CenterCross
@@ -103,12 +131,22 @@ def miniGame():
 
         pg.draw.circle(mask, (0, 0, 0, 0), posAim, 350)
 
+        goalHB.show_HB()
+
+
         screen.blit(mask, (0, 0))
 
-        print(counter)
+        # print(counter)
 
         pg.display.flip()
         counter += 1
         clock.tick(60) 
 
     pg.quit()
+
+
+
+
+                
+if __name__ == "__main__":
+    miniGame()

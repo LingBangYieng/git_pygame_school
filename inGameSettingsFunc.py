@@ -13,14 +13,13 @@ def switch_scene(scene:Scenez):
 
 def change_resolution(arg):
     # global screen, current_scene
-    state.FULLSCREEN = False
+    s.FULLSCREEN = False
     s.RESOLUTION = arg
-    
     bs()
 
 def fullscreen():
     # global screen, current_scene
-    state.FULLSCREEN = True
+    s.FULLSCREEN = True
     w,h = pg.display.get_desktop_sizes()[0]
     s.RESOLUTION = f"{w}x{h}"
     bs()
@@ -29,13 +28,14 @@ def BackToGame():
     global ESCRunning
     ESCRunning = False
     print("hhhhh", ESCRunning)
+    s.discardSettings()
     bs()
 
 def updateSettings():
     s.applySettings()
     global screen, current_scene
 
-    if state.FULLSCREEN: screen = pg.display.set_mode((0,0), pg.FULLSCREEN)
+    if s.FULLSCREEN: screen = pg.display.set_mode((0,0), pg.FULLSCREEN)
     # else: screen = pg.display.set_mode((s.WIDTH, s.HEIGHT))
     updateScreens()
 

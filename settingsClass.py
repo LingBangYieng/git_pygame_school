@@ -26,7 +26,7 @@ class Settings:
 
 
         self.__savedSettings = {}
-        # self.saveSettings()
+        self.saveSettings()
 
     @property
     def WIDTH(self):
