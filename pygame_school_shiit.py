@@ -353,11 +353,11 @@ def pss():
         pg.draw.polygon(overlay, (0, 0, 0, 50), screenHits)
         pg.draw.circle(overlay, (0, 0, 0, 150), wtsc(state.playerPos), 40)
 
-        for enemy in entitySceneMain.enemyList:
-            pg.draw.circle(overlay, (0, 0, 0, 255), wtsc(enemy.position), 200)
-        for enemy in entitySceneMain.enemyList:
-            pg.draw.circle(overlay, (0, 0, 0, 255), wtsc(enemy.position), state.counter%8*10+20)
 
+        for enemy in entitySceneMain.enemyList:
+            pg.draw.circle(overlay, (10, 0, 0, 150), wtsc(enemy.position), 200)
+        for enemy in entitySceneMain.enemyList:
+            pg.draw.circle(overlay, (150, 0, 0, 30), wtsc(enemy.position), state.counter%8*10+20)
 
         # screen.blit(blur_surface(overlay, 0.2), (0, 0))
         # screen.blit()
