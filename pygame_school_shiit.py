@@ -54,7 +54,7 @@ def pss():
     moving = False
     sprinting= False
     radius = 20
-    game_loop = True
+    state.game_loop = True
     alpha = 0
 
 
@@ -184,7 +184,7 @@ def pss():
         def checkN(gg, das):
             pass
 
-    while game_loop:
+    while state.game_loop:
         # clock.tick(s.MAX_FPS)
         clock.tick()
 
@@ -200,7 +200,7 @@ def pss():
         #Escape
         for event in state.events:
             if event.type == pg.QUIT:
-                game_loop = False
+                state.game_loop = False
             
             if keys[pg.K_SPACE]:
                 # enemy0.alive = True
@@ -354,9 +354,10 @@ def pss():
         pg.draw.circle(overlay, (0, 0, 0, 150), wtsc(state.playerPos), 40)
 
         for enemy in entitySceneMain.enemyList:
-            pg.draw.circle(overlay, (10, 0, 0, 150), wtsc(enemy.position), 200)
+            pg.draw.circle(overlay, (0, 0, 0, 255), wtsc(enemy.position), 200)
         for enemy in entitySceneMain.enemyList:
-            pg.draw.circle(overlay, (150, 0, 0, 30), wtsc(enemy.position), state.counter%8*10+20)
+            pg.draw.circle(overlay, (0, 0, 0, 255), wtsc(enemy.position), state.counter%8*10+20)
+
 
         # screen.blit(blur_surface(overlay, 0.2), (0, 0))
         # screen.blit()

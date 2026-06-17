@@ -510,6 +510,7 @@ def checkBases(LTheta, RTheta, sightDistance, grid):
 
     
 #####Globals#####
+pg.mixer.init()
 
 s = Settings()
 
@@ -534,10 +535,16 @@ class state:
     animDict = {"player_walk":Animationz(imageScale=2, numFrames=14, frameSizeSpriteOnSpriteSheet=(64, 64), pathToSpriteSheet="assets/player_walk_gun.png", animationSpeed=0.4),
                 "rocket" : Animationz(pathToSpriteSheet="assets/rockety_anim.png", numFrames=4, imageScale=2, animationSpeed=0.3)}
 
+
+
     CorpseList = []
     entityScene = None
 
     mx,my = (0,0)
+
+    game_loop = True
+
+    soundChannel = pg.mixer.Channel(0)
 
 
 
@@ -545,6 +552,11 @@ class state:
 print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 
 
+def updateScreens():
+    global screen, overlay, overlay2, vwp
+    screen = pg.display.set_mode((s.WIDTH, s.HEIGHT))
+    overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
+    vwp = pg.Rect(0, 0, s.WIDTH, s.HEIGHT)
 
     
 screen = pg.display.set_mode((s.WIDTH, s.HEIGHT))

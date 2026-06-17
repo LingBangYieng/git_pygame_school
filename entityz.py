@@ -348,9 +348,10 @@ class Enemyz(Entityz):
         # print(self.hasSeenAgo)
         if self.seePath():
             if self.hasSeenAgo != 1:
-                isreali_ambient = pg.mixer.Sound("assets/israeli_ambient_quiet.mp3")
-                isreali_ambient.set_volume(0.1)
-                isreali_ambient.play()
+                self.isreali_ambient = pg.mixer.Sound("assets/israeli_ambient_quiet.mp3")
+                self.isreali_ambient.set_volume(0.1)
+                state.soundChannel.play(self.isreali_ambient)
+
             self.hasSeenAgo = 0
 
         elif self.hasSeenAgo < 200:
@@ -429,6 +430,8 @@ class Enemyz(Entityz):
             corpse = pg.transform.scale_by(corpse, s.GameScale/1.5)
             corpse = pg.transform.rotate(corpse, random.randint(0, 360))
             state.CorpseList.append((corpse, self.position))
+
+        self.isreali_ambient.stop()
 
 
 class EntityScenez:
