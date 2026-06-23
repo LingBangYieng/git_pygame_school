@@ -181,7 +181,7 @@ class Bulletz(Entityz):
                 self.image = pg.transform.rotate(self.original_image, self.alpha - 90 + self.diag) #why here
                 screen.blit(self.image, wtsc(self.top_left_position, vwp))
 
-                self.hitbox.show_HB()
+                # self.hitbox.show_HB()
                 rect = self.image.get_rect(topleft = self.top_left_position)
                 rect.topleft = wtsc(rect.topleft, vwp)
                 # pg.draw.rect(screen, "white", rect , 3)
@@ -221,7 +221,7 @@ class Itemz(Entityz):
 
         else:
             screen.blit(self.image, wtsc(self.top_left_position, vwp))
-        self.hitbox.show_HB()
+        # self.hitbox.show_HB()
 
 
     def do_instr(self):
@@ -313,7 +313,7 @@ class Enemyz(Entityz):
 
             self.image = pg.transform.rotate(self.original_image, self.alpha - 90)
             screen.blit(self.image, wtsc(self.top_left_position, vwp))
-            self.hitbox.show_HB()
+            # self.hitbox.show_HB()
             self.move()
             self.update_HB()
 
@@ -392,7 +392,7 @@ class Enemyz(Entityz):
             dx, dy = next_goal_pos[0] - self.position[0], next_goal_pos[1] - self.position[1]
             
             dist = max(np.sqrt(dx**2 + dy**2), 0.1)
-            if dist<s.CellSize/2: #dx<s.CellSize and dy<s.CellSize and self.savedPath:
+            if dist<s.CellSize/2 and self.savedPath: #dx<s.CellSize and dy<s.CellSize and self.savedPath:
                 self.savedPath.pop(0)
             
 
@@ -665,7 +665,7 @@ class EntityScenez:
 
     def castRectExplosion(self, position, radius):
         explosionHitbox = HitBox((tuple(e-radius for e in position), (2*radius, 2*radius)))
-        explosionHitbox.show_HB()
+        # explosionHitbox.show_HB()
         Animationz("assets/may_explosion.png", (32, 32), 6, 4/32*radius*0.8, 0.2).play(position, 0)
         # pg.draw.polygon(vis.overlay, (0, 0, 0, 50), checkBases(0, 2*np.pi, 2000, state.HB_layer, pos=enemy.position))
 

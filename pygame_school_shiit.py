@@ -71,13 +71,13 @@ def pss():
 
     state.HB_layer = HB_layer
 
-    background = pg.image.load(f"saves/test_as.png")
+    background = pg.image.load(f"saves/main_as.png")
     background = pg.transform.scale_by(background, s.GameScale)
 
     HB_layerHBs = getHitBox_HBLayer()
 
     #own Class init
-    player_walk = Animationz(numFrames=13, imageScale=s.GameScale)
+    # player_walk = Animationz(numFrames=13, imageScale=s.GameScale)
     mouse_HB = state.MHB_rect = HitBox(((0, 0),(1, 1)))
     entitySceneMain = EntityScenez()
 
@@ -363,7 +363,7 @@ def pss():
         if not moving:
             screen.blit(frame, frame_rect)   
         state.playerHB = HitBox(rect=((e-37.5 for e in(position_circle)), (75, 75)))
-        state.playerHB.show_HB()
+        # state.playerHB.show_HB()
 
 
         P.checkN("past playerlogf")
@@ -393,7 +393,7 @@ def pss():
 
         #avoid clipping logic
         for HBs in HB_layerHBs:
-            HBs.show_HB()
+            # HBs.show_HB()
             pushvec = HBs.get_push_vector(state.playerHB)
             velocity[0] -= pushvec[0]
             velocity[1] -= pushvec[1]
@@ -444,7 +444,7 @@ def pss():
         for hit in hits:
             screenHits.append(wtsc(hit,))
 
-        pg.draw.polygon(vis.overlay, (0, 0, 0, 50), screenHits)
+        pg.draw.polygon(vis.overlay, (0, 0, 0, 150), screenHits)
         pg.draw.circle(vis.overlay, (0, 0, 0, 150), wtsc(state.playerPos), 40)
 
 

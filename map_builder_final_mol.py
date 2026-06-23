@@ -320,6 +320,7 @@ while game_loop:
 
                 if event.key == pg.K_0:
                     visual_grid = [[[0]*int(s.WIDTH//field_size) for _ in range(int(s.HEIGHT//field_size))] for __ in range(layers)]
+                
 
 
 
@@ -361,9 +362,11 @@ while game_loop:
                     y = mouse_pos[1] // field_size
 
                     print(x,y)
-                    
-                    if visual_grid[build_layer][y][x] == 0:
-                        visual_grid[build_layer][y][x] = (sprite_dict[f"assets/map_builder_sprites_rotated/{rotation%360}_{current_sprite_name}_image.png"],  rotation%360, current_sprite_name)
+                    # for kk in range(-4, 4):
+                    #     for jj in range(-4, 4):
+                    jj, kk, = 0, 0
+                    if visual_grid[build_layer][y+kk][x+jj] == 0:
+                        visual_grid[build_layer][y+kk][x+jj] = (sprite_dict[f"assets/map_builder_sprites_rotated/{rotation%360}_{current_sprite_name}_image.png"],  rotation%360, current_sprite_name)
                         print(f"changed field:{y},{x}")
 
 
