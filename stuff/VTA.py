@@ -133,8 +133,8 @@ while running:
 
    
     screen.fill("purple")
-    overlay = pg.Surface((1000, 1000), pg.SRCALPHA)
-    overlay.fill((0, 0, 0, 240))  # semi-transparent dark overlay
+    vis.overlay = pg.Surface((1000, 1000), pg.SRCALPHA)
+    vis.overlay.fill((0, 0, 0, 240))  # semi-transparent dark vis.overlay
 
     for row in range(len(visual_grid)):
         for col in range(len(visual_grid[row])):
@@ -163,10 +163,10 @@ while running:
 
     # pg.draw.polygon(screen, "black", hits)
 
-    pg.draw.polygon(overlay, (0, 0, 0, 0), hits)
-    # pg.draw.circle(overlay, (0, 0, 0, 0), pos0, 30)
+    pg.draw.polygon(vis.overlay, (0, 0, 0, 0), hits)
+    # pg.draw.circle(vis.overlay, (0, 0, 0, 0), pos0, 30)
 
-    screen.blit(blur_surface(overlay, 0.2), (0, 0))
+    screen.blit(blur_surface(vis.overlay, 0.2), (0, 0))
 
     pg.draw.circle(screen, "red", pos0, 3)
 

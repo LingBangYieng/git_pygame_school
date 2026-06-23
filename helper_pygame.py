@@ -1,7 +1,6 @@
 import pygame as pg
 import numpy as np
 from PIL import Image
-from settings import *
 import random
 from settingsClass import Settings
 #from globals import *
@@ -478,24 +477,29 @@ def blur_surface(surface, scale_factor=0.25):
 
 
 
-def checkBases(LTheta, RTheta, sightDistance, grid):
+def checkBases(LTheta, RTheta, sightDistance, grid=None, position=None, precision=512):
+    if grid is None:
+        grid = state.HB_layer
+    if position is None:
+        position = state.playerPos
+
     hits = []
     HB_layer = grid
 
-    baseAngles = np.linspace(LTheta,RTheta,512)
+    baseAngles = np.linspace(LTheta,RTheta,precision)
 
-    _, LHit, _ = cast_ray(state.playerPos, np.array([sightDistance*np.cos(LTheta), sightDistance*np.sin(LTheta)])+state.playerPos, sightDistance, 100, field_size=32*3, array=HB_layer)
-    if not LHit: LHit = (np.array([sightDistance*np.cos(LTheta), sightDistance*np.sin(LTheta)])+state.playerPos)
-    _, RHit, _ = cast_ray(state.playerPos, np.array([sightDistance*np.cos(RTheta), sightDistance*np.sin(RTheta)])+state.playerPos, sightDistance, 100, field_size=32*3, array=HB_layer)
-    if not RHit: RHit = (np.array([sightDistance*np.cos(RTheta), sightDistance*np.sin(RTheta)])+state.playerPos)
+    _, LHit, _ = cast_ray(position, np.array([sightDistance*np.cos(LTheta), sightDistance*np.sin(LTheta)])+position, sightDistance, 100, field_size=32*3, array=HB_layer)
+    if not LHit: LHit = (np.array([sightDistance*np.cos(LTheta), sightDistance*np.sin(LTheta)])+position)
+    _, RHit, _ = cast_ray(position, np.array([sightDistance*np.cos(RTheta), sightDistance*np.sin(RTheta)])+position, sightDistance, 100, field_size=32*3, array=HB_layer)
+    if not RHit: RHit = (np.array([sightDistance*np.cos(RTheta), sightDistance*np.sin(RTheta)])+position)
 
 
     # print(len(baseAngles))
-    hits.append(state.playerPos)
+    hits.append(position)
     hits.append(LHit)
     for phi in baseAngles:
-        _,hit,_ = cast_ray(state.playerPos, np.array([sightDistance*np.cos(phi), sightDistance*np.sin(phi)])+state.playerPos, sightDistance, 100, field_size=32*3, array=HB_layer)
-        if not hit: hit = (np.array([sightDistance*np.cos(phi), sightDistance*np.sin(phi)])+state.playerPos)
+        _,hit,_ = cast_ray(position, np.array([sightDistance*np.cos(phi), sightDistance*np.sin(phi)])+position, sightDistance, 100, field_size=32*3, array=HB_layer)
+        if not hit: hit = (np.array([sightDistance*np.cos(phi), sightDistance*np.sin(phi)])+position)
         hits.append(hit)
         # if hit:
             
@@ -546,20 +550,25 @@ class state:
 
 print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 
+class vis:
+    overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
+
+
+
 
 
 
     
 screen = pg.display.set_mode((s.WIDTH, s.HEIGHT))
-overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
+vis.overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
 vwp = pg.Rect(0, 0, s.WIDTH, s.HEIGHT)
 
 def updateScreens():
-    global screen, overlay, vwp
+    global screen,vwp
     num = pg.FULLSCREEN if s.FULLSCREEN else 0
     screen = pg.display.set_mode((s.WIDTH, s.HEIGHT), num)
-    overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
-    print(overlay.get_size())
+    vis.overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
+    print(vis.overlay.get_size())
     print(s.WIDTH, s.HEIGHT)
     vwp.size = (s.WIDTH, s.HEIGHT)
 
@@ -578,6 +587,12 @@ def screen_to_world_coords_rare_use(screen_coords_object, view_field_xy_position
 
 
 
+
+def LightCone(pos, alphaDegr, fovDegr, sightDist):
+    alpha_rad, fov_rad_half = np.deg2rad(alphaDegr), np.deg2rad(fovDegr/2)
+    hits = checkBases(alpha_rad+fov_rad_half, alpha_rad-fov_rad_half, sightDistance=sightDist, position=pos, precision=128)
+    pg.draw.polygon(vis.overlay, (0, 0, 0, 50), [wtsc(e) for e in hits])
+    pg.draw.circle(vis.overlay, (0, 0, 0, 150), wtsc(pos), 20)
 
 
 
@@ -669,7 +684,10 @@ class DebugScreen:
         
         adaptive_unit_string, adaptive_units_factor =  self.__genAdaptiveUnit(unit, value) if enable_adaptive_units else (unit, 1)
         
-        self.mainDict[key]["value"] = np.round(np.sum(np.array(self.mainDict[key]["valueList"]), axis=0)/len(self.mainDict[key]["valueList"])  /  adaptive_units_factor, dec)
+        if isinstance(value, str):
+            self.mainDict[key]["value"] = value
+        else:
+            self.mainDict[key]["value"] = np.round(np.sum(np.array(self.mainDict[key]["valueList"]), axis=0)/len(self.mainDict[key]["valueList"])  /  adaptive_units_factor, dec)
         self.mainDict[key]["unit"] = adaptive_unit_string + unit
 
 
@@ -696,7 +714,7 @@ class DebugScreen:
 
 
 
-
+D = DebugScreen()
 
 
 

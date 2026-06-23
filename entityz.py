@@ -258,19 +258,19 @@ class Enemyz(Entityz):
 
     def __init__(self, position = (0, 0), hitbox = None, path_to_image = "assets/middled_player.png", image_scale = 1, image_rotation = 0, type = "bombi"):
         super().__init__(position=position, hitbox=hitbox, path_to_image=path_to_image, image_scale=image_scale, image_rotation=image_rotation)
-        self.alpha = self.calc_alpha_to_player()
+        self.alpha_radians = 0
+        self.alpha = self.calc_alphas()
         self.type = type
         self.extra = (0,0)
 
         self.genPathBool = True
         self.oldPath = None
-        self.savedPath = None
 
         self.hasSeenAgo = 100
         self.setRandomGoalAgo = 100
         self.randomGaol = None
 
-
+        self.velo = (0, 0) # needed?
 
 
         self.hp = 99
@@ -278,6 +278,19 @@ class Enemyz(Entityz):
         self.lit = False
 
 
+        self.fovDegr = 60
+        self.sightDist = 600
+
+        self.static = False
+
+        self.speed = 5
+
+
+        self.prevAlpha = 0
+
+        self.invokeTime = None
+
+        
 
     def draw(self):
     
@@ -286,29 +299,43 @@ class Enemyz(Entityz):
             self.checkDist()
 
 
-            self.alpha = self.calc_alpha_to_player()
+
+            self.smooth_alpha(self.calc_alphas())
+
+
+
+
             self.image = pg.transform.rotate(self.original_image, self.alpha - 90)
             screen.blit(self.image, wtsc(self.top_left_position, vwp))
             self.hitbox.show_HB()
             self.move()
             self.update_HB()
 
+            LightCone(self.position, -self.alpha, self.fovDegr, self.sightDist)
 
-    def calc_alpha_to_player(self):
-        middle_screen_x, middle_screen_y = wtsc(self.position, vwp)
-        if state.playerPos:player_x, player_y = wtsc(state.playerPos, vwp)
-        else: player_x, player_y = (0, 0)
-        dx = player_x - middle_screen_x
-        dy = player_y - middle_screen_y
 
-        self.alpha_radians = np.arctan2(-dy, dx)
+    def smooth_alpha(self, target, factor=0.1):
+        diff = (target - self.alpha + 180) % 360 - 180
+        self.alpha += diff * factor
+        self.alpha %= 360
+
+    def calc_alphas(self):
+        #saved IMPRTONAT
+        self.alpha_to_player = np.rad2deg(self.alpha_radians) if state.playerPos is None else np.rad2deg(np.atan2(-(state.playerPos[1] - self.position[1]),(state.playerPos[0] - self.position[0])))
+        self.distToPlayer_sqr = 10000000 if state.playerPos is None else (self.position[0] - state.playerPos[0])**2 + (self.position[1] - state.playerPos[1])**2
+        
+        if self.velo == (0,0):
+            # print("using avoid", self.velo ,np.rad2deg(self.alpha_radians)) MMM
+            return np.degrees(self.alpha_radians)
 
         #alpha override
         self.alpha_radians = np.arctan2(-self.velo[1], self.velo[0])
+        # print("not using over", (-self.velo[1], self.velo[0]), np.degrees(self.alpha_radians))MMM
         return np.degrees(self.alpha_radians)
     
 
     def aStarPath(self, goal="player", visual=True):
+        # D.add("E", "A")MMM
         
         c_ene_pos = int(self.position[0]/s.CellSize), int(self.position[1]/s.CellSize)
 
@@ -340,6 +367,12 @@ class Enemyz(Entityz):
 
         if path is not None:
             
+            # chosen = 1
+            # for i in range(1,len(path)):
+            #     if ((px(path[i])[0] - self.position[0])**2 + (px(path[i])[1] - self.position[1])**2) < s.CellSize/2:
+            #         chosen = i
+
+
             if len(path) > 2:
                 c_next_goal_pos = path[1]
                 if visual:
@@ -351,13 +384,24 @@ class Enemyz(Entityz):
             next_goal_pos = c_next_goal_pos[0]*s.CellSize + s.CellSize/2, c_next_goal_pos[1]*s.CellSize + s.CellSize/2
             C(next_goal_pos)
             dx, dy = next_goal_pos[0] - self.position[0], next_goal_pos[1] - self.position[1]
-            if dx<s.CellSize and dy<s.CellSize and self.savedPath:
-                self.savedPath.pop(0)
+            
             dist = max(np.sqrt(dx**2 + dy**2), 0.1)
+            if dist<s.CellSize/2: #dx<s.CellSize and dy<s.CellSize and self.savedPath:
+                self.savedPath.pop(0)
+            
+
+
+            # print("me:", self.position )
+            # print("goal:", next_goal_pos) MMM
+            # print("path:", path[:3] if path else None)
+
             self.velo = (dx / dist, dy / dist)
             
 
     def move(self):
+        # print(self.static)
+        basespeed = 5
+
         if self.lit:
             return
         
@@ -365,28 +409,53 @@ class Enemyz(Entityz):
 
         self.hasSeenAgo += 1
         # print(self.hasSeenAgo)
-        if self.seePath():
-            if self.hasSeenAgo != 1:
-                self.isreali_ambient = pg.mixer.Sound("assets/israeli_ambient_quiet.mp3")
-                self.isreali_ambient.set_volume(0.4)
-                state.soundChannel.play(self.isreali_ambient)
+        # print(f"{self.distToPlayer_sqr}")
+        # D.add("ggg", f"{self.distToPlayer_sqr:.2f}, {self.sightDist**2:.2f}, {self.alpha-self.fovDegr/2:.2f},{ self.alpha_to_player:.2f} ,{self.alpha+self.fovDegr/2:.2f}")
+        # if self.distToPlayer_sqr < self.sightDist**2 and self.alpha-self.fovDegr/2 <= self.alpha_to_player <= self.alpha+self.fovDegr/2:
+        diff = (self.alpha_to_player - self.alpha + 180) % 360 - 180
+        if abs(diff) <= self.fovDegr / 2 and self.distToPlayer_sqr < self.sightDist**2*1.1:
+            # print("see u")#, self.distToPlayer_sqr , self.sightDist**2 , self.alpha-self.fovDegr/2 <= self.alpha_to_player <= self.alpha+self.fovDegr/2)
+            # D.add("case", "cansee")MMM
+            if self.seePath():
+                # D.add("case", "cansee_full")MMM
+                # print("found you")MMM
+                self.speed = 7
+                if self.hasSeenAgo != 1:
+                    self.isreali_ambient = pg.mixer.Sound("assets/israeli_ambient_quiet.mp3")
+                    self.isreali_ambient.set_volume(0.4)
+                    state.soundChannel.play(self.isreali_ambient)
 
-            self.hasSeenAgo = 0
+                self.hasSeenAgo = 0
 
-        elif self.hasSeenAgo < 200:
+
+        elif self.hasSeenAgo < 400:
+            # D.add("case", "have seen u recnet")MMM
+            # print("wherea u")MMM
+            # if self.distToPlayer_sqr < 200**2 or self.static:
+            #     print("inv")
+            #     self.standStill(100)
+
+            # print("where are u")
             self.aStarPath()
 
         else:
+            # D.add("case", "guess hes gone")MMM
             self.randomPath()
 
 
         # print(self.extra)
-        
-        self.position = self.velo[0]*10+self.extra[0] + self.position[0], self.velo[1]*10+self.extra[1] + self.position[1]
-        self.extra = (0,0)
+        if self.speed > basespeed:
+            self.speed *= 0.999
+        else:
+            self.speed = basespeed
+        # print(self.speed)
+        if not self.static:
+            self.position = self.velo[0]*self.speed+self.extra[0] + self.position[0], self.velo[1]*self.speed+self.extra[1] + self.position[1]
+            self.extra = (0,0)
 
 
     def seePath(self, sprint=2) -> bool:
+        # D.add("E", "S")MMM
         _, coll, dist = cast_ray(self.position, state.playerPos, 5000, 100, 32*3, state.HB_layer)
 
         gx,gy = state.playerPos
@@ -440,7 +509,32 @@ class Enemyz(Entityz):
 
         if self.setRandomGoalAgo > 70 and self.randomGaol:
             self.aStarPath(goal=self.randomGaol)
-            
+
+    def standStill(self, time):
+        if self.invokeTime == None:
+            self.invokeTime = state.counter
+        # print(self.invokeTime)MMM
+        if state.counter - self.invokeTime < time:
+            #do in the time
+            self.static = True
+        else:
+            self.static = False
+            self.invokeTime = None
+
+    # def turnAround(self):
+    #     if self.invokeTime == None:
+    #         self.invokeTime = state.counter
+    #     if state.counter - self.invokeTime < 360:
+    #         #do in the time
+    #         self.static = True
+    #     else:
+    #         self.static = False
+    #         self.invokeTime = None
+
+
+    # def invokeCount(self):
+    #     for invKey in self.invokeDict.keys:
+    #         self.invokeDict[f]
 
 
     def die(self):
@@ -477,7 +571,7 @@ class Enemyz(Entityz):
         self.lit = True
         if self.timer<0:
             state.entityScene.castRectExplosion(self.position, 100)
-            self.die()
+
         
 
     # def saveToFile(self):
@@ -564,7 +658,7 @@ class EntityScenez:
         explosionHitbox = HitBox((tuple(e-radius for e in position), (2*radius, 2*radius)))
         explosionHitbox.show_HB()
         Animationz("assets/may_explosion.png", (32, 32), 6, 4/32*radius*0.8, 0.2).play(position, 0)
-        # pg.draw.polygon(overlay, (0, 0, 0, 50), checkBases(0, 2*np.pi, 2000, state.HB_layer, pos=enemy.position))
+        # pg.draw.polygon(vis.overlay, (0, 0, 0, 50), checkBases(0, 2*np.pi, 2000, state.HB_layer, pos=enemy.position))
 
         for enemy in self.enemyList:
             if enemy.alive:

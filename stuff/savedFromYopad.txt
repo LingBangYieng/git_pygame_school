@@ -700,7 +700,7 @@ print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 
     
 screen = pg.display.set_mode((state.WIDTH, state.HEIGHT))
-overlay = pg.Surface((state.WIDTH, state.HEIGHT), pg.SRCALPHA)
+vis.overlay = pg.Surface((state.WIDTH, state.HEIGHT), pg.SRCALPHA)
 vwp = pg.Rect(0, 0, state.WIDTH, state.HEIGHT)
 
 
