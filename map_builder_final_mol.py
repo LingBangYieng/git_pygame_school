@@ -186,7 +186,6 @@ def in_menu_func(events):
 
 game_loop = True
 size = 1
-s.WIDTH, s.HEIGHT = 2560, 1440
 screen = pg.display.set_mode((s.WIDTH, s.HEIGHT))  
 fade = pg.Surface((s.WIDTH, s.HEIGHT))
 fade.fill((0,0,0)) 
