@@ -529,6 +529,8 @@ class state:
 
     gameOver = False
 
+    playerHB = None
+
     HB_layer = None
 
     allAnimsList = []

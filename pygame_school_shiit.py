@@ -196,7 +196,7 @@ def pss():
     hintTextSize = 25
     hintFont = pg.font.Font(None, hintTextSize)
 
-    HintText1 = "Finally you are awake...\n@@@@@@@@@@@@@@@@@@@@Find the Hostage and Rescue it"
+    HintText1 = "@@@@@@@@@@@@@@@@Find the Hostage and Rescue it!"
 
     # Lines = HintText1.split("\n")
     currentDisplayText = ""
@@ -225,7 +225,7 @@ def pss():
         invalid = (index < 0 or index >= len(HintText1))
         if index != prevIndex and not invalid:    
             letter = HintText1[index]
-            print(letter)
+            # print(letter)
             if letter == "\n":
                 renders.append(currentRender)
                 currentDisplayText = ""
@@ -245,9 +245,9 @@ def pss():
 
         maxW = currentRender.get_size()[0] if len(renders)==0 else max(max([r.get_size()[0] for r in renders]),currentRender.get_size()[0])
 
-        HintArea = pg.Surface((maxW+20,200), pg.SRCALPHA)
+        HintArea = pg.Surface((maxW+20,200+10), pg.SRCALPHA)
         HintArea.fill((0,0,0,255))
-        screen.blit(HintArea, ((s.WIDTH-maxW-20)/2, s.HEIGHT*0.9))  
+        screen.blit(HintArea, ((s.WIDTH-maxW-20)/2, s.HEIGHT*0.9-10))  
 
         for i in range(len(renders)):
             dispRend = renders[i]
@@ -362,8 +362,8 @@ def pss():
         
         if not moving:
             screen.blit(frame, frame_rect)   
-        player_HB = HitBox(rect=((e-37.5 for e in(position_circle)), (75, 75)))
-        player_HB.show_HB()
+        state.playerHB = HitBox(rect=((e-37.5 for e in(position_circle)), (75, 75)))
+        state.playerHB.show_HB()
 
 
         P.checkN("past playerlogf")
@@ -394,7 +394,7 @@ def pss():
         #avoid clipping logic
         for HBs in HB_layerHBs:
             HBs.show_HB()
-            pushvec = HBs.get_push_vector(player_HB)
+            pushvec = HBs.get_push_vector(state.playerHB)
             velocity[0] -= pushvec[0]
             velocity[1] -= pushvec[1]
         

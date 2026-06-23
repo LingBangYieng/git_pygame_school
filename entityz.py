@@ -673,7 +673,8 @@ class EntityScenez:
             if enemy.alive:
                 if enemy.hitbox.check_collision(explosionHitbox):
                     enemy.die()
-                    state.gameOver = True
+        if state.playerHB.check_collision(explosionHitbox):
+            state.gameOver = True
 
 
     
