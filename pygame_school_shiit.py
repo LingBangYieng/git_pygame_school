@@ -10,6 +10,8 @@ from settings import *
 from helper2 import *
 from hostageGame import miniGame
 from inGameSettingsFunc import GoEscMenu
+from GameOverScreen import GameOverSCreen
+from thanksForPlaying import goTYScene
 
 
 def pss():
@@ -25,10 +27,15 @@ def pss():
     #loads
     crosshair = pg.image.load(f"assets/goofy_crosshair.png")
     static_player = pg.image.load(f"assets/player_gun_static.png")
+    hostage_red = pg.image.load(f"assets/hostage_highlighted_red.png")
+    hostage_green = pg.image.load(f"assets/hostage_highlighted_green.png")
 
     #transform loads
     crosshair = pg.transform.scale_by(crosshair, 4)
     static_player = pg.transform.scale_by(static_player, s.GameScale/2)
+    hostage_red = pg.transform.scale_by(hostage_red, s.GameScale/2)
+    hostage_green = pg.transform.scale_by(hostage_green, s.GameScale/2)
+
 
 
     #Audio
@@ -75,10 +82,12 @@ def pss():
     enemy0 = Enemyz(position=(1000, 1000), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
     item0 = Itemz(position=(500, 500), path_to_image_non_highlighted="assets/hk_416.png", image_scale=1.5)
     hostage0 = Hostage(position=(600, 600), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
+    hostage1 = Hostage(position=(700, 700), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
 
     entitySceneMain.add_enemy(enemy0)
     entitySceneMain.add_item(item0)
-    entitySceneMain.add_item(hostage0)
+    entitySceneMain.add_hostage(hostage0)
+    entitySceneMain.add_hostage(hostage1)
 
 
 
@@ -224,7 +233,7 @@ def pss():
 
 
         screen.fill(tuple(e+100 for e in (0, 0, 0)))  
-        overlay.fill((0, 0, 0, 240)) 
+        state.overlay.fill((0, 0, 0, 240)) 
 
         screen.blit(background, wtsc((0,0), ))
 
@@ -240,7 +249,7 @@ def pss():
         LTheta = radAlpha + fov/2
         RTheta = radAlpha - fov/2
         baseAngles = []
-        hits = checkBases(LTheta, RTheta, 1400, HB_layer)
+        hits = checkBases(LTheta, RTheta, s.WIDTH/4 * 3, HB_layer)
 
 
         P.checkN("pastshadow")
@@ -354,7 +363,6 @@ def pss():
         entitySceneMain.draw_EntityScene()
         P.checkN("past enemey pathfind and bvlit")
 
-        screen.blit(crosshair, (mouse_position[0] - 16,mouse_position[1] - 16))
 
 
         #blit VTA
@@ -362,19 +370,19 @@ def pss():
         for hit in hits:
             screenHits.append(wtsc(hit,))
 
-        pg.draw.polygon(overlay, (0, 0, 0, 50), screenHits)
-        pg.draw.circle(overlay, (0, 0, 0, 150), wtsc(state.playerPos), 40)
+        pg.draw.polygon(state.overlay, (0, 0, 0, 50), screenHits)
+        pg.draw.circle(state.overlay, (0, 0, 0, 150), wtsc(state.playerPos), 40)
 
 
         for enemy in entitySceneMain.enemyList:
-            pg.draw.circle(overlay, (10, 0, 0, 150), wtsc(enemy.position), 200)
+            pg.draw.circle(state.overlay, (10, 0, 0, 150), wtsc(enemy.position), 200)
         for enemy in entitySceneMain.enemyList:
             if enemy.lit:
-                pg.draw.circle(overlay, (150, 0, 0, 30), wtsc(enemy.position), state.counter%8*10+20)
+                pg.draw.circle(state.overlay, (150, 0, 0, 30), wtsc(enemy.position), state.counter%8*10+20)
 
-        # screen.blit(blur_surface(overlay, 0.2), (0, 0))
+        # screen.blit(blur_surface(state.overlay, 0.2), (0, 0))
         # screen.blit()
-        screen.blit(overlay, (0, 0))
+        screen.blit(state.overlay, (0, 0))
         
 
         # print("HEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
@@ -383,6 +391,27 @@ def pss():
         P.checkN("past shadow blit")
 
         old_position_circle = position_circle.copy()
+
+        hostageCounter = 0
+        for i in range(len(entitySceneMain.hostageList)):
+            hostage = entitySceneMain.hostageList[i]
+
+            if hostage.hostageSaved:
+                screen.blit(hostage_green, (s.WIDTH * (0.01 + i * 0.04), s.HEIGHT * 0.90))
+                hostageCounter += 1
+            else:
+                screen.blit(hostage_red, (s.WIDTH * (0.01 + i * 0.04), s.HEIGHT * 0.90))
+
+            if hostageCounter == len(entitySceneMain.hostageList):
+                goTYScene()
+            
+            D.add("hostages", hostageCounter)
+            D.add("length hostage list", len(entitySceneMain.hostageList))
+
+        screen.blit(crosshair, (mouse_position[0] - 16,mouse_position[1] - 16))
+
+        if state.gameOver:
+            GameOverSCreen()
 
 
 

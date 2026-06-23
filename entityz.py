@@ -203,6 +203,8 @@ class Itemz(Entityz):
         self.instrArgs = instructionArgs
         self.instr = instruction
 
+        self.hostageSaved = False
+
 
     def draw(self):
         super().update_HB()
@@ -213,6 +215,10 @@ class Itemz(Entityz):
             keys = pg.key.get_pressed()
             if keys[pg.K_e]:
                 self.do_instr()
+                updateScreens()
+                self.hostageSaved = True
+                self.die()
+
         else:
             screen.blit(self.image, wtsc(self.top_left_position, vwp))
         self.hitbox.show_HB()
@@ -273,7 +279,7 @@ class Enemyz(Entityz):
 
 
 
-        self.hp = 99
+        self.hp = 1
         self.timer = 100
         self.lit = False
 
@@ -521,6 +527,8 @@ class EntityScenez:
 
         self.itemList = []
         self.hostageList = []
+
+        self.updatedhostageList = []
     
 
     def update_EntityScene(self):
@@ -529,7 +537,8 @@ class EntityScenez:
         self.updateList(self.friendlyBulletList)
         self.updateList(self.enemyList)
         self.updateList(self.itemList)
-        self.updateList(self.hostageList)
+        self.updateList(self.updatedhostageList)
+        # self.updateList(self.hostageList)
 
     def draw_EntityScene(self):
         self.update_EntityScene()
@@ -538,7 +547,7 @@ class EntityScenez:
         for fbullet in self.friendlyBulletList: fbullet.draw()
         for enemy in self.enemyList: enemy.draw()
         for item in self.itemList: item.draw()
-        for hostage in self.hostageList: hostage.draw()
+        for hostage in self.updatedhostageList: hostage.draw()
 
     def kill_enemy(self):
         for enemy in self.enemyList:
@@ -570,6 +579,7 @@ class EntityScenez:
             if enemy.alive:
                 if enemy.hitbox.check_collision(explosionHitbox):
                     enemy.die()
+                    state.gameOver = True
 
 
     
@@ -578,7 +588,8 @@ class EntityScenez:
 
     def add_hostage(self, hostage:Hostage):
         self.hostageList.append(hostage)
-    
+        self.updatedhostageList.append(hostage)
+
     def add_enemyBullet(self, bullet:Bulletz):
         self.enemyBulletList.append(bullet)
     

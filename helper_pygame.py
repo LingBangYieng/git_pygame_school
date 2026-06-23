@@ -478,7 +478,7 @@ def blur_surface(surface, scale_factor=0.25):
 
 
 
-def checkBases(LTheta, RTheta, sightDistance, grid):
+def checkBases(LTheta, RTheta, sightDistance, grid,):
     hits = []
     HB_layer = grid
 
@@ -523,6 +523,8 @@ class state:
     playerPos = None
     counter = 0
 
+    gameOver = False
+
     HB_layer = None
 
     allAnimsList = []
@@ -543,6 +545,7 @@ class state:
 
 
 
+    overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)  
 
 print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 
@@ -551,15 +554,14 @@ print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 
     
 screen = pg.display.set_mode((s.WIDTH, s.HEIGHT))
-overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
 vwp = pg.Rect(0, 0, s.WIDTH, s.HEIGHT)
 
 def updateScreens():
-    global screen, overlay, vwp
+    global screen, vwp
     num = pg.FULLSCREEN if s.FULLSCREEN else 0
     screen = pg.display.set_mode((s.WIDTH, s.HEIGHT), num)
-    overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
-    print(overlay.get_size())
+    state.overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
+    print(state.overlay.get_size())
     print(s.WIDTH, s.HEIGHT)
     vwp.size = (s.WIDTH, s.HEIGHT)
 
