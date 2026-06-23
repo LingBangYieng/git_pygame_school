@@ -27,7 +27,7 @@ ORANGE       = (225, 135, 35)
 RED          = (190, 40, 40)
 
 # --- Save-Menu Farben (braun, warm) ---
-SAVE_BG          = (42, 28, 14)       # dunkles Braun Overlay
+SAVE_BG          = (42, 28, 14)       # dunkles Braun vis.overlay
 SAVE_PANEL       = (80, 55, 30)       # Panel-Hintergrund
 SAVE_PANEL_LIGHT = (115, 82, 48)      # helle Kante oben/links
 SAVE_PANEL_DARK  = (28, 18, 8)        # dunkle Kante unten/rechts
@@ -243,10 +243,10 @@ class SaveMenu:
         self.close_hovered    = self.get_close_rect().collidepoint(mouse_pos)
 
     def draw(self, surface, tick):
-        # Dunkles Overlay
-        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 160))
-        surface.blit(overlay, (0, 0))
+        # Dunkles vis.overlay
+        vis.overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        vis.overlay.fill((0, 0, 0, 160))
+        surface.blit(vis.overlay, (0, 0))
 
         # Haupt-Rahmen
         draw_brown_panel(surface, self.mx, self.my, self.mw, self.mh, radius=20)

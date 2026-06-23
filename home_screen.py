@@ -64,8 +64,7 @@ def fullscreen():
 def startPgSchoolShii():
     # from pygame_school_shiit import RUN
     # RUN()
-    global overlay
-    overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
+    vis.overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
     # with open("pygame_school_shiit.py") as f:
     #     exec(f.read())
     pss()

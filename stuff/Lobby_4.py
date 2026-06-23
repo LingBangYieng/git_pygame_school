@@ -26,7 +26,7 @@ WHITE = (255, 255, 255)
 YELLOW = (255, 215, 50)
 GRAY = (170, 170, 170)
 RED = (170, 60, 60)
-DARK_OVERLAY = (0, 0, 0, 160)
+DARK_vis.overlay = (0, 0, 0, 160)
 
 # --------------------------------------------------
 # Fonts
@@ -116,10 +116,10 @@ def draw_lobby(mouse_pos):
     quit_button.draw(mouse_pos)
 
 def draw_save_menu(mouse_pos):
-    # halbtransparentes Overlay
-    overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-    overlay.fill(DARK_OVERLAY)
-    screen.blit(overlay, (0, 0))
+    # halbtransparentes vis.overlay
+    vis.overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    vis.overlay.fill(DARK_vis.overlay)
+    screen.blit(vis.overlay, (0, 0))
 
     # Hauptpanel
     pygame.draw.rect(screen, PANEL, (80, 90, 640, 420), border_radius=12)
