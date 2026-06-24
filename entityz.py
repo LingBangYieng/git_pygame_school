@@ -272,13 +272,8 @@ class Enemyz(Entityz):
         self.genPathBool = True
         self.oldPath = None
 
-<<<<<<< HEAD
         self.hasSeenAgo = 1000
         self.setRandomGoalAgo = 100
-=======
-        self.hasSeenAgo = 100
-        self.setRandomGoalAt = -1
->>>>>>> 99ff7fb8152ce8e87452ce847e759a87c2aeb09d
         self.randomGaol = None
 
         self.velo = (0, 0) # needed?
