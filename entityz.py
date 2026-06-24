@@ -255,7 +255,8 @@ class Hostage(Itemz):
 
 #######################
 def C(pos, col="red"):
-    pg.draw.circle(screen, col, wtsc(pos, vwp), 3)
+    # pg.draw.circle(screen, col, wtsc(pos, vwp), 3)
+    pass
 def px(coord):
     return coord[0]*s.CellSize,coord[1]*s.CellSize
 #######################
