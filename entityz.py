@@ -280,7 +280,7 @@ class Enemyz(Entityz):
 
 
         self.hp = 1
-        self.timer = 100
+        self.timer = 30
         self.lit = False
 
 
@@ -428,7 +428,7 @@ class Enemyz(Entityz):
                 self.speed = 7
                 if self.hasSeenAgo != 1:
                     self.isreali_ambient = pg.mixer.Sound("assets/israeli_ambient_quiet.mp3")
-                    self.isreali_ambient.set_volume(0.4)
+                    self.isreali_ambient.set_volume(0.4 * s.SFX_VOLUME)
                     state.soundChannel.play(self.isreali_ambient)
 
                 self.hasSeenAgo = 0
@@ -656,7 +656,7 @@ class EntityScenez:
                             Animationz("assets/goofy_blood.png", (32, 32), 9, 4*0.8, 1).play(enemy.position, 0)
 
                         enemyHit_sound = pg.mixer.Sound("assets/enemyHit_sound.mp3")
-                        enemyHit_sound.set_volume(0.1)
+                        enemyHit_sound.set_volume(0.1 * s.SFX_VOLUME)
                         enemyHit_sound.play()
 
                         enemy.takeDamage(bullet.damage)

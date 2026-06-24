@@ -4,7 +4,9 @@ from scenez import *
 from helper_pygame import *
 import time
 from entityz import *
-from pygame_school_shiit import pss
+from levelSelectScreen import GoLevelMenu
+from map_builder_final_mol import mapBuilder
+
 
 #from globals import *
 
@@ -24,18 +26,18 @@ screen = pg.display.set_mode((s.WIDTH, s.HEIGHT))
 clock = pg.time.Clock()
 running = True
 
-# buttonclick = pg.mixer.Sound("assets/buttonclick.mp3")
-# buttonclick.set_volume(0.1)
+buttonclick = pg.mixer.Sound("assets/buttonclick.mp3")
+buttonclick.set_volume(0.1 * s.SFX_VOLUME)
 
-# lobby_song = pg.mixer.music.load("assets/stragi_existent.mp3")
-# pg.mixer.music.set_volume(0.125)
-# pg.mixer.music.play(-1)
+lobby_song = pg.mixer.music.load("assets/stragi_existent.mp3")
+pg.mixer.music.set_volume(0.125 * s.SFX_VOLUME)
+pg.mixer.music.play(-1)
 
 
 
 def bs():
-    # buttonclick.play()
-    pass
+    buttonclick.play()
+
 
 def quit_game():
     global running
@@ -62,12 +64,19 @@ def fullscreen():
     bs()
 
 def startPgSchoolShii():
+    print("entered")
     # from pygame_school_shiit import RUN
     # RUN()
     vis.overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
     # with open("pygame_school_shiit.py") as f:
     #     exec(f.read())
-    pss()
+    bs()
+    GoLevelMenu()
+    bs()
+
+def changeSFX(number):
+    s.applySettings()
+    s.SFX_VOLUME = number
 
 
 
@@ -110,30 +119,40 @@ def createLobby():
 
     tbt = Imagez(pathToImage="assets/bluetiger_black_C.png", isBackground=True)
     buttonBacktbt = Buttonz((s.WIDTH * 0.02, s.HEIGHT - s.HEIGHT * 0.02 - s.HEIGHT * 0.025), (s.WIDTH * 0.05, s.HEIGHT * 0.025), screen, True, "Back", (0, 0, 0), int(s.HEIGHT * 0.0125), 5, tbtBlue, switch_scene, [lobby])
+    titletbt = "May the blue Tiger guide you"
+    contents.add_text(titletbt, tbtBlue, s.WIDTH * 0.5, s.HEIGHT * 0.14, int(s.HEIGHT * 0.1), True)
     contents.add_image(tbt)
     contents.add_button(buttonBacktbt)
 
     color_theme = TannedBrown
     color_theme = NightlyFuchsia
     buttonBack = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.525), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "Back", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, switch_scene, [lobby])
+    # buttonSFX1 = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.43), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "VolumeMult 1", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, changeSFX, 1)
+    # buttonSFX15 = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.335), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "VolumeMult 1.5", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, changeSFX, 1.5)
+    # buttonSFX2 = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.24), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "VolumeMult 2", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, changeSFX, 2)
+    # buttonSFX25 = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.145), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "VolumeMult 2.5", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, changeSFX, 2.5)
     buttonResolution0 = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.62), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "1920 x 1080", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, change_resolution, "1920x1080")
     buttonResolution1 = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.715), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "1280 x 720", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, change_resolution, "1280x720")
     buttonFullscreen = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.81), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "Fullscreen", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, fullscreen)
     buttonSave = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.905), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "Apply", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, updateSettings)
-    
 
 
     settings.add_button(buttonBack)
     settings.add_button(buttonResolution0)
     settings.add_button(buttonResolution1)
     settings.add_button(buttonFullscreen)
+    # settings.add_button(buttonSFX1)
+    # settings.add_button(buttonSFX15)
+    # settings.add_button(buttonSFX2)
+    # settings.add_button(buttonSFX25)
     settings.add_button(buttonSave)
 
     background = Imagez(position=(0, 0), pathToImage="assets/may_background.png", isBackground=True)
     content = Buttonz((s.WIDTH * 0.15 - s.WIDTH * 0.08, s.HEIGHT * 0.57), (5, 5), screen, False, "", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, switch_scene, [contents], False)
     buttonStart = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.43), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "Start Game", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, startPgSchoolShii)
     buttonSettings = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.525), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "Settings", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, switch_scene, [settings])
-    buttonQuit = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.62), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "Quit", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, quit_game)
+    buttonQuit = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.715), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "Quit", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, quit_game)
+    buttonMapBuilder = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.62), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "Map Builder (BETA)", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, mapBuilder)
     title = "Redundant"
     version = "alpha v0.1"
     featured = "Abdul, Agmar, Kreatin"
@@ -143,6 +162,7 @@ def createLobby():
     lobby.add_button(buttonSettings)
     lobby.add_button(buttonQuit)
     lobby.add_button(content)
+    lobby.add_button(buttonMapBuilder)
     lobby.add_text(title, color_theme, s.WIDTH * 0.5, s.HEIGHT * 0.14, int(s.HEIGHT * 0.15), True)
     lobby.add_text(version, color_theme, s.WIDTH * 0.96, s.HEIGHT * 0.97, int(s.HEIGHT * 0.025), True)
     lobby.add_text(featured, color_theme, s.WIDTH * 0.07, s.HEIGHT * 0.97, int(s.HEIGHT * 0.025), True)
@@ -195,3 +215,21 @@ while running:
     clock.tick(69)
 
 pg.quit()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

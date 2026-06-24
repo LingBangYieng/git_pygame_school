@@ -1,8 +1,15 @@
 from scenez import *
 from helper_pygame import *
 
+buttonclick = pg.mixer.Sound("assets/buttonclick.mp3")
+buttonclick.set_volume(0.1 * s.SFX_VOLUME)
+
+lobby_song = pg.mixer.music.load("assets/stragi_existent.mp3")
+pg.mixer.music.set_volume(0.125 * s.SFX_VOLUME)
+pg.mixer.music.play(-1)
+
 def bs():
-    # buttonclick.play()
+    buttonclick.play()
     pass
 
 def switch_scene(scene:Scenez):
@@ -56,7 +63,7 @@ def createGameOverScene():
     topRowHeight = s.HEIGHT - buttonHeight * buttonCount/2
 
     buttonBackToLobby = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, topRowHeight * 0.70), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "Back to Lobby", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, BackToGame)
-    buttonQuitGame = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, topRowHeight * 0.80), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "Quit Game", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, quitGame)
+    buttonQuitGame = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, topRowHeight * 0.80), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "Ok", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, quitGame)
 
     # GameOver.add_button(buttonBackToLobby)
     GameOver.add_button(buttonQuitGame)

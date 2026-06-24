@@ -43,9 +43,9 @@ def pss(mapName:str = "main"):
     # lobby_song = pg.mixer.music.load("assets/retrowave_song.mp3")
 
     #transform Audio 
-    launch_missile.set_volume(0.1)
-    missile_explo.set_volume(0.1)
-    gunshot_sound.set_volume(0.1)
+    launch_missile.set_volume(0.1 * s.SFX_VOLUME)
+    missile_explo.set_volume(0.1 * s.SFX_VOLUME)
+    gunshot_sound.set_volume(0.1 * s.SFX_VOLUME)
     # pg.mixer.music.set_volume(0,125)
     # pg.mixer.music.play(-1)
 
@@ -89,15 +89,54 @@ def pss(mapName:str = "main"):
 
 
     #debugs
-    enemy0 = Enemyz(position=(1000, 1000), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
-    item0 = Itemz(position=(500, 500), path_to_image_non_highlighted="assets/hk_416.png", image_scale=1.5)
-    hostage0 = Hostage(position=(600, 600), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
-    hostage1 = Hostage(position=(700, 700), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
+    # enemy0 = Enemyz(position=(1000, 1000), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+    # item0 = Itemz(position=(500, 500), path_to_image_non_highlighted="assets/hk_416.png", image_scale=1.5)
+    hostage0 = Hostage(position=tuple(e*4 for e in(415, 160)), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
+    hostage1 = Hostage(position=tuple(e*4 for e in(2284, 141)), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
+    hostage2 = Hostage(position=tuple(e*4 for e in(1693, 304)), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
+    hostage3 = Hostage(position=tuple(e*4 for e in(63, 1011)), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
+    hostage4 = Hostage(position=tuple(e*4 for e in(1914, 911)), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
 
-    entitySceneMain.add_enemy(enemy0)
-    entitySceneMain.add_item(item0)
+    enemy0 = Enemyz(position=tuple(e*4 for e in(565, 201)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+    enemy1 = Enemyz(position=tuple(e*4 for e in(907, 205)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+    enemy2 = Enemyz(position=tuple(e*4 for e in(144, 683)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+    enemy3 = Enemyz(position=tuple(e*4 for e in(285, 1185)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+    enemy4 = Enemyz(position=tuple(e*4 for e in(643, 1206)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+    enemy5 = Enemyz(position=tuple(e*4 for e in(1395, 346)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+    enemy6 = Enemyz(position=tuple(e*4 for e in(1988, 155)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+    enemy7 = Enemyz(position=tuple(e*4 for e in(2396, 396)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+    enemy8 = Enemyz(position=tuple(e*4 for e in(1577, 622)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+    enemy9 = Enemyz(position=tuple(e*4 for e in(2298, 980)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+    enemy10 = Enemyz(position=tuple(e*4 for e in(2375, 1285)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+    enemy11 = Enemyz(position=tuple(e*4 for e in(1922, 1272)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+    enemy12 = Enemyz(position=tuple(e*4 for e in(962, 1148)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+    enemy13 = Enemyz(position=tuple(e*4 for e in(1485, 1272)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+    enemy14 = Enemyz(position=tuple(e*4 for e in(348, 403)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+
+
+
     entitySceneMain.add_hostage(hostage0)
     entitySceneMain.add_hostage(hostage1)
+    entitySceneMain.add_hostage(hostage2)
+    entitySceneMain.add_hostage(hostage3)
+    entitySceneMain.add_hostage(hostage4)
+
+    entitySceneMain.add_enemy(enemy0)
+    entitySceneMain.add_enemy(enemy1)
+    entitySceneMain.add_enemy(enemy2)
+    entitySceneMain.add_enemy(enemy3)
+    entitySceneMain.add_enemy(enemy4)
+    entitySceneMain.add_enemy(enemy5)
+    entitySceneMain.add_enemy(enemy6)
+    entitySceneMain.add_enemy(enemy7)
+    entitySceneMain.add_enemy(enemy8)
+    entitySceneMain.add_enemy(enemy9)
+    entitySceneMain.add_enemy(enemy10)
+    entitySceneMain.add_enemy(enemy11)
+    entitySceneMain.add_enemy(enemy12)
+    entitySceneMain.add_enemy(enemy13)
+    entitySceneMain.add_enemy(enemy14)
+
 
 
 
@@ -110,19 +149,19 @@ def pss(mapName:str = "main"):
 
 
     #commands
-    def spawn(entityType="enemy", position=(1000, 1000)):
-        nonlocal entitySceneMain
-        entity = None
-        match entityType:
-            case "enemy":
-                entity = Enemyz(position=position, path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
-            case "item":
-                entity = Itemz(position=position, path_to_image_non_highlighted="assets/goofy_revolver.png", image_scale=1.5, image_rotation=45)
-        if entity is not None:
-            for enemy in entitySceneMain.enemyList:
-                if enemy.position == position:
-                    return
-            entitySceneMain.add_enemy(entity)
+    # def spawn(entityType="enemy", position=(1000, 1000)):
+    #     nonlocal entitySceneMain
+    #     entity = None
+    #     match entityType:
+    #         case "enemy":
+    #             entity = Enemyz(position=position, path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+    #         case "item":
+    #             entity = Itemz(position=position, path_to_image_non_highlighted="assets/goofy_revolver.png", image_scale=1.5, image_rotation=45)
+    #     if entity is not None:
+    #         for enemy in entitySceneMain.enemyList:
+    #             if enemy.position == position:
+    #                 return
+    #         entitySceneMain.add_enemy(entity)
             # isreali_ambient = pg.mixer.Sound("assets/israeli_ambient_quiet.mp3")
             # isreali_ambient.set_volume(0.05)
             # isreali_ambient.play()
@@ -290,7 +329,8 @@ def pss(mapName:str = "main"):
             
             if keys[pg.K_SPACE]:
                 # enemy0.alive = True
-                spawn(position=(mx,my))
+                # spawn(position=(mx,my))
+                pass
 
             if keys[pg.K_f]:
                 s.MAX_FPS = 1
@@ -344,10 +384,10 @@ def pss(mapName:str = "main"):
                     entitySceneMain.add_friendlyBulletList(laser)
                     gunshot_sound.play()
                     shootCooldown = s.MAX_FPS/10
-                if event.button == 3:
-                    rockety = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/rockety.png", image_scale=2, bullet_speed=15, lifetime=600, remote_control=True, isDiag=True, explosive=True, explosionRadius=75, isAnimated=True, damage=2000)
-                    entitySceneMain.add_friendlyBulletList(rockety)
-                    launch_missile.play()
+                # if event.button == 3:
+                #     rockety = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/rockety.png", image_scale=2, bullet_speed=15, lifetime=600, remote_control=True, isDiag=True, explosive=True, explosionRadius=75, isAnimated=True, damage=2000)
+                #     entitySceneMain.add_friendlyBulletList(rockety)
+                #     launch_missile.play()
         
         
         P.checkN("past bullets")
@@ -492,6 +532,7 @@ def pss(mapName:str = "main"):
         state.counter += 1
 
         # drawHintText()
+        D.add("mousPos", pg.mouse.get_pos())
 
 
         D.draw()
