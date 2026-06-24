@@ -1,8 +1,16 @@
 from scenez import *
 from helper_pygame import *
 
+buttonclick = pg.mixer.Sound("assets/buttonclick.mp3")
+buttonclick.set_volume(0.1 * s.SFX_VOLUME)
+
+lobby_song = pg.mixer.music.load("assets/stragi_existent.mp3")
+pg.mixer.music.set_volume(0.125 * s.SFX_VOLUME)
+pg.mixer.music.play(-1)
+
+
 def bs():
-    # buttonclick.play()
+    buttonclick.play()
     pass
 
 def switch_scene(scene:Scenez):
@@ -56,7 +64,7 @@ def createTYScene():
     topRowHeight = s.HEIGHT - buttonHeight * buttonCount/2
     # print(topRowHeight, s.HEIGHT)
 
-    buttonok = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, topRowHeight * 0.75), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "acknowledge", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, quitGame)
+    buttonok = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, topRowHeight * 0.75), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "Ok", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, quitGame)
 
     yapyap = "Thank you for playing"
     redundant = "Reduntant"

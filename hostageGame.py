@@ -165,8 +165,8 @@ def miniGame():
 
         pg.draw.circle(mask, (0, 0, 0, 0), posAim, 350)
 
-        goalHB.show_HB()
-        antiGoalHB.show_HB()
+        # goalHB.show_HB()
+        # antiGoalHB.show_HB()
 
 
         screen.blit(mask, (0, 0))

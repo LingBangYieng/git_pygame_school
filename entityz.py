@@ -181,7 +181,7 @@ class Bulletz(Entityz):
                 self.image = pg.transform.rotate(self.original_image, self.alpha - 90 + self.diag) #why here
                 screen.blit(self.image, wtsc(self.top_left_position, vwp))
 
-                self.hitbox.show_HB()
+                # self.hitbox.show_HB()
                 rect = self.image.get_rect(topleft = self.top_left_position)
                 rect.topleft = wtsc(rect.topleft, vwp)
                 # pg.draw.rect(screen, "white", rect , 3)
@@ -221,7 +221,7 @@ class Itemz(Entityz):
 
         else:
             screen.blit(self.image, wtsc(self.top_left_position, vwp))
-        self.hitbox.show_HB()
+        # self.hitbox.show_HB()
 
 
     def do_instr(self):
@@ -280,7 +280,7 @@ class Enemyz(Entityz):
 
 
         self.hp = 1
-        self.timer = 100
+        self.timer = 30
         self.lit = False
 
 
@@ -290,6 +290,9 @@ class Enemyz(Entityz):
         self.static = stationary
 
         self.speed = 5
+
+        self.isreali_ambient = pg.mixer.Sound("assets/israeli_ambient_quiet.mp3")
+
 
 
         self.prevAlpha = 0
@@ -440,8 +443,8 @@ class Enemyz(Entityz):
                 # print("found you")MMM
                 self.speed = 7
                 if self.hasSeenAgo != 1:
-                    self.isreali_ambient = pg.mixer.Sound("assets/israeli_ambient_quiet.mp3")
-                    self.isreali_ambient.set_volume(0.4)
+                    # self.isreali_ambient = pg.mixer.Sound("assets/israeli_ambient_quiet.mp3")
+                    self.isreali_ambient.set_volume(0.4 * s.SFX_VOLUME)
                     state.soundChannel.play(self.isreali_ambient)
 
                 self.hasSeenAgo = 0
@@ -684,16 +687,17 @@ class EntityScenez:
                             Animationz("assets/goofy_blood.png", (32, 32), 9, 4*0.8, 1).play(enemy.position, 0)
 
                         enemyHit_sound = pg.mixer.Sound("assets/enemyHit_sound.mp3")
-                        enemyHit_sound.set_volume(0.1)
+                        enemyHit_sound.set_volume(0.1 * s.SFX_VOLUME)
                         enemyHit_sound.play()
 
                         enemy.takeDamage(bullet.damage)
+                        state.bulletsInInv += 1
 
                         bullet.die()
 
     def castRectExplosion(self, position, radius):
         explosionHitbox = HitBox((tuple(e-radius for e in position), (2*radius, 2*radius)))
-        explosionHitbox.show_HB()
+        # explosionHitbox.show_HB()
         Animationz("assets/may_explosion.png", (32, 32), 6, 4/32*radius*0.8, 0.2).play(position, 0)
         # pg.draw.polygon(vis.overlay, (0, 0, 0, 50), checkBases(0, 2*np.pi, 2000, state.HB_layer, pos=enemy.position))
 

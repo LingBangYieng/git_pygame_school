@@ -1,7 +1,7 @@
 {
     "User": {
         "MAX_FPS": 69,
-        "SFX_VOLUME": 1,
+        "SFX_VOLUME": 2.5,
         "RESOLUTION": "1280x720",
         "FULLSCREEN": false
     },
