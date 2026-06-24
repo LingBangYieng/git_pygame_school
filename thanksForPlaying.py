@@ -78,6 +78,7 @@ ESCRunning = True
 def goTYScene():
     state.soundChannel.pause()
     global current_scene, ESCRunning
+    pg.mouse.set_visible(True)
     ESCRunning = True
     settingsMenu = createTYScene()
     current_scene = settingsMenu

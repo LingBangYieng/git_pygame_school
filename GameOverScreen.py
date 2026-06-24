@@ -76,6 +76,8 @@ ESCRunning = True
 def GameOverSCreen():
     state.soundChannel.pause()
     global current_scene, ESCRunning
+    pg.mouse.set_visible(True)
+
     ESCRunning = True
     settingsMenu = createGameOverScene()
     current_scene = settingsMenu
