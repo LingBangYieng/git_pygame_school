@@ -54,7 +54,7 @@ def pss(mapName:str = "main"):
 
 
     speed = 10
-    position_circle = pg.Vector2((s.WIDTH)/2, (s.HEIGHT)/2)
+    position_circle = pg.Vector2(600, 600)
     old_position_circle = pg.Vector2((s.WIDTH)/2, (s.HEIGHT)/2)
     velocity = pg.Vector2((0, 0))
     moving = False
@@ -93,51 +93,82 @@ def pss(mapName:str = "main"):
     #debugs
     # enemy0 = Enemyz(position=(1000, 1000), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
     # item0 = Itemz(position=(500, 500), path_to_image_non_highlighted="assets/hk_416.png", image_scale=1.5)
-    hostage0 = Hostage(position=tuple(e*4 for e in(415, 160)), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
-    hostage1 = Hostage(position=tuple(e*4 for e in(2284, 141)), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
-    hostage2 = Hostage(position=tuple(e*4 for e in(1693, 304)), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
-    hostage3 = Hostage(position=tuple(e*4 for e in(63, 1011)), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
-    hostage4 = Hostage(position=tuple(e*4 for e in(1914, 911)), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
+    if mapName == "main":
+        hostage0 = Hostage(position=tuple(e*4 for e in(415, 160)), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
+        hostage1 = Hostage(position=tuple(e*4 for e in(2284, 141)), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
+        hostage2 = Hostage(position=tuple(e*4 for e in(1693, 304)), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
+        hostage3 = Hostage(position=tuple(e*4 for e in(63, 1011)), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
+        hostage4 = Hostage(position=tuple(e*4 for e in(1914, 911)), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
 
-    enemy0 = Enemyz(position=tuple(e*4 for e in(565, 201)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
-    enemy1 = Enemyz(position=tuple(e*4 for e in(907, 205)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
-    enemy2 = Enemyz(position=tuple(e*4 for e in(144, 683)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
-    enemy3 = Enemyz(position=tuple(e*4 for e in(285, 1185)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
-    enemy4 = Enemyz(position=tuple(e*4 for e in(643, 1206)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
-    enemy5 = Enemyz(position=tuple(e*4 for e in(1395, 346)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
-    enemy6 = Enemyz(position=tuple(e*4 for e in(1988, 155)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
-    enemy7 = Enemyz(position=tuple(e*4 for e in(2396, 396)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
-    enemy8 = Enemyz(position=tuple(e*4 for e in(1577, 622)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
-    enemy9 = Enemyz(position=tuple(e*4 for e in(2298, 980)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
-    enemy10 = Enemyz(position=tuple(e*4 for e in(2375, 1285)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
-    enemy11 = Enemyz(position=tuple(e*4 for e in(1922, 1272)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
-    enemy12 = Enemyz(position=tuple(e*4 for e in(962, 1148)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
-    enemy13 = Enemyz(position=tuple(e*4 for e in(1485, 1272)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
-    enemy14 = Enemyz(position=tuple(e*4 for e in(348, 403)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy0 = Enemyz(position=tuple(e*4 for e in(565, 201)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy1 = Enemyz(position=tuple(e*4 for e in(907, 205)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy2 = Enemyz(position=tuple(e*4 for e in(144, 683)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy3 = Enemyz(position=tuple(e*4 for e in(285, 1185)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy4 = Enemyz(position=tuple(e*4 for e in(643, 1206)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy5 = Enemyz(position=tuple(e*4 for e in(1395, 346)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy6 = Enemyz(position=tuple(e*4 for e in(1988, 155)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy7 = Enemyz(position=tuple(e*4 for e in(2396, 396)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy8 = Enemyz(position=tuple(e*4 for e in(1577, 622)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy9 = Enemyz(position=tuple(e*4 for e in(2298, 980)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy10 = Enemyz(position=tuple(e*4 for e in(2375, 1285)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy11 = Enemyz(position=tuple(e*4 for e in(1922, 1272)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy12 = Enemyz(position=tuple(e*4 for e in(962, 1148)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy13 = Enemyz(position=tuple(e*4 for e in(1485, 1272)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy14 = Enemyz(position=tuple(e*4 for e in(348, 403)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
 
 
 
-    entitySceneMain.add_hostage(hostage0)
-    entitySceneMain.add_hostage(hostage1)
-    entitySceneMain.add_hostage(hostage2)
-    entitySceneMain.add_hostage(hostage3)
-    entitySceneMain.add_hostage(hostage4)
+        entitySceneMain.add_hostage(hostage0)
+        entitySceneMain.add_hostage(hostage1)
+        entitySceneMain.add_hostage(hostage2)
+        entitySceneMain.add_hostage(hostage3)
+        entitySceneMain.add_hostage(hostage4)
 
-    entitySceneMain.add_enemy(enemy0)
-    entitySceneMain.add_enemy(enemy1)
-    entitySceneMain.add_enemy(enemy2)
-    entitySceneMain.add_enemy(enemy3)
-    entitySceneMain.add_enemy(enemy4)
-    entitySceneMain.add_enemy(enemy5)
-    entitySceneMain.add_enemy(enemy6)
-    entitySceneMain.add_enemy(enemy7)
-    entitySceneMain.add_enemy(enemy8)
-    entitySceneMain.add_enemy(enemy9)
-    entitySceneMain.add_enemy(enemy10)
-    entitySceneMain.add_enemy(enemy11)
-    entitySceneMain.add_enemy(enemy12)
-    entitySceneMain.add_enemy(enemy13)
-    entitySceneMain.add_enemy(enemy14)
+        entitySceneMain.add_enemy(enemy0)
+        entitySceneMain.add_enemy(enemy1)
+        entitySceneMain.add_enemy(enemy2)
+        entitySceneMain.add_enemy(enemy3)
+        entitySceneMain.add_enemy(enemy4)
+        entitySceneMain.add_enemy(enemy5)
+        entitySceneMain.add_enemy(enemy6)
+        entitySceneMain.add_enemy(enemy7)
+        entitySceneMain.add_enemy(enemy8)
+        entitySceneMain.add_enemy(enemy9)
+        entitySceneMain.add_enemy(enemy10)
+        entitySceneMain.add_enemy(enemy11)
+        entitySceneMain.add_enemy(enemy12)
+        entitySceneMain.add_enemy(enemy13)
+        entitySceneMain.add_enemy(enemy14)
+
+    if mapName == "labyrinth":
+        hostage0 = Hostage(position=tuple(e*4 for e in(664, 449)), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
+        hostage1 = Hostage(position=tuple(e*4 for e in(1680, 1272)), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
+
+        enemy0 = Enemyz(position=tuple(e*4 for e in(527, 1080)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy1 = Enemyz(position=tuple(e*4 for e in(1280, 168)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy2 = Enemyz(position=tuple(e*4 for e in(1281, 537)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy3 = Enemyz(position=tuple(e*4 for e in(1283, 1063)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy4 = Enemyz(position=tuple(e*4 for e in(1732, 668)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy5 = Enemyz(position=tuple(e*4 for e in(2108, 425)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy6 = Enemyz(position=tuple(e*4 for e in(2176, 709)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+        enemy7 = Enemyz(position=tuple(e*4 for e in(2017, 1330)), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
+
+        entitySceneMain.add_hostage(hostage0)
+        entitySceneMain.add_hostage(hostage1)
+
+        entitySceneMain.add_enemy(enemy0)
+        entitySceneMain.add_enemy(enemy1)
+        entitySceneMain.add_enemy(enemy2)
+        entitySceneMain.add_enemy(enemy3)
+        entitySceneMain.add_enemy(enemy4)
+        entitySceneMain.add_enemy(enemy5)
+        entitySceneMain.add_enemy(enemy6)
+        entitySceneMain.add_enemy(enemy7)
+
+            
+
+
+
 
 
 
@@ -297,9 +328,10 @@ def pss(mapName:str = "main"):
     story0 = Hint(invokeCommand="s0", text="@@@@@@@After the Attacks on New York in 2001 \nthe U.S.Government invoked Operation Eustorgios.@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", fullscreen=True)
     H0 = Hint(invokeCommand="H0", text="@@@@@@Local Time:@@@@ 9th November 2002, 11:58 pm @@@@@@@@@@\nLocation:@@@@@ Headquarters - Al-Quaeda,@@@@ pequeño santo José@@@@@@@@@@@@@@çççççççççççççççççççççççççççççç", fullscreen=True, endEvent=unpause)
 
-    H1 = Hint(invokeCommand="H1", text="@@@@@@@@Agent 6@8@2@8 you have been given the task to rescue all 5 Hostages.")
-    H2 = Hint(invokeCommand="H2", text="@@@@@@Try not to injure anyone except needed for your own Safety.")
+    H1 = Hint(invokeCommand="H1", text=f"@@@@@@@@Agent 6@8@2@8 you have been given the task to rescue all {len(entitySceneMain.hostageList)} Hostages.")
+    H2 = Hint(invokeCommand="H2", text="@@@@@@Try not to injure anyone unless needed for your own Safety.")
     H3 = Hint(invokeCommand="H3", text="@@@@@@@The power has been cut to enable easy access.", endEvent=offLight)
+    K0 = Hint(invokeCommand="k", text="@@@@@@@press F to enable your Flashlight.@@@@@@")
     H4 = Hint(invokeCommand="H4", text="@@@@@Its all on you, Agent 6@8@2@8, @@@@@@@@good luck!")
 
     # H2 = Hint(invokeCommand="Powerloss", text="The generator seems to be broken")
@@ -317,6 +349,7 @@ def pss(mapName:str = "main"):
     MainLore.add(H1)
     MainLore.add(H2)
     MainLore.add(H3)
+    MainLore.add(K0)
     MainLore.add(H4)
 
 
@@ -388,19 +421,19 @@ def pss(mapName:str = "main"):
             if event.type == pg.QUIT:
                 state.game_loop = False
             
-            if keys[pg.K_SPACE]:
-                # enemy0.alive = True
-                # spawn(position=(mx,my))
-                pass
+            # if keys[pg.K_SPACE]:
+            #     # enemy0.alive = True
+            #     # spawn(position=(mx,my))
+            #     pass
 
-            if keys[pg.K_LCTRL] and keys[pg.K_k]:
-                s.MAX_FPS = 1
+            # if keys[pg.K_LCTRL] and keys[pg.K_k]:
+            #     s.MAX_FPS = 1
 
 
             if event.type == pg.KEYDOWN:
 
-                if event.key == pg.K_g:
-                    s.MAX_FPS = 69
+            #     if event.key == pg.K_g:
+            #         s.MAX_FPS = 69
 
 
                 if event.key == pg.K_ESCAPE:
@@ -409,22 +442,22 @@ def pss(mapName:str = "main"):
                 if event.key == pg.K_f:
                     torchOn = not torchOn
 
-                if event.key == pg.K_8:
-                    gameEvents.castHint("Hostage")
-                    print(gameEvents.hintEvents)
-                if event.key == pg.K_7:
-                    gameEvents.castHint("r")
+                # if event.key == pg.K_8:
+                #     gameEvents.castHint("Hostage")
+                #     print(gameEvents.hintEvents)
+                # if event.key == pg.K_7:
+                #     gameEvents.castHint("r")
                 
-                if event.key == pg.K_6:
-                    state.lightsOff = not state.lightsOff
+                # if event.key == pg.K_6:
+                #     state.lightsOff = not state.lightsOff
                 
-                if keys[pg.K_F3]:
-                    if event.key == pg.K_d:
-                        D.visible = not D.visible
-                    if event.key == pg.K_h:
-                        HitBox.visible = not HitBox.visible
-                    if event.key == pg.K_v:
-                        state.invisible = not state.invisible
+                # if keys[pg.K_F3]:
+                #     if event.key == pg.K_d:
+                #         D.visible = not D.visible
+                #     if event.key == pg.K_h:
+                #         HitBox.visible = not HitBox.visible
+                #     if event.key == pg.K_v:
+                #         state.invisible = not state.invisible
             
 
         if not state.blackScreen or True:
@@ -433,6 +466,7 @@ def pss(mapName:str = "main"):
             gameEvents.castHint("H1")
             gameEvents.castHint("H2")
             gameEvents.castHint("H3")
+            gameEvents.castHint("k")
             gameEvents.castHint("H4")
 
 

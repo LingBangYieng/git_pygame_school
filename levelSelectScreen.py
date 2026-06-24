@@ -58,6 +58,8 @@ def getMaps():
     maps = []
     for file in Path("saves/").iterdir():
         if file.suffix == ".map":
+            if file.stem == "temp_save":
+                continue
             maps.append(file.stem)
     return maps
 
