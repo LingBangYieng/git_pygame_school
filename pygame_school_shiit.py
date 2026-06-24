@@ -19,7 +19,7 @@ def pss(mapName:str = "main"):
     #inits
     pg.display.init()
     pg.mixer.init()
-    pg.mouse.set_visible(True)
+    pg.mouse.set_visible(False)
 
 
     #loads
