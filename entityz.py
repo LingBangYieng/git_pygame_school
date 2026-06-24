@@ -284,7 +284,7 @@ class Enemyz(Entityz):
         self.lit = False
 
 
-        self.fovDegr = 60
+        self.fovDegr = 180
         self.sightDist = 600
 
         self.static = stationary
@@ -701,7 +701,7 @@ class EntityScenez:
         # explosionHitbox.show_HB()
         Animationz("assets/may_explosion.png", (32, 32), 6, 4/32*radius*0.8, 0.2).play(position, 0)
         # pg.draw.polygon(vis.overlay, (0, 0, 0, 50), checkBases(0, 2*np.pi, 2000, state.HB_layer, pos=enemy.position))
-
+        pg.mixer.Sound("assets/rocket_explosion.mp3").play()
         for enemy in self.enemyList:
             if enemy.alive:
                 if enemy.hitbox.check_collision(explosionHitbox):

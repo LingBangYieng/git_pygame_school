@@ -46,7 +46,7 @@ def pss(mapName:str = "main"):
     #transform Audio 
     launch_missile.set_volume(0.1 * s.SFX_VOLUME)
     missile_explo.set_volume(0.1 * s.SFX_VOLUME)
-    gunshot_sound.set_volume(0.1 * s.SFX_VOLUME)
+    gunshot_sound.set_volume(0.3 * s.SFX_VOLUME)
     # pg.mixer.music.set_volume(0,125)
     # pg.mixer.music.play(-1)
 
