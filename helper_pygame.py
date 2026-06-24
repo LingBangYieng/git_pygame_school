@@ -551,17 +551,26 @@ class state:
 
     soundChannel = pg.mixer.Channel(0)
 
+    invisible = False
 
 
-    overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)  
+
+    overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
 
 print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 
 class vis:
     overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
+    startFlickerStamp = False
 
 
-
+class gameEvents:
+    hintEvents = {}
+    def castHint(name):
+        gameEvents.hintEvents[name] = True
+    def removeHintEvent(name):
+        if name in gameEvents.hintEvents.keys():
+            del gameEvents.hintEvents[name]
 
 
 
@@ -637,6 +646,7 @@ class DebugScreen:
     debugFont = pg.font.Font(None, textSize)
 
     def __init__(self):
+        self.visible = False
         self.mainDict = {}
 
     def draw(self, pos=(50,50)):
@@ -658,13 +668,14 @@ class DebugScreen:
             w,h = DebugLineRender.get_size()
             self.max_width = max(self.max_width, w)
 
-        DebugText = pg.Surface((self.max_width*1.1, line_height*1.25*len(renders)), pg.SRCALPHA)
-        DebugText.fill((0,0,0,255))
-        screen.blit(DebugText, (pos[0]-line_height*0.25, pos[1]-line_height*0.25))
+        if self.visible:
+            DebugText = pg.Surface((self.max_width*1.1, line_height*1.25*len(renders)), pg.SRCALPHA)
+            DebugText.fill((0,0,0,255))
+            screen.blit(DebugText, (pos[0]-line_height*0.25, pos[1]-line_height*0.25))
 
-        for i in range(len(renders)):
-            render = renders[i]
-            screen.blit(render, (pos[0], pos[1]+line_height*1.25*i))
+            for i in range(len(renders)):
+                render = renders[i]
+                screen.blit(render, (pos[0], pos[1]+line_height*1.25*i))
 
     def add(self, key, value="unknown", unit="", dec=1, avg=1,   enable_adaptive_units=False):
         '''

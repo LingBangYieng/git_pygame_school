@@ -262,7 +262,7 @@ def px(coord):
 
 class Enemyz(Entityz):
 
-    def __init__(self, position = (0, 0), hitbox = None, path_to_image = "assets/middled_player.png", image_scale = 1, image_rotation = 0, type = "bombi"):
+    def __init__(self, position = (0, 0), hitbox = None, path_to_image = "assets/middled_player.png", image_scale = 1, image_rotation = 0, type = "bombi", stationary=False):
         super().__init__(position=position, hitbox=hitbox, path_to_image=path_to_image, image_scale=image_scale, image_rotation=image_rotation)
         self.alpha_radians = 0
         self.alpha = self.calc_alphas()
@@ -272,8 +272,13 @@ class Enemyz(Entityz):
         self.genPathBool = True
         self.oldPath = None
 
+<<<<<<< HEAD
         self.hasSeenAgo = 1000
         self.setRandomGoalAgo = 100
+=======
+        self.hasSeenAgo = 100
+        self.setRandomGoalAt = -1
+>>>>>>> 99ff7fb8152ce8e87452ce847e759a87c2aeb09d
         self.randomGaol = None
 
         self.velo = (0, 0) # needed?
@@ -287,7 +292,7 @@ class Enemyz(Entityz):
         self.fovDegr = 180
         self.sightDist = 600
 
-        self.static = False
+        self.static = stationary
 
         self.speed = 5
 
@@ -299,6 +304,10 @@ class Enemyz(Entityz):
 
         self.invokeTime = None
 
+        self.savedPath = None
+
+        # self.goal = "player"
+
         
 
     def draw(self):
@@ -306,21 +315,25 @@ class Enemyz(Entityz):
         if self.alive:
             self.checkHealth()
             self.checkDist()
-
-
-
-            self.smooth_alpha(self.calc_alphas())
-
-
-
-
-            self.image = pg.transform.rotate(self.original_image, self.alpha - 90)
-            screen.blit(self.image, wtsc(self.top_left_position, vwp))
-            # self.hitbox.show_HB()
             self.move()
             self.update_HB()
 
-            LightCone(self.position, -self.alpha, self.fovDegr, self.sightDist)
+
+            if self.isInVWP():
+                self.smooth_alpha(self.calc_alphas())
+
+                self.image = pg.transform.rotate(self.original_image, self.alpha - 90)
+                screen.blit(self.image, wtsc(self.top_left_position, vwp))
+                self.hitbox.show_HB()
+
+                LightCone(self.position, -self.alpha, self.fovDegr, self.sightDist)
+
+    def isInVWP(self):
+        w,h = vwp.size
+        x,y = vwp.topleft
+
+        isIn = x*1.1+w > self.position[0] > x*0.9 and y*1.1+h > self.position[1] > y*0.9
+        return isIn
 
 
     def smooth_alpha(self, target, factor=0.1):
@@ -344,7 +357,8 @@ class Enemyz(Entityz):
     
 
     def aStarPath(self, goal="player", visual=True):
-        # D.add("E", "A")MMM
+        # goal = self.goal
+        # # D.add("E", "A")MMM
         
         c_ene_pos = int(self.position[0]/s.CellSize), int(self.position[1]/s.CellSize)
 
@@ -396,8 +410,12 @@ class Enemyz(Entityz):
             
             dist = max(np.sqrt(dx**2 + dy**2), 0.1)
             if dist<s.CellSize/2 and self.savedPath: #dx<s.CellSize and dy<s.CellSize and self.savedPath:
+                path.pop(0)
                 self.savedPath.pop(0)
-            
+
+            D.add("where", "astaer")
+            D.add("pathlen", (len(self.savedPath), len(path), len(self.oldPath)))
+            D.add("where go", next_goal_pos)
 
 
             # print("me:", self.position )
@@ -422,7 +440,7 @@ class Enemyz(Entityz):
         # D.add("ggg", f"{self.distToPlayer_sqr:.2f}, {self.sightDist**2:.2f}, {self.alpha-self.fovDegr/2:.2f},{ self.alpha_to_player:.2f} ,{self.alpha+self.fovDegr/2:.2f}")
         # if self.distToPlayer_sqr < self.sightDist**2 and self.alpha-self.fovDegr/2 <= self.alpha_to_player <= self.alpha+self.fovDegr/2:
         diff = (self.alpha_to_player - self.alpha + 180) % 360 - 180
-        if abs(diff) <= self.fovDegr / 2 and self.distToPlayer_sqr < self.sightDist**2*1.1:
+        if not state.invisible and ((abs(diff) <= self.fovDegr / 2 and self.distToPlayer_sqr < self.sightDist**2*1.1) or self.distToPlayer_sqr < 200**2):
             # print("see u")#, self.distToPlayer_sqr , self.sightDist**2 , self.alpha-self.fovDegr/2 <= self.alpha_to_player <= self.alpha+self.fovDegr/2)
             # D.add("case", "cansee")MMM
             if self.seePath():
@@ -437,7 +455,7 @@ class Enemyz(Entityz):
                 self.hasSeenAgo = 0
 
 
-        elif self.hasSeenAgo < 400:
+        elif self.hasSeenAgo < 500:
             # D.add("case", "have seen u recnet")MMM
             # print("wherea u")MMM
             # if self.distToPlayer_sqr < 200**2 or self.static:
@@ -445,11 +463,13 @@ class Enemyz(Entityz):
             #     self.standStill(100)
 
             # print("where are u")
+            D.add("where", "haseen")
             self.aStarPath()
 
         else:
             # D.add("case", "guess hes gone")MMM
             self.randomPath()
+
 
 
         # print(self.extra)
@@ -464,6 +484,7 @@ class Enemyz(Entityz):
 
 
     def seePath(self, sprint=2) -> bool:
+        
         # D.add("E", "S")MMM
         _, coll, dist = cast_ray(self.position, state.playerPos, 5000, 100, 32*3, state.HB_layer)
 
@@ -498,6 +519,7 @@ class Enemyz(Entityz):
             #     pass
             self.velo = (dx / raw_dist * sprint, dy / raw_dist * sprint)
             pg.draw.circle(screen, "pink",  wtsc(self.position, vwp), 10)
+            gameEvents.castHint("enemy saw")
             return True
         # else:
         #     if coll:
@@ -508,16 +530,24 @@ class Enemyz(Entityz):
     
 
     def randomPath(self):
-        self.setRandomGoalAgo += random.randint(1,2)
-        if self.setRandomGoalAgo > 400 or self.randomGaol == None:
+        gameEvents.castHint("enemy walking")
+        ago = state.counter - self.setRandomGoalAt
+        if ago > 400 or self.randomGaol == None or (self.savedPath is None or len(self.savedPath)<5):
             crx, cry = random.randint(0, len(state.HB_layer[0])), random.randint(0, len(state.HB_layer))
-            while not check_boundaries(cry,crx,state.HB_layer) or state.HB_layer[cry][crx]: 
+            while not check_boundaries(cry,crx,state.HB_layer) or state.HB_layer[cry][crx]:
                 crx, cry = random.randint(2, len(state.HB_layer[0])-2), random.randint(2, len(state.HB_layer)-2)
             self.randomGaol = (crx*s.CellSize,cry*s.CellSize)
-            self.setRandomGoalAgo = 0
+            self.setRandomGoalAt = state.counter
 
-        if self.setRandomGoalAgo > 170 and self.randomGaol:
+            D.add("where", "while")
+            
+
+        if (ago < 70 and self.randomGaol) or (self.savedPath is None or len(self.savedPath)<5):
+            print("set_random goal", state.counter)
+            D.add("where", "setnew")
             self.aStarPath(goal=self.randomGaol)
+            # self.goal = self.randomGaol
+
 
     def standStill(self, time):
         if self.invokeTime == None:
@@ -559,6 +589,7 @@ class Enemyz(Entityz):
             pass
 
     def takeDamage(self, damage=0):
+        gameEvents.castHint("enemy_hit")
         self.checkHealth()
         self.hp -= damage
 
@@ -567,6 +598,8 @@ class Enemyz(Entityz):
             self.die()
 
     def checkDist(self):
+        if state.invisible:
+            return
         # print(self.position[0]-state.playerPos[0])
         if abs(self.position[0]-state.playerPos[0]) < s.CellSize/8:
             if abs(self.position[1]-state.playerPos[1]) < s.CellSize/8:
