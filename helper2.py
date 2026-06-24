@@ -1,9 +1,9 @@
 from helper_pygame import s
 from class_collide_rect import HitBox
 
-def bitmap():
+def bitmap(mapName:str):
     grid = None
-    with open("saves/main.map", "r") as f:
+    with open(f"saves/{mapName}.map", "r") as f:
         grid = eval(f.read())
     layer = grid[1]
     HB_layer = [[int(isinstance(col, tuple)) for col in row] for row in layer] #iterates over and replaces with 0/1 depoending on field
@@ -23,8 +23,8 @@ def upscale_grid(grid, factor=2):
             new_grid.append(expanded_row.copy())
     return new_grid
 
-def getHitBox_HBLayer():
-    HBLayer = bitmap()
+def getHitBox_HBLayer(mapName:str):
+    HBLayer = bitmap(mapName)
 
     MapHitBoxList = []
 

@@ -12,7 +12,7 @@ from GameOverScreen import GameOverSCreen
 from thanksForPlaying import goTYScene
 
 
-def pss():
+def pss(mapName:str = "main"):
     def switchToHostageGame():
         miniGame()
 
@@ -66,15 +66,15 @@ def pss():
     #!!Externalize background ahs to be given by homescreen (level like)
 
 
-    HB_layer = upscale_grid(bitmap())
+    HB_layer = upscale_grid(bitmap(mapName))
     # HB_layer = bitmap()
 
     state.HB_layer = HB_layer
 
-    background = pg.image.load(f"saves/main_as.png")
+    background = pg.image.load(f"saves/{mapName}_as.png")
     background = pg.transform.scale_by(background, s.GameScale)
 
-    HB_layerHBs = getHitBox_HBLayer()
+    HB_layerHBs = getHitBox_HBLayer(mapName)
 
     #own Class init
     # player_walk = Animationz(numFrames=13, imageScale=s.GameScale)
@@ -89,7 +89,7 @@ def pss():
 
 
     #debugs
-    enemy0 = Enemyz(position=(1000, 1000), path_to_image="assets/goofy_laser.png", image_scale=s.GameScale)
+    enemy0 = Enemyz(position=(1000, 1000), path_to_image="assets/bombi_static.png", image_scale=s.GameScale)
     item0 = Itemz(position=(500, 500), path_to_image_non_highlighted="assets/hk_416.png", image_scale=1.5)
     hostage0 = Hostage(position=(600, 600), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
     hostage1 = Hostage(position=(700, 700), path_to_image_non_highlighted="assets/hostage.png", image_scale=s.GameScale, instruction=switchToHostageGame)
@@ -193,66 +193,66 @@ def pss():
     
 
 
-    hintTextSize = 25
-    hintFont = pg.font.Font(None, hintTextSize)
+    # hintTextSize = 25
+    # hintFont = pg.font.Font(None, hintTextSize)
 
-    HintText1 = "@@@@@@@@@@@@@@@@Find the Hostage and Rescue it!"
+    # HintText1 = "@@@@@@@@@@@@@@@@Find the Hostage and Rescue it!"
 
-    # Lines = HintText1.split("\n")
-    currentDisplayText = ""
-    currentRender = hintFont.render(currentDisplayText, False, "white")
-    displayedRender = currentRender
-    started = None
+    # # Lines = HintText1.split("\n")
+    # currentDisplayText = ""
+    # currentRender = hintFont.render(currentDisplayText, False, "white")
+    # displayedRender = currentRender
+    # started = None
 
-    renders = []
-    prevIndex = -1
-    def drawHintText(delay: int=7):
-        nonlocal started, currentDisplayText, hintFont, hintTextSize, currentRender, prevIndex, renders, displayedRender
-        if started is None:
-            started = state.counter
+    # renders = []
+    # prevIndex = -1
+    # def drawHintText(delay: int=7):
+    #     nonlocal started, currentDisplayText, hintFont, hintTextSize, currentRender, prevIndex, renders, displayedRender
+    #     if started is None:
+    #         started = state.counter
 
 
 
-        index = (state.counter-started)//delay
+    #     index = (state.counter-started)//delay
 
         
-        if index > len(HintText1)*1.1:
-            currentDisplayText = ""
-            renders = []
-            return
+    #     if index > len(HintText1)*1.1:
+    #         currentDisplayText = ""
+    #         renders = []
+    #         return
 
 
-        invalid = (index < 0 or index >= len(HintText1))
-        if index != prevIndex and not invalid:    
-            letter = HintText1[index]
-            # print(letter)
-            if letter == "\n":
-                renders.append(currentRender)
-                currentDisplayText = ""
-            elif letter == "@":
-                pass
-            else:
-                currentDisplayText = currentDisplayText + letter
+    #     invalid = (index < 0 or index >= len(HintText1))
+    #     if index != prevIndex and not invalid:    
+    #         letter = HintText1[index]
+    #         # print(letter)
+    #         if letter == "\n":
+    #             renders.append(currentRender)
+    #             currentDisplayText = ""
+    #         elif letter == "@":
+    #             pass
+    #         else:
+    #             currentDisplayText = currentDisplayText + letter
 
-            currentRender = hintFont.render(currentDisplayText, False, "white")
-            displayedRender = currentRender
-            if index%2==0:
-                displayedRender = hintFont.render(currentDisplayText+" _ ", False, "white")
+    #         currentRender = hintFont.render(currentDisplayText, False, "white")
+    #         displayedRender = currentRender
+    #         if index%2==0:
+    #             displayedRender = hintFont.render(currentDisplayText+" _ ", False, "white")
 
-            prevIndex = index
+    #         prevIndex = index
 
    
 
-        maxW = currentRender.get_size()[0] if len(renders)==0 else max(max([r.get_size()[0] for r in renders]),currentRender.get_size()[0])
+    #     maxW = currentRender.get_size()[0] if len(renders)==0 else max(max([r.get_size()[0] for r in renders]),currentRender.get_size()[0])
 
-        HintArea = pg.Surface((maxW+20,200+10), pg.SRCALPHA)
-        HintArea.fill((0,0,0,255))
-        screen.blit(HintArea, ((s.WIDTH-maxW-20)/2, s.HEIGHT*0.9-10))  
+    #     HintArea = pg.Surface((maxW+20,200+10), pg.SRCALPHA)
+    #     HintArea.fill((0,0,0,255))
+    #     screen.blit(HintArea, ((s.WIDTH-maxW-20)/2, s.HEIGHT*0.9-10))  
 
-        for i in range(len(renders)):
-            dispRend = renders[i]
-            screen.blit(dispRend, ((s.WIDTH-dispRend.get_size()[0])/2, s.HEIGHT*0.9+i*hintTextSize*1.1))
-        screen.blit(displayedRender, ((s.WIDTH-maxW)/2, s.HEIGHT*0.9+len(renders)*hintTextSize*1.1))
+    #     for i in range(len(renders)):
+    #         dispRend = renders[i]
+    #         screen.blit(dispRend, ((s.WIDTH-dispRend.get_size()[0])/2, s.HEIGHT*0.9+i*hintTextSize*1.1))
+    #     screen.blit(displayedRender, ((s.WIDTH-maxW)/2, s.HEIGHT*0.9+len(renders)*hintTextSize*1.1))
 
 
 
@@ -491,7 +491,7 @@ def pss():
         D.add("count", state.counter)
         state.counter += 1
 
-        drawHintText()
+        # drawHintText()
 
 
         D.draw()
@@ -503,7 +503,7 @@ def pss():
 
                 
 if __name__ == "__main__":
-    pss()
+    pss("main")
 
 
 
