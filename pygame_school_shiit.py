@@ -278,6 +278,7 @@ def pss(mapName:str = "main"):
         def checkN(gg, das):
             pass
     
+    
     class Hint:    
         hintTextSize = 25
         hintFont = pg.font.Font(None, hintTextSize)

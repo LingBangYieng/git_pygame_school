@@ -261,7 +261,7 @@ def px(coord):
 #######################
 
 class Enemyz(Entityz):
-
+    HMM = 0
     def __init__(self, position = (0, 0), hitbox = None, path_to_image = "assets/middled_player.png", image_scale = 1, image_rotation = 0, type = "bombi", stationary=False):
         super().__init__(position=position, hitbox=hitbox, path_to_image=path_to_image, image_scale=image_scale, image_rotation=image_rotation)
         self.alpha_radians = 0
@@ -272,7 +272,7 @@ class Enemyz(Entityz):
         self.genPathBool = True
         self.oldPath = None
 
-        self.hasSeenAgo = 100
+        self.hasSeenAgo = 1000
         self.setRandomGoalAt = -1
         self.randomGaol = None
 
@@ -303,7 +303,8 @@ class Enemyz(Entityz):
 
         # self.goal = "player"
 
-        
+        Enemyz.HMM += 5
+        self.waitAround = Enemyz.HMM
 
     def draw(self):
     
@@ -527,7 +528,7 @@ class Enemyz(Entityz):
     def randomPath(self):
         gameEvents.castHint("enemy walking")
         ago = state.counter - self.setRandomGoalAt
-        if ago > 400 or self.randomGaol == None or (self.savedPath is None or len(self.savedPath)<5):
+        if ago > 2000+self.waitAround or self.randomGaol == None or (self.savedPath is None or len(self.savedPath)<5):
             crx, cry = random.randint(0, len(state.HB_layer[0])), random.randint(0, len(state.HB_layer))
             while not check_boundaries(cry,crx,state.HB_layer) or state.HB_layer[cry][crx]:
                 crx, cry = random.randint(2, len(state.HB_layer[0])-2), random.randint(2, len(state.HB_layer)-2)
@@ -537,7 +538,7 @@ class Enemyz(Entityz):
             D.add("where", "while")
             
 
-        if (ago < 70 and self.randomGaol) or (self.savedPath is None or len(self.savedPath)<5):
+        if (ago > 70+self.waitAround and self.randomGaol) or (self.savedPath is None or len(self.savedPath)<5):
             print("set_random goal", state.counter)
             D.add("where", "setnew")
             self.aStarPath(goal=self.randomGaol)
