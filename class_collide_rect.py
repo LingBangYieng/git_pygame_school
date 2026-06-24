@@ -3,7 +3,7 @@ from helper_pygame import *
 #from globals import screen, vwp
 
 class HitBox:
-
+    visible = False
     def __init__(self, rect = None, ):
         if rect is None:
             self.exists = False
@@ -41,12 +41,13 @@ class HitBox:
             return (0, overlap_y)
         
     def show_HB(self, inMenu: bool =False, color: tuple = (0, 0, 255)):
-        loc_vwp = vwp.copy()
-        if inMenu:
-            loc_vwp.topleft = (0,0)
-        if self.exists:
-            x,y = wtsc((self.x, self.y), loc_vwp)
-            pg.draw.rect(screen, color, (x,y, self.w, self.h), 3)
+        if HitBox.visible:
+            loc_vwp = vwp.copy()
+            if inMenu:
+                loc_vwp.topleft = (0,0)
+            if self.exists:
+                x,y = wtsc((self.x, self.y), loc_vwp)
+                pg.draw.rect(screen, color, (x,y, self.w, self.h), 3)
 
     def get_size(self):
         return (self.w, self.h)
