@@ -273,7 +273,7 @@ class Enemyz(Entityz):
         self.oldPath = None
 
         self.hasSeenAgo = 1000
-        self.setRandomGoalAgo = 100
+        self.setRandomGoalAt = 100
         self.randomGaol = None
 
         self.velo = (0, 0) # needed?

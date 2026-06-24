@@ -172,7 +172,7 @@ def pss(mapName:str = "main"):
 
 
 
-    torchOn = False
+    torchOn = True
 
     def move(position_circle,speed):
         nonlocal alpha, moving, old_position_circle, sprinting, velocity
@@ -212,46 +212,46 @@ def pss(mapName:str = "main"):
         state.playerPos = position_circle 
 
 
-    class miniMap:
-        def __init__(self):
-            rows = len(state.HB_layer)
-            cols = len(state.HB_layer[0])
+    # class miniMap:
+    #     def __init__(self):
+    #         rows = len(state.HB_layer)
+    #         cols = len(state.HB_layer[0])
             
-            mapSize = 200
-            self.miniTileSize = round(mapSize/len(state.HB_layer[0]))
-            self.surface = pg.Surface((cols * self.miniTileSize, rows * self.miniTileSize))
-            # print(self.miniTileSize)
+    #         mapSize = 200
+    #         self.miniTileSize = round(mapSize/len(state.HB_layer[0]))
+    #         self.surface = pg.Surface((cols * self.miniTileSize, rows * self.miniTileSize))
+    #         # print(self.miniTileSize)
 
-            self.mapPos = (s.WIDTH - self.miniTileSize*len(state.HB_layer[0]) - 20, 20)
-            # print(mapPos)
+    #         self.mapPos = (s.WIDTH - self.miniTileSize*len(state.HB_layer[0]) - 20, 20)
+    #         # print(mapPos)
 
-            for row in range(len(state.HB_layer)):
-                for col in range(len(state.HB_layer[0])):
-                    if state.HB_layer[row][col]:
-                        color = "black"
-                    else:
-                        color = (191, 161, 87)
-                    pg.draw.rect(self.surface, color, ((col*self.miniTileSize, row*self.miniTileSize), (self.miniTileSize, self.miniTileSize)))
+    #         for row in range(len(state.HB_layer)):
+    #             for col in range(len(state.HB_layer[0])):
+    #                 if state.HB_layer[row][col]:
+    #                     color = "black"
+    #                 else:
+    #                     color = (191, 161, 87)
+    #                 pg.draw.rect(self.surface, color, ((col*self.miniTileSize, row*self.miniTileSize), (self.miniTileSize, self.miniTileSize)))
 
 
 
-        def tr(self, p):  
-            q = (p[0]/s.CellSize*self.miniTileSize, p[1]/s.CellSize*self.miniTileSize)
-            return (q[0]+self.mapPos[0], q[1]+self.mapPos[1])
+    #     def tr(self, p):  
+    #         q = (p[0]/s.CellSize*self.miniTileSize, p[1]/s.CellSize*self.miniTileSize)
+    #         return (q[0]+self.mapPos[0], q[1]+self.mapPos[1])
 
-        def draw(self):
-            screen.blit(self.surface, self.mapPos)
+    #     def draw(self):
+    #         screen.blit(self.surface, self.mapPos)
             
-            for danger in entitySceneMain.enemyList:
-                pg.draw.circle(screen, "red", self.tr(danger.position), self.miniTileSize)       
+    #         for danger in entitySceneMain.enemyList:
+    #             pg.draw.circle(screen, "red", self.tr(danger.position), self.miniTileSize)       
             
-            for civ in entitySceneMain.hostageList:
-                pg.draw.circle(screen, "green", self.tr(civ.position), self.miniTileSize)
+    #         for civ in entitySceneMain.hostageList:
+    #             pg.draw.circle(screen, "green", self.tr(civ.position), self.miniTileSize)
                 
-            for it in entitySceneMain.itemList:
-                pg.draw.circle(screen, "grey", self.tr(it.position), self.miniTileSize)
+    #         for it in entitySceneMain.itemList:
+    #             pg.draw.circle(screen, "grey", self.tr(it.position), self.miniTileSize)
             
-            if state.playerPos: pg.draw.circle(screen, "blue", self.tr(state.playerPos), self.miniTileSize)
+    #         if state.playerPos: pg.draw.circle(screen, "blue", self.tr(state.playerPos), self.miniTileSize)
 
 
             # print((col*self.miniTileSize + mapPos[0], row*self.miniTileSize + mapPos[1]))
@@ -260,7 +260,7 @@ def pss(mapName:str = "main"):
 
 
 
-    MM = miniMap()
+    # MM = miniMap()
 
 
 
@@ -278,149 +278,35 @@ def pss(mapName:str = "main"):
         def checkN(gg, das):
             pass
     
-    class Hint:    
-        hintTextSize = 25
-        hintFont = pg.font.Font(None, hintTextSize)
-        hintCounter = 0
-        def __init__(self, invokeCommand, text="</no text set>", repeatable=False, endEvent=None):
-            #saved
-            self.HintText = text
-            self.invokeCommand = invokeCommand
-            self.endEvent = endEvent
-            self.repeatable = repeatable
-            
-            self.reset()
-
-
-
-
-        def checkEvent(self, invokeEvent):
-            invoking = (not self.invoked and self.invokeCommand == invokeEvent and not self.done) or (self.done and self.repeatable and self.invokeCommand == invokeEvent)
-            if self.startedAt is None and invoking:
-                self.startedAt = state.counter
-            if invoking: self.invoked = True
-
-        def reset(self):
-            #weird inits
-            self.currentDisplayText = ""
-            self.currentRender = Hint.hintFont.render(self.currentDisplayText, False, "white")
-            self.displayedRender = self.currentRender
-
-            #stores
-            self.renders = []
-
-            #draw control
-            self.delay = 7
-
-            #cast control
-            
-
-            self.startedAt = None
-            self.prevIndex = -1
-
-            self.invoked = False
-            self.done = False
-
-            self.going = False
-
-
-
-        def drawHintText(self):
-            if not self.invoked:
-                return False
-            
-            
-            # nonlocal started, currentDisplayText, hintFont, hintTextSize, currentRender, self.prevIndex, self.renders, displayedRender, vis.startFlickerStamp
-
-
-            index = (state.counter-self.startedAt)//self.delay
-
-            
-            if index > len(self.HintText)*1.1:
-
-                self.currentDisplayText = ""
-                self.renders = []
-
-                if self.endEvent is not None: self.endEvent()
-
-                self.done = True
-                if self.repeatable: 
-                    self.reset()
-
-                gameEvents.removeHintEvent(self.invokeCommand)
-                return
-
-
-            invalid = (index < 0 or index >= len(self.HintText))
-            if index != self.prevIndex and not invalid:    
-                letter = self.HintText[index]
-                # print(letter)
-                if letter == "\n":
-                    self.renders.append(self.currentRender)
-                    self.currentDisplayText = ""
-                elif letter == "@":
-                    pass
-                else:
-                    self.currentDisplayText = self.currentDisplayText + letter
-
-                self.currentRender = Hint.hintFont.render(self.currentDisplayText, False, "white")
-                self.displayedRender = self.currentRender
-                if index%2==0:
-                    self.displayedRender = Hint.hintFont.render(self.currentDisplayText+" _ ", False, "white")
-
-                self.prevIndex = index
-
     
 
-            maxW = self.currentRender.get_size()[0] if len(self.renders)==0 else max(max([r.get_size()[0] for r in self.renders]),self.currentRender.get_size()[0])
 
-            HintArea = pg.Surface((maxW+20,200+10), pg.SRCALPHA)
-            HintArea.fill((0,0,0,255))
-            screen.blit(HintArea, ((s.WIDTH-maxW-20)/2, s.HEIGHT*0.9-10))  
+    # def lightFLickerCast():
+    #     vis.startFlickerStamp = time.time() if not vis.startFlickerStamp else vis.startFlickerStamp
 
-            for i in range(len(self.renders)):
-                dispRend = self.renders[i]
-                screen.blit(dispRend, ((s.WIDTH-dispRend.get_size()[0])/2, s.HEIGHT*0.9+i*Hint.hintTextSize*1.1))
-            screen.blit(self.displayedRender, ((s.WIDTH-maxW)/2, s.HEIGHT*0.9+len(self.renders)*Hint.hintTextSize*1.1))
+    # H1 = Hint(invokeCommand="Hostage", text="@@@@@@@@@@@@@@@@Find the Hostage and Rescue it!", endEvent=lightFLickerCast)
+    H0 = Hint(invokeCommand="H0", text="@@@@@@Time:@@@@ 9nth November 2002@@@@@@\nLocation:@@@@@ Headquarter Al-Quaeda,@@@@ pequeño santo José")
+    H1 = Hint(invokeCommand="H1", text="@@@@@@@@Agent 6@8@2@8 you have been given the task to rescue all 5 Hostages.")
+    H2 = Hint(invokeCommand="H2", text="@@@@@@Try not to injure anyone except needed for your own Safety.")
+    H3 = Hint(invokeCommand="H3", text="@@@@@@@The power has been cut to enable easy access.")
+    H4 = Hint(invokeCommand="H4", text="@@@@@Its all on you, good luck!")
 
-            return True
+    # H2 = Hint(invokeCommand="Powerloss", text="The generator seems to be broken")
+    # H3 = Hint(invokeCommand="enemy walking", text="Enemies are always patroling")
+    # H4 = Hint(invokeCommand="enemy saw", text="Thats the enemy \n @@@@@@@@RUN!!!", repeatable=True)
+    # H5 = Hint(invokeCommand="enemy_hit", text="Good... @@@@@@@@@@@@@ this enemy is elimintated\n @@@@@@@@@@@@@@ but there may be more...", repeatable=True)
 
-
-    def lightFLickerCast():
-        vis.startFlickerStamp = time.time() if not vis.startFlickerStamp else vis.startFlickerStamp
-
-    H1 = Hint(invokeCommand="Hostage", text="@@@@@@@@@@@@@@@@Find the Hostage and Rescue it!", endEvent=lightFLickerCast)
-    H2 = Hint(invokeCommand="Powerloss", text="The generator seems to be broken")
-    H3 = Hint(invokeCommand="enemy walking", text="Enemies are always patroling")
-    H4 = Hint(invokeCommand="enemy saw", text="Thats the enemy \n @@@@@@@@RUN!!!", repeatable=True)
-    H5 = Hint(invokeCommand="enemy_hit", text="Good... @@@@@@@@@@@@@ this enemy is elimintated\n @@@@@@@@@@@@@@ but there may be more...", repeatable=True)
-
-    class Lore:
-        def __init__(self):
-            self.HintList = []
-            self.drawing = None
-        def add(self, hint: Hint):
-            self.HintList.append(hint)
-        def check_and_draw(self):
-            for hE in gameEvents.hintEvents:
-                for h in self.HintList:
-                    h.checkEvent(hE)
-
-            for i in range(len(self.HintList)):
-                h = self.HintList[i]
-                if h.invoked and not h.done:
-                    h.drawHintText()
-                    if i<len(self.HintList)-1: self.HintList[i+1].reset()
-                    break                    
+                 
 
 
                 
     MainLore = Lore()
+    MainLore.add(H0)
     MainLore.add(H1)
     MainLore.add(H2)
     MainLore.add(H3)
     MainLore.add(H4)
-    MainLore.add(H5)
+
 
     
 
@@ -456,19 +342,19 @@ def pss(mapName:str = "main"):
         # D.add("dt", dt)
         # currentTime += dt
         D.add("flickerst ", vis.startFlickerStamp)
-        if vis.startFlickerStamp and lightIndex < len(isOffAt) and time.time()-vis.startFlickerStamp >= isOffAt[lightIndex]:
-            print("switch", state.counter,"switching to:", not lightOff)
-            lightOff = not lightOff
-            lightIndex += 1
-        elif lightIndex >= len(isOffAt):
-            print("grrr")
-            lightOff = True
+        # if vis.startFlickerStamp and lightIndex < len(isOffAt) and time.time()-vis.startFlickerStamp >= isOffAt[lightIndex]:
+        #     print("switch", state.counter,"switching to:", not lightOff)
+        #     lightOff = not lightOff
+        #     lightIndex += 1
+        # elif lightIndex >= len(isOffAt):
+        #     print("grrr")
+        #     lightOff = True
 
         D.add("currentTime:", currentTime)
         D.add("lightindex:", lightIndex)
 
         D.add("::::::::::::::", 0)
-        D.add("H4", f"{H4.done}, {H4.repeatable}, {H4.invoked}")
+        # D.add("H4", f"{H4.done}, {H4.repeatable}, {H4.invoked}")
 
         # clock.tick(s.MAX_FPS)
         
@@ -476,6 +362,13 @@ def pss(mapName:str = "main"):
         D.add("FPS", clock.get_fps(), avg=20)
 
         P = BottleNeck()
+
+        gameEvents.castHint("H0")
+        gameEvents.castHint("H1")
+        gameEvents.castHint("H2")
+        gameEvents.castHint("H3")
+        gameEvents.castHint("H4")
+
 
         state.events = pg.event.get()
         keys = pg.key.get_pressed()
@@ -487,43 +380,43 @@ def pss(mapName:str = "main"):
             if event.type == pg.QUIT:
                 state.game_loop = False
             
-            if keys[pg.K_SPACE]:
-                # enemy0.alive = True
-                # spawn(position=(mx,my))
-                pass
+            # if keys[pg.K_SPACE]:
+            #     # enemy0.alive = True
+            #     # spawn(position=(mx,my))
+            #     pass
 
-            if keys[pg.K_LCTRL] and keys[pg.K_k]:
-                s.MAX_FPS = 1
+            # if keys[pg.K_LCTRL] and keys[pg.K_k]:
+            #     s.MAX_FPS = 1
 
 
-            if event.type == pg.KEYDOWN:
+            # if event.type == pg.KEYDOWN:
 
-                if event.key == pg.K_g:
-                    s.MAX_FPS = 69
+            #     if event.key == pg.K_g:
+            #         s.MAX_FPS = 69
 
 
                 if event.key == pg.K_ESCAPE:
                     GoEscMenu()
 
-                if event.key == pg.K_f:
-                    torchOn = not torchOn
+                # if event.key == pg.K_f:
+                #     torchOn = not torchOn
 
-                if event.key == pg.K_8:
-                    gameEvents.castHint("Hostage")
-                    print(gameEvents.hintEvents)
-                if event.key == pg.K_7:
-                    gameEvents.castHint("r")
+                # if event.key == pg.K_8:
+                #     gameEvents.castHint("Hostage")
+                #     print(gameEvents.hintEvents)
+                # if event.key == pg.K_7:
+                #     gameEvents.castHint("r")
                 
-                if event.key == pg.K_6:
-                    lightOff = not lightOff
+                # if event.key == pg.K_6:
+                #     lightOff = not lightOff
                 
-                if keys[pg.K_F3]:
-                    if event.key == pg.K_d:
-                        D.visible = not D.visible
-                    if event.key == pg.K_h:
-                        HitBox.visible = not HitBox.visible
-                    if event.key == pg.K_v:
-                        state.invisible = not state.invisible
+                # if keys[pg.K_F3]:
+                #     if event.key == pg.K_d:
+                #         D.visible = not D.visible
+                #     if event.key == pg.K_h:
+                #         HitBox.visible = not HitBox.visible
+                #     if event.key == pg.K_v:
+                #         state.invisible = not state.invisible
             
 
 
@@ -728,7 +621,7 @@ def pss(mapName:str = "main"):
         state.counter += 1
 
         MainLore.check_and_draw()
-        MM.draw()
+        # MM.draw()
 
 
         D.draw()

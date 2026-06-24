@@ -2,10 +2,13 @@ import pygame as pg
 import numpy as np
 from PIL import Image
 import random
-from settingsClass import Settings
+from settingsClass import *
 #from globals import *
 
 pg.display.init()
+pg.mixer.init()
+
+
 
 
 def get_hitbox_size(pathToImage:str):
@@ -729,9 +732,141 @@ class DebugScreen:
             return np.array([value[0], value[1]])
         if isinstance(value, (int, float, str)):
             return value
+        
+
+hint_type = pg.mixer.Sound("assets/hint_type0.wav")
+hint_type.set_volume(0.2 * s.SFX_VOLUME)
+
+class Hint:    
+        hintTextSize = 25
+        hintFont = pg.font.Font(None, hintTextSize)
+        hintCounter = 0
+        def __init__(self, invokeCommand, text="</no text set>", repeatable=False, endEvent=None):
+            #saved
+            self.HintText = text
+            self.invokeCommand = invokeCommand
+            self.endEvent = endEvent
+            self.repeatable = repeatable
+            
+            self.reset()
 
 
 
+
+        def checkEvent(self, invokeEvent):
+            invoking = (not self.invoked and self.invokeCommand == invokeEvent and not self.done) or (self.done and self.repeatable and self.invokeCommand == invokeEvent)
+            if self.startedAt is None and invoking:
+                self.startedAt = state.counter
+            if invoking: self.invoked = True
+
+        def reset(self):
+            #weird inits
+            self.currentDisplayText = ""
+            self.currentRender = Hint.hintFont.render(self.currentDisplayText, False, "white")
+            self.displayedRender = self.currentRender
+
+            #stores
+            self.renders = []
+
+            #draw control
+            self.delay = 7
+
+            #cast control
+            
+
+            self.startedAt = None
+            self.prevIndex = -1
+
+            self.invoked = False
+            self.done = False
+
+            self.going = False
+
+
+
+        def drawHintText(self):
+            if not self.invoked:
+                return False
+            
+            
+            # nonlocal started, currentDisplayText, hintFont, hintTextSize, currentRender, self.prevIndex, self.renders, displayedRender, vis.startFlickerStamp
+
+
+            index = (state.counter-self.startedAt)//self.delay
+
+            
+            if index > len(self.HintText)*1.1:
+
+                self.currentDisplayText = ""
+                self.renders = []
+
+                if self.endEvent is not None: self.endEvent()
+
+                self.done = True
+                if self.repeatable: 
+                    self.reset()
+
+                gameEvents.removeHintEvent(self.invokeCommand)
+                return
+
+
+            invalid = (index < 0 or index >= len(self.HintText))
+            if index != self.prevIndex and not invalid:    
+                letter = self.HintText[index]
+                # print(letter)
+                if letter == "\n":
+                    self.renders.append(self.currentRender)
+                    self.currentDisplayText = ""
+                elif letter == "@":
+                    pass
+                else:
+                    self.currentDisplayText = self.currentDisplayText + letter
+                    hint_type.play()
+
+                self.currentRender = Hint.hintFont.render(self.currentDisplayText, False, "white")
+                self.displayedRender = self.currentRender
+                if index%2==0:
+                    self.displayedRender = Hint.hintFont.render(self.currentDisplayText+" _ ", False, "white")
+
+                self.prevIndex = index
+
+    
+
+            maxW = self.currentRender.get_size()[0] if len(self.renders)==0 else max(max([r.get_size()[0] for r in self.renders]),self.currentRender.get_size()[0])
+            maxH = self.currentRender.get_size()[1] if len(self.renders)==0 else len(self.renders) * self.currentRender.get_size()[0]
+
+
+            HintArea = pg.Surface((maxW+40+20,maxH+40), pg.SRCALPHA)
+            HintArea.fill((0,0,0,255))
+            screen.blit(HintArea, ((s.WIDTH-maxW-40-20)/2, s.HEIGHT*0.9-20))  
+
+            for i in range(len(self.renders)):
+                dispRend = self.renders[i]
+                screen.blit(dispRend, ((s.WIDTH-dispRend.get_size()[0])/2, s.HEIGHT*0.9+i*Hint.hintTextSize*1.1))
+            screen.blit(self.displayedRender, ((s.WIDTH-maxW)/2, s.HEIGHT*0.9+len(self.renders)*Hint.hintTextSize*1.1))
+
+            return True
+
+
+class Lore:
+    def __init__(self):
+        self.HintList = []
+        self.drawing = None
+    def add(self, hint: Hint):
+        self.HintList.append(hint)
+    def check_and_draw(self):
+        for hE in gameEvents.hintEvents:
+            for h in self.HintList:
+                h.checkEvent(hE)
+
+        for i in range(len(self.HintList)):
+            h = self.HintList[i]
+            if h.invoked and not h.done:
+                h.drawHintText()
+                if i<len(self.HintList)-1: self.HintList[i+1].reset()
+
+
+                break   
 
 
 D = DebugScreen()
