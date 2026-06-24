@@ -26,13 +26,15 @@ screen = pg.display.set_mode((s.WIDTH, s.HEIGHT))
 clock = pg.time.Clock()
 running = True
 
-buttonclick = pg.mixer.Sound("assets/buttonclick.mp3")
-buttonclick.set_volume(0.1 * s.SFX_VOLUME)
+def genS():
+    global buttonclick,lobby_song
+    buttonclick = pg.mixer.Sound("assets/buttonclick.mp3")
+    buttonclick.set_volume(0.1 * s.SFX_VOLUME)
 
-lobby_song = pg.mixer.music.load("assets/stragi_existent.mp3")
-pg.mixer.music.set_volume(0.125 * s.SFX_VOLUME)
-pg.mixer.music.play(-1)
-
+    lobby_song = pg.mixer.music.load("assets/stragi_existent.mp3")
+    pg.mixer.music.set_volume(0.125 * s.SFX_VOLUME)
+    pg.mixer.music.play(-1)
+genS()
 
 
 def bs():
@@ -41,8 +43,8 @@ def bs():
 
 def quit_game():
     global running
-    running = False
     bs()
+    running = False
 
 def switch_scene(scene:Scenez):
     global current_scene
@@ -51,14 +53,14 @@ def switch_scene(scene:Scenez):
 
 def change_resolution(arg):
     # global screen, current_scene
-    state.FULLSCREEN = False
+    s.FULLSCREEN = False
     s.RESOLUTION = arg
     
     bs()
 
 def fullscreen():
     # global screen, current_scene
-    state.FULLSCREEN = True
+    s.FULLSCREEN = True
     w,h = pg.display.get_desktop_sizes()[0]
     s.RESOLUTION = f"{w}x{h}"
     bs()
@@ -75,8 +77,9 @@ def startPgSchoolShii():
     bs()
 
 def changeSFX(number):
-    s.applySettings()
     s.SFX_VOLUME = number
+    s.applySettings()
+    genS()
 
 
 
@@ -84,7 +87,7 @@ def updateSettings():
     s.applySettings()
     global screen, current_scene
 
-    if state.FULLSCREEN: screen = pg.display.set_mode((0,0), pg.FULLSCREEN)
+    if s.FULLSCREEN: screen = pg.display.set_mode((0,0), pg.FULLSCREEN)
     else: screen = pg.display.set_mode((s.WIDTH, s.HEIGHT))
 
     createLobby()
@@ -99,7 +102,7 @@ def updateSettings():
 
 # def rebuildSettings():
 #     state.SETTINGS["RESOLUTION"] = f"{s.WIDTH}x{s.HEIGHT}"
-#     state.SETTINGS["FULLSCREEN"] = state.FULLSCREEN
+#     state.SETTINGS["FULLSCREEN"] = s.FULLSCREEN
 
 
 
@@ -127,10 +130,10 @@ def createLobby():
     color_theme = TannedBrown
     color_theme = NightlyFuchsia
     buttonBack = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.525), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "Back", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, switch_scene, [lobby])
-    # buttonSFX1 = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.43), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "VolumeMult 1", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, changeSFX, 1)
-    # buttonSFX15 = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.335), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "VolumeMult 1.5", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, changeSFX, 1.5)
-    # buttonSFX2 = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.24), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "VolumeMult 2", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, changeSFX, 2)
-    # buttonSFX25 = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.145), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "VolumeMult 2.5", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, changeSFX, 2.5)
+    buttonSFX1 = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.43), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "VolumeMult 1", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, changeSFX, 1)
+    buttonSFX15 = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.335), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "VolumeMult 1.5", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, changeSFX, 1.5)
+    buttonSFX2 = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.24), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "VolumeMult 2", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, changeSFX, 2)
+    buttonSFX25 = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.145), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "VolumeMult 2.5", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, changeSFX, 2.5)
     buttonResolution0 = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.62), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "1920 x 1080", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, change_resolution, "1920x1080")
     buttonResolution1 = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.715), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "1280 x 720", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, change_resolution, "1280x720")
     buttonFullscreen = Buttonz((s.WIDTH * 0.5 - s.WIDTH * 0.08, s.HEIGHT * 0.81), (s.WIDTH * 0.16, s.HEIGHT * 0.07), screen, True, "Fullscreen", (0, 0, 0), int(s.HEIGHT * 0.04), 5, color_theme, fullscreen)
@@ -141,10 +144,10 @@ def createLobby():
     settings.add_button(buttonResolution0)
     settings.add_button(buttonResolution1)
     settings.add_button(buttonFullscreen)
-    # settings.add_button(buttonSFX1)
-    # settings.add_button(buttonSFX15)
-    # settings.add_button(buttonSFX2)
-    # settings.add_button(buttonSFX25)
+    settings.add_button(buttonSFX1)
+    settings.add_button(buttonSFX15)
+    settings.add_button(buttonSFX2)
+    settings.add_button(buttonSFX25)
     settings.add_button(buttonSave)
 
     background = Imagez(position=(0, 0), pathToImage="assets/may_background.png", isBackground=True)

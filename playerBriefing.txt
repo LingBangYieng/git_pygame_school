@@ -5,6 +5,7 @@ Player Briefing
 Hello Player
 Your Goal is to Save all the Hostages without aggroing the enemies.
 If a Bombwest is running at you feel free to defend yourself by clicking the Right Mouse Button.
+Watch your Ammo though, you only have 5 rounds if you miss theyre gone, if you hit youll get one extra shot.
 When sight on a hostage becomes clear press E to save it.
 When saving an Hostage youll have to shoot the Hostage keepers Head do this by putting your mouse against the movement of your crosshair. 
 Dont shoot the hostage!
@@ -15,6 +16,7 @@ The game is optimized for 1280 x 720 resolution so when changing keep in mind th
 
 ***voluntary***
 The MapBuilder is in BETA but can be used to build your own Maps. 
+For the Mapbuilder it is advised to put Screen into Fullscreen to be able to build max size maps.
 The Hitbox layer will be calculöated off of the Layer = 1 so only place walls on layer 1
 There are numerous button Combinations:
 
@@ -26,3 +28,8 @@ shift + 1 or Numpad Plus       to go up one Layer
             ctrl + s           to save to Hard disk, switch to command line or terminal to enter filename and press enter
             ctrl + o           to open save from Hard disk, switch to command line or terminal to enter filename and press enter then switch back again
             0                  to wipe the whole screen
+            tab                to enter sprite menu
+        scrollwheel            to get to sprites beneath
+        middle mouse button    to pick a sprite on this layer (skips selection in tab menu)
+        right mouse button     to place a sprite
+        left mouse button      to delete a sprite

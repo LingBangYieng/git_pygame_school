@@ -291,6 +291,9 @@ class Enemyz(Entityz):
 
         self.speed = 5
 
+        self.isreali_ambient = pg.mixer.Sound("assets/israeli_ambient_quiet.mp3")
+
+
 
         self.prevAlpha = 0
 
@@ -427,7 +430,7 @@ class Enemyz(Entityz):
                 # print("found you")MMM
                 self.speed = 7
                 if self.hasSeenAgo != 1:
-                    self.isreali_ambient = pg.mixer.Sound("assets/israeli_ambient_quiet.mp3")
+                    # self.isreali_ambient = pg.mixer.Sound("assets/israeli_ambient_quiet.mp3")
                     self.isreali_ambient.set_volume(0.4 * s.SFX_VOLUME)
                     state.soundChannel.play(self.isreali_ambient)
 
@@ -505,7 +508,7 @@ class Enemyz(Entityz):
     
 
     def randomPath(self):
-        self.setRandomGoalAgo += 1
+        self.setRandomGoalAgo += random.randint(1,2)
         if self.setRandomGoalAgo > 400 or self.randomGaol == None:
             crx, cry = random.randint(0, len(state.HB_layer[0])), random.randint(0, len(state.HB_layer))
             while not check_boundaries(cry,crx,state.HB_layer) or state.HB_layer[cry][crx]: 
@@ -513,7 +516,7 @@ class Enemyz(Entityz):
             self.randomGaol = (crx*s.CellSize,cry*s.CellSize)
             self.setRandomGoalAgo = 0
 
-        if self.setRandomGoalAgo > 70 and self.randomGaol:
+        if self.setRandomGoalAgo > 170 and self.randomGaol:
             self.aStarPath(goal=self.randomGaol)
 
     def standStill(self, time):
@@ -660,6 +663,7 @@ class EntityScenez:
                         enemyHit_sound.play()
 
                         enemy.takeDamage(bullet.damage)
+                        state.bulletsInInv += 1
 
                         bullet.die()
 

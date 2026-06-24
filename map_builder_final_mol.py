@@ -83,8 +83,8 @@ def mapBuilder():
         save_grid = [[[(tup[1],tup[2]) if isinstance(tup, tuple) else 0 for tup in row ] for row in layer] for layer in visual_grid]
         with open(f"saves/{filename}.map", "w") as f:
             f.write(f"{save_grid}")
-        if saveImg:
-            pg.image.save(screen, f"saves/{filename}_as.png")
+        # if saveImg:
+        pg.image.save(screen, f"saves/{filename}_as.png")
 
     def tup_to_sprite(tup):
         rotation, current_sprite_name = tup

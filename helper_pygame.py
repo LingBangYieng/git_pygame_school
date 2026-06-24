@@ -527,6 +527,8 @@ class state:
     playerPos = None
     counter = 0
 
+    bulletsInInv = 0
+
     gameOver = False
 
     playerHB = None
@@ -594,6 +596,8 @@ def screen_to_world_coords_rare_use(screen_coords_object, view_field_xy_position
 
 
 def LightCone(pos, alphaDegr, fovDegr, sightDist):
+
+    return
     alpha_rad, fov_rad_half = np.deg2rad(alphaDegr), np.deg2rad(fovDegr/2)
     hits = checkBases(alpha_rad+fov_rad_half, alpha_rad-fov_rad_half, sightDistance=sightDist, position=pos, precision=128)
     pg.draw.polygon(vis.overlay, (0, 0, 0, 150), [wtsc(e) for e in hits])

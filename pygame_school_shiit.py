@@ -27,6 +27,7 @@ def pss(mapName:str = "main"):
     static_player = pg.image.load(f"assets/player_gun_static.png")
     hostage_red = pg.image.load(f"assets/hostage_highlighted_red.png")
     hostage_green = pg.image.load(f"assets/hostage_highlighted_green.png")
+    bullet_green = pg.image.load(f"assets/bullet_inv_green.png")
 
     #transform loads
     crosshair = pg.transform.scale_by(crosshair, 4)
@@ -61,6 +62,7 @@ def pss(mapName:str = "main"):
     radius = 20
     state.game_loop = True
     alpha = 0
+    state.bulletsInInv = 5
 
     
     #!!Externalize background ahs to be given by homescreen (level like)
@@ -363,7 +365,7 @@ def pss(mapName:str = "main"):
         LTheta = radAlpha + fov/2
         RTheta = radAlpha - fov/2
         baseAngles = []
-        hits = checkBases(LTheta, RTheta, s.WIDTH/4 * 3, HB_layer)
+        hits = checkBases(LTheta, RTheta, s.WIDTH/4 * 3, HB_layer, precision=256)
 
 
         P.checkN("pastshadow")
@@ -379,11 +381,12 @@ def pss(mapName:str = "main"):
         shootCooldown -= 1
         for event in state.events: 
             if event.type == pg.MOUSEBUTTONDOWN:
-                if event.button == 1 and shootCooldown<=0:  # Left mouse button
+                if event.button == 1 and shootCooldown<=0 and state.bulletsInInv>0:  # Left mouse button
                     laser = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/bullet_new.png", image_scale=2, bullet_speed=35, lifetime=200)
                     entitySceneMain.add_friendlyBulletList(laser)
                     gunshot_sound.play()
                     shootCooldown = s.MAX_FPS/10
+                    state.bulletsInInv -= 1 
                 # if event.button == 3:
                 #     rockety = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/rockety.png", image_scale=2, bullet_speed=15, lifetime=600, remote_control=True, isDiag=True, explosive=True, explosionRadius=75, isAnimated=True, damage=2000)
                 #     entitySceneMain.add_friendlyBulletList(rockety)
@@ -444,10 +447,10 @@ def pss(mapName:str = "main"):
                 pushvec = HBs.get_push_vector(enemy.hitbox)
                 enemy.extra = (enemy.extra[0] - pushvec[0],enemy.extra[1] - pushvec[1])
             
-            for enemy2 in entitySceneMain.enemyList:
-                if enemy != enemy2:
-                    pushvec = enemy2.hitbox.get_push_vector(enemy.hitbox)
-                    enemy.extra = (enemy.extra[0] - pushvec[0]*0.5,enemy.extra[1] - pushvec[1]*0.5)
+            # for enemy2 in entitySceneMain.enemyList:
+            #     if enemy != enemy2:
+            #         pushvec = enemy2.hitbox.get_push_vector(enemy.hitbox)
+            #         enemy.extra = (enemy.extra[0] - pushvec[0]*0.5,enemy.extra[1] - pushvec[1]*0.5)
                 
 
         for bullet in entitySceneMain.friendlyBulletList:
@@ -482,7 +485,7 @@ def pss(mapName:str = "main"):
         #blit VTA
         screenHits = []
         for hit in hits:
-            screenHits.append(wtsc(hit,))
+            screenHits.append(wtsc(hit))
 
         pg.draw.polygon(vis.overlay, (0, 0, 0, 150), screenHits)
         pg.draw.circle(vis.overlay, (0, 0, 0, 150), wtsc(state.playerPos), 40)
@@ -521,6 +524,11 @@ def pss(mapName:str = "main"):
             
             D.add("hostages", hostageCounter)
             D.add("length hostage list", len(entitySceneMain.hostageList))
+
+
+        for i in range(state.bulletsInInv):
+            screen.blit(bullet_green, (s.WIDTH * (0.875 + i * 0.02), s.HEIGHT * 0.925))
+        
 
         screen.blit(crosshair, (mouse_position[0] - 16,mouse_position[1] - 16))
 
