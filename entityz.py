@@ -394,9 +394,9 @@ class Enemyz(Entityz):
 
             if len(path) > 2:
                 c_next_goal_pos = path[1]
-                if visual:
-                    for i in range(len(path)-1):
-                        pg.draw.line(screen, "green", wtsc(px(path[i]), vwp), wtsc(px(path[i+1]), vwp))
+                # if visual:
+                #     for i in range(len(path)-1):
+                #         pg.draw.line(screen, "green", wtsc(px(path[i]), vwp), wtsc(px(path[i+1]), vwp))
             else:
                 c_next_goal_pos = c_player_pos
 
@@ -497,7 +497,7 @@ class Enemyz(Entityz):
         doMove = False
         if coll:
             # print("c", end="")
-            pg.draw.circle(screen, "red", wtsc(coll, vwp), 10)
+            # pg.draw.circle(screen, "red", wtsc(coll, vwp), 10)
             if dist > raw_dist:
                 # print("a", end="")
                 doMove = True
@@ -514,7 +514,7 @@ class Enemyz(Entityz):
             # except:
             #     pass
             self.velo = (dx / raw_dist * sprint, dy / raw_dist * sprint)
-            pg.draw.circle(screen, "pink",  wtsc(self.position, vwp), 10)
+            # pg.draw.circle(screen, "pink",  wtsc(self.position, vwp), 10)
             gameEvents.castHint("enemy saw")
             return True
         # else:
