@@ -556,6 +556,10 @@ class state:
 
     invisible = False
 
+    lightsOff = False
+
+    blackScreen = True
+
 
 
     overlay = pg.Surface((s.WIDTH, s.HEIGHT), pg.SRCALPHA)
@@ -740,15 +744,19 @@ class Hint:
         hintTextSize = 25
         hintFont = pg.font.Font(None, hintTextSize)
         hintCounter = 0
-        def __init__(self, invokeCommand, text="</no text set>", repeatable=False, endEvent=None):
+        def __init__(self, invokeCommand, text="</no text set>", repeatable=False, endEvent=None, fullscreen=False):
             #saved
             self.HintText = text
             self.invokeCommand = invokeCommand
             self.endEvent = endEvent
             self.repeatable = repeatable
             
-            self.reset()
+            self.full = fullscreen
+            self.fading = True
 
+            self.alpha = 255
+
+            self.reset()
 
 
 
@@ -768,7 +776,7 @@ class Hint:
             self.renders = []
 
             #draw control
-            self.delay = 7
+            self.delay = 5
 
             #cast control
             
@@ -780,6 +788,8 @@ class Hint:
             self.done = False
 
             self.going = False
+
+
 
 
 
@@ -806,6 +816,9 @@ class Hint:
                     self.reset()
 
                 gameEvents.removeHintEvent(self.invokeCommand)
+
+
+
                 return
 
 
@@ -818,6 +831,9 @@ class Hint:
                     self.currentDisplayText = ""
                 elif letter == "@":
                     pass
+                elif letter == "ç":
+                    if self.fading:
+                        self.alpha -= 10
                 else:
                     self.currentDisplayText = self.currentDisplayText + letter
                     hint_type.play()
@@ -835,10 +851,28 @@ class Hint:
             maxH = self.currentRender.get_size()[1] if len(self.renders)==0 else len(self.renders) * self.currentRender.get_size()[0]
 
 
+            if self.full:
+                HintArea = pg.Surface((s.WIDTH+20, s.HEIGHT+20), pg.SRCALPHA)
+                HintArea.fill("black")
+                HintArea.set_alpha(self.alpha)
+                screen.blit(HintArea, (0-10,0-10))
+
+                for i in range(len(self.renders)):
+                    dispRend = self.renders[i]
+                    dispRend.set_alpha(self.alpha)
+                    screen.blit(dispRend, (s.WIDTH/2-200,s.HEIGHT/2+i*Hint.hintTextSize*1.1))
+                self.displayedRender.set_alpha(self.alpha)
+                screen.blit(self.displayedRender, (s.WIDTH/2-200,s.HEIGHT/2+len(self.renders)*Hint.hintTextSize*1.1))
+
+                return True
+
+
             HintArea = pg.Surface((maxW+40+20,maxH+40), pg.SRCALPHA)
             HintArea.fill((0,0,0,255))
-            screen.blit(HintArea, ((s.WIDTH-maxW-40-20)/2, s.HEIGHT*0.9-20))  
+            screen.blit(HintArea, ((s.WIDTH-maxW-40-20)/2, s.HEIGHT*0.9-20))
 
+
+            
             for i in range(len(self.renders)):
                 dispRend = self.renders[i]
                 screen.blit(dispRend, ((s.WIDTH-dispRend.get_size()[0])/2, s.HEIGHT*0.9+i*Hint.hintTextSize*1.1))

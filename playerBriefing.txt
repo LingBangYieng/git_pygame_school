@@ -7,6 +7,7 @@ Your Goal is to Save all the Hostages without aggroing the enemies.
 If a Bombwest is running at you feel free to defend yourself by clicking the Right Mouse Button.
 Watch your Ammo though, you only have 5 rounds if you miss theyre gone, if you hit youll get one extra shot.
 When sight on a hostage becomes clear press E to save it.
+Press W A S D to move your character in their corresponding direction
 When saving an Hostage youll have to shoot the Hostage keepers Head do this by putting your mouse against the movement of your crosshair. 
 Dont shoot the hostage!
 

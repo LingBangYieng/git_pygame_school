@@ -172,7 +172,7 @@ def pss(mapName:str = "main"):
 
 
 
-    torchOn = True
+    torchOn = False
 
     def move(position_circle,speed):
         nonlocal alpha, moving, old_position_circle, sprinting, velocity
@@ -279,17 +279,28 @@ def pss(mapName:str = "main"):
             pass
     
     
-
+    def offLight():
+        state.lightsOff = True
 
     # def lightFLickerCast():
     #     vis.startFlickerStamp = time.time() if not vis.startFlickerStamp else vis.startFlickerStamp
 
+    def pause():
+        state.blackScreen = True
+    def unpause():
+        print("hhh")
+        state.blackScreen = False
+
+
+
     # H1 = Hint(invokeCommand="Hostage", text="@@@@@@@@@@@@@@@@Find the Hostage and Rescue it!", endEvent=lightFLickerCast)
-    H0 = Hint(invokeCommand="H0", text="@@@@@@Time:@@@@ 9nth November 2002@@@@@@\nLocation:@@@@@ Headquarter Al-Quaeda,@@@@ pequeño santo José")
+    story0 = Hint(invokeCommand="s0", text="@@@@@@@After the Attacks on New York in 2001 \nthe U.S.Government invoked Operation Eustorgios.@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", fullscreen=True)
+    H0 = Hint(invokeCommand="H0", text="@@@@@@Local Time:@@@@ 9th November 2002, 11:58 pm @@@@@@@@@@\nLocation:@@@@@ Headquarters - Al-Quaeda,@@@@ pequeño santo José@@@@@@@@@@@@@@çççççççççççççççççççççççççççççç", fullscreen=True, endEvent=unpause)
+
     H1 = Hint(invokeCommand="H1", text="@@@@@@@@Agent 6@8@2@8 you have been given the task to rescue all 5 Hostages.")
     H2 = Hint(invokeCommand="H2", text="@@@@@@Try not to injure anyone except needed for your own Safety.")
-    H3 = Hint(invokeCommand="H3", text="@@@@@@@The power has been cut to enable easy access.")
-    H4 = Hint(invokeCommand="H4", text="@@@@@Its all on you, good luck!")
+    H3 = Hint(invokeCommand="H3", text="@@@@@@@The power has been cut to enable easy access.", endEvent=offLight)
+    H4 = Hint(invokeCommand="H4", text="@@@@@Its all on you, Agent 6@8@2@8, @@@@@@@@good luck!")
 
     # H2 = Hint(invokeCommand="Powerloss", text="The generator seems to be broken")
     # H3 = Hint(invokeCommand="enemy walking", text="Enemies are always patroling")
@@ -301,6 +312,7 @@ def pss(mapName:str = "main"):
 
                 
     MainLore = Lore()
+    MainLore.add(story0)
     MainLore.add(H0)
     MainLore.add(H1)
     MainLore.add(H2)
@@ -308,32 +320,35 @@ def pss(mapName:str = "main"):
     MainLore.add(H4)
 
 
-    
-
-    lightFlicker = [2,   0.5, 1.5, 0.5, 0.5, 0.5, 2.0, 2.0, 0.5, 0.9, 2]
-
-    "              [0,   1,   2,   3,   4,   5,   6, 7, 8,   9,   10,11,12,13,14,]"
-    total = 0 
-    isOffAt = []
-
-    for x in lightFlicker:
-        total += x
-        isOffAt.append(total)
-    print(isOffAt)
-
 
     
-    lightIndex = 0
-    currentTime = 0
+
+    # lightFlicker = [2,   0.5, 1.5, 0.5, 0.5, 0.5, 2.0, 2.0, 0.5, 0.9, 2]
+
+    # "              [0,   1,   2,   3,   4,   5,   6, 7, 8,   9,   10,11,12,13,14,]"
+    # total = 0 
+    # isOffAt = []
+
+    # for x in lightFlicker:
+    #     total += x
+    #     isOffAt.append(total)
+    # print(isOffAt)
+
+
+    
+    # lightIndex = 0
+    # currentTime = 0
 
 
     import time
-    lightOff = False
+    # lightOff = False
     # prev = time.time()
     while state.game_loop:
         D.add("m", pg.mouse.get_pos())
 
         clock.tick(s.MAX_FPS)
+    
+    
 
         # cur = time.time()
         # dt = cur-prev
@@ -350,8 +365,8 @@ def pss(mapName:str = "main"):
         #     print("grrr")
         #     lightOff = True
 
-        D.add("currentTime:", currentTime)
-        D.add("lightindex:", lightIndex)
+        # D.add("currentTime:", currentTime)
+        # D.add("lightindex:", lightIndex)
 
         D.add("::::::::::::::", 0)
         # D.add("H4", f"{H4.done}, {H4.repeatable}, {H4.invoked}")
@@ -363,13 +378,6 @@ def pss(mapName:str = "main"):
 
         P = BottleNeck()
 
-        gameEvents.castHint("H0")
-        gameEvents.castHint("H1")
-        gameEvents.castHint("H2")
-        gameEvents.castHint("H3")
-        gameEvents.castHint("H4")
-
-
         state.events = pg.event.get()
         keys = pg.key.get_pressed()
 
@@ -380,245 +388,261 @@ def pss(mapName:str = "main"):
             if event.type == pg.QUIT:
                 state.game_loop = False
             
-            # if keys[pg.K_SPACE]:
-            #     # enemy0.alive = True
-            #     # spawn(position=(mx,my))
-            #     pass
+            if keys[pg.K_SPACE]:
+                # enemy0.alive = True
+                # spawn(position=(mx,my))
+                pass
 
-            # if keys[pg.K_LCTRL] and keys[pg.K_k]:
-            #     s.MAX_FPS = 1
+            if keys[pg.K_LCTRL] and keys[pg.K_k]:
+                s.MAX_FPS = 1
 
 
-            # if event.type == pg.KEYDOWN:
+            if event.type == pg.KEYDOWN:
 
-            #     if event.key == pg.K_g:
-            #         s.MAX_FPS = 69
+                if event.key == pg.K_g:
+                    s.MAX_FPS = 69
 
 
                 if event.key == pg.K_ESCAPE:
                     GoEscMenu()
 
-                # if event.key == pg.K_f:
-                #     torchOn = not torchOn
+                if event.key == pg.K_f:
+                    torchOn = not torchOn
 
-                # if event.key == pg.K_8:
-                #     gameEvents.castHint("Hostage")
-                #     print(gameEvents.hintEvents)
-                # if event.key == pg.K_7:
-                #     gameEvents.castHint("r")
+                if event.key == pg.K_8:
+                    gameEvents.castHint("Hostage")
+                    print(gameEvents.hintEvents)
+                if event.key == pg.K_7:
+                    gameEvents.castHint("r")
                 
-                # if event.key == pg.K_6:
-                #     lightOff = not lightOff
+                if event.key == pg.K_6:
+                    state.lightsOff = not state.lightsOff
                 
-                # if keys[pg.K_F3]:
-                #     if event.key == pg.K_d:
-                #         D.visible = not D.visible
-                #     if event.key == pg.K_h:
-                #         HitBox.visible = not HitBox.visible
-                #     if event.key == pg.K_v:
-                #         state.invisible = not state.invisible
+                if keys[pg.K_F3]:
+                    if event.key == pg.K_d:
+                        D.visible = not D.visible
+                    if event.key == pg.K_h:
+                        HitBox.visible = not HitBox.visible
+                    if event.key == pg.K_v:
+                        state.invisible = not state.invisible
             
 
+        if not state.blackScreen or True:
+            gameEvents.castHint("s0")
+            gameEvents.castHint("H0")
+            gameEvents.castHint("H1")
+            gameEvents.castHint("H2")
+            gameEvents.castHint("H3")
+            gameEvents.castHint("H4")
 
 
 
 
-        screen.fill(tuple(e+100 for e in (0, 0, 0)))  
 
-        if lightOff:
-            vis.overlay.fill((0, 0, 0, 240))
-        else:
-            vis.overlay.fill((0,0,0,0))
-
-        screen.blit(background, wtsc((0,0), ))
-
-        P.checkN("pastbackgrnd")
-
-        move(position_circle, speed)
+            screen.fill(tuple(e+100 for e in (0, 0, 0)))  
 
 
+            if state.lightsOff:
+                vis.overlay.fill((0, 0, 0, 240))
+            else:
+                vis.overlay.fill((0,0,0,0))
 
-        
-        #calc VTA
-        radAlpha = np.deg2rad(-alpha)
-        LTheta = radAlpha + fov/2
-        RTheta = radAlpha - fov/2
-        baseAngles = []
-        hits = checkBases(LTheta, RTheta, s.WIDTH/4 * 3, HB_layer, precision=256)
+            screen.blit(background, wtsc((0,0), ))
 
+            P.checkN("pastbackgrnd")
 
-        P.checkN("pastshadow")
-
-        #cache Player ANimationz
-        if moving:
-            state.animDict["player_walk"].play_looped(position=position_circle, rotation=alpha)
-        else:
-            state.animDict["player_walk"].isActive = False
+            move(position_circle, speed)
 
 
-        #bullet calc
-        shootCooldown -= 1
-        for event in state.events: 
-            if event.type == pg.MOUSEBUTTONDOWN:
-                if event.button == 1 and shootCooldown<=0 and state.bulletsInInv>0:  # Left mouse button
-                    laser = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/bullet_new.png", image_scale=2, bullet_speed=35, lifetime=200)
-                    entitySceneMain.add_friendlyBulletList(laser)
-                    gunshot_sound.play()
-                    shootCooldown = s.MAX_FPS/10
-                    state.bulletsInInv -= 1 
-                # if event.button == 3:
-                #     rockety = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/rockety.png", image_scale=2, bullet_speed=15, lifetime=600, remote_control=True, isDiag=True, explosive=True, explosionRadius=75, isAnimated=True, damage=2000)
-                #     entitySceneMain.add_friendlyBulletList(rockety)
-                #     launch_missile.play()
-        
-        
-        P.checkN("past bullets")
 
-        #calc static player angle
-        mx, my = screen_to_world_coords_rare_use(mouse_position, )
-        mouse_HB.x = mx
-        mouse_HB.y = my
-        frame = pg.transform.rotate(static_player, alpha - 90)
-        frame_rect = frame.get_rect(center = position_circle) 
-        frame_rect.center = wtsc(position_circle, )
-        
-        if not moving:
-            screen.blit(frame, frame_rect)   
-        state.playerHB = HitBox(rect=((e-37.5 for e in(position_circle)), (75, 75)))
-        # state.playerHB.show_HB()
+            
+            #calc VTA
+            radAlpha = np.deg2rad(-alpha)
+            LTheta = radAlpha + fov/2
+            RTheta = radAlpha - fov/2
+            baseAngles = []
+            hits = checkBases(LTheta, RTheta, s.WIDTH/4 * 3, HB_layer, precision=256)
 
 
-        P.checkN("past playerlogf")
+            P.checkN("pastshadow")
 
-        #draw Corpses
-        if state.CorpseList:
-            for corpseImage, pos in state.CorpseList:
-                screen.blit(corpseImage, tuple(e-32 * s.GameScale/1.5 for e in wtsc(pos, )))
-        
-        if len(state.CorpseList) > 10: #corps cap
-            state.CorpseList.pop(0)
+            #cache Player ANimationz
+            if moving:
+                state.animDict["player_walk"].play_looped(position=position_circle, rotation=alpha)
+            else:
+                state.animDict["player_walk"].isActive = False
+
+
+            #bullet calc
+            shootCooldown -= 1
+            for event in state.events: 
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    if event.button == 1 and shootCooldown<=0 and state.bulletsInInv>0:  # Left mouse button
+                        laser = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/bullet_new.png", image_scale=2, bullet_speed=35, lifetime=200)
+                        entitySceneMain.add_friendlyBulletList(laser)
+                        gunshot_sound.play()
+                        shootCooldown = s.MAX_FPS/10
+                        state.bulletsInInv -= 1 
+                    # if event.button == 3:
+                    #     rockety = Bulletz(position=position_circle, hitbox=HitBox(((0, 0), (5, 5))), path_to_image="assets/rockety.png", image_scale=2, bullet_speed=15, lifetime=600, remote_control=True, isDiag=True, explosive=True, explosionRadius=75, isAnimated=True, damage=2000)
+                    #     entitySceneMain.add_friendlyBulletList(rockety)
+                    #     launch_missile.play()
+            
+            
+            P.checkN("past bullets")
+
+            #calc static player angle
+            mx, my = screen_to_world_coords_rare_use(mouse_position, )
+            mouse_HB.x = mx
+            mouse_HB.y = my
+            frame = pg.transform.rotate(static_player, alpha - 90)
+            frame_rect = frame.get_rect(center = position_circle) 
+            frame_rect.center = wtsc(position_circle, )
+            
+            if not moving:
+                screen.blit(frame, frame_rect)   
+            state.playerHB = HitBox(rect=((e-37.5 for e in(position_circle)), (75, 75)))
+            # state.playerHB.show_HB()
+
+
+            P.checkN("past playerlogf")
+
+            #draw Corpses
+            if state.CorpseList:
+                for corpseImage, pos in state.CorpseList:
+                    screen.blit(corpseImage, tuple(e-32 * s.GameScale/1.5 for e in wtsc(pos, )))
+            
+            if len(state.CorpseList) > 10: #corps cap
+                state.CorpseList.pop(0)
+                        
+
+            P.checkN("past coprs")
+
+            #draw all Animations
+            for anim in state.allAnimsList:
+                if not anim.alive: 
+                    state.allAnimsList.remove(anim)
+                    anim.revive() #amimdict support - required for repeating (non looping) animationsz
+                else: anim.update()
+
+
+                
+            P.checkN("past anims")
+
+
+            #avoid clipping logic
+            for HBs in HB_layerHBs:
+                # HBs.show_HB()
+                pushvec = HBs.get_push_vector(state.playerHB)
+                velocity[0] -= pushvec[0]
+                velocity[1] -= pushvec[1]
+            
+
+            for enemy in entitySceneMain.enemyList:
+                for HBs in HB_layerHBs:
+                    pushvec = HBs.get_push_vector(enemy.hitbox)
+                    enemy.extra = (enemy.extra[0] - pushvec[0],enemy.extra[1] - pushvec[1])
+                
+                # for enemy2 in entitySceneMain.enemyList:
+                #     if enemy != enemy2:
+                #         pushvec = enemy2.hitbox.get_push_vector(enemy.hitbox)
+                #         enemy.extra = (enemy.extra[0] - pushvec[0]*0.5,enemy.extra[1] - pushvec[1]*0.5)
                     
 
-        P.checkN("past coprs")
-
-        #draw all Animations
-        for anim in state.allAnimsList:
-            if not anim.alive: 
-                state.allAnimsList.remove(anim)
-                anim.revive() #amimdict support - required for repeating (non looping) animationsz
-            else: anim.update()
+            for bullet in entitySceneMain.friendlyBulletList:
+                for HBs in HB_layerHBs:
+                    if bullet.hitbox.check_collision(HBs):
+                        bullet.die()
 
 
-            
-        P.checkN("past anims")
+                    
+            P.checkN("past HBs colls")
 
 
-        #avoid clipping logic
-        for HBs in HB_layerHBs:
-            # HBs.show_HB()
-            pushvec = HBs.get_push_vector(state.playerHB)
-            velocity[0] -= pushvec[0]
-            velocity[1] -= pushvec[1]
-        
 
-        for enemy in entitySceneMain.enemyList:
-            for HBs in HB_layerHBs:
-                pushvec = HBs.get_push_vector(enemy.hitbox)
-                enemy.extra = (enemy.extra[0] - pushvec[0],enemy.extra[1] - pushvec[1])
-            
-            # for enemy2 in entitySceneMain.enemyList:
-            #     if enemy != enemy2:
-            #         pushvec = enemy2.hitbox.get_push_vector(enemy.hitbox)
-            #         enemy.extra = (enemy.extra[0] - pushvec[0]*0.5,enemy.extra[1] - pushvec[1]*0.5)
-                
+            # if keys[pg.K_RIGHT]:
+            #     entitySceneMain.saveToFile()
+            # if keys[pg.K_LEFT]:
+            #     entitySceneMain.loadFromFile()
+            #     # for en in entitySceneMain.enemyList:
+            #     #     en.extra = (25, 0)"
 
-        for bullet in entitySceneMain.friendlyBulletList:
-            for HBs in HB_layerHBs:
-                if bullet.hitbox.check_collision(HBs):
-                    bullet.die()
 
 
                 
-        P.checkN("past HBs colls")
+
+
+            #draws the entity scene
+            entitySceneMain.draw_EntityScene()
+            P.checkN("past enemey pathfind and bvlit")
 
 
 
-        # if keys[pg.K_RIGHT]:
-        #     entitySceneMain.saveToFile()
-        # if keys[pg.K_LEFT]:
-        #     entitySceneMain.loadFromFile()
-        #     # for en in entitySceneMain.enemyList:
-        #     #     en.extra = (25, 0)"
+            #blit VTA
+            screenHits = []
+            for hit in hits:
+                screenHits.append(wtsc(hit))
+
+            if state.lightsOff:
+                if torchOn:
+                    pg.draw.polygon(vis.overlay, (0, 0, 0, 150), screenHits)
+                    pg.draw.circle(vis.overlay, (0, 0, 0, 150), wtsc(state.playerPos), 40)
 
 
+                for enemy in entitySceneMain.enemyList:
+                    pg.draw.circle(vis.overlay, (10, 0, 0, 150), wtsc(enemy.position), 100)
+                for enemy in entitySceneMain.enemyList:
+                    if enemy.lit:
+                        pg.draw.circle(vis.overlay, (150, 0, 0, 30), wtsc(enemy.position), state.counter%8*10+20)
 
+            # screen.blit(blur_surface(vis.overlay, 0.2), (0, 0))
+            # screen.blit()
+            screen.blit(vis.overlay, (0, 0))
             
 
+            # print("HEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+                    
 
-        #draws the entity scene
-        entitySceneMain.draw_EntityScene()
-        P.checkN("past enemey pathfind and bvlit")
+            P.checkN("past shadow blit")
 
+            old_position_circle = position_circle.copy()
 
+            hostageCounter = 0
+            for i in range(len(entitySceneMain.hostageList)):
+                hostage = entitySceneMain.hostageList[i]
 
-        #blit VTA
-        screenHits = []
-        for hit in hits:
-            screenHits.append(wtsc(hit))
+                if hostage.hostageSaved:
+                    screen.blit(hostage_green, (s.WIDTH * (0.01 + i * 0.04), s.HEIGHT * 0.90))
+                    hostageCounter += 1
+                else:
+                    screen.blit(hostage_red, (s.WIDTH * (0.01 + i * 0.04), s.HEIGHT * 0.90))
 
-        if lightOff:
-            if torchOn:
-                pg.draw.polygon(vis.overlay, (0, 0, 0, 50), screenHits)
-                pg.draw.circle(vis.overlay, (0, 0, 0, 150), wtsc(state.playerPos), 40)
-
-
-            for enemy in entitySceneMain.enemyList:
-                pg.draw.circle(vis.overlay, (10, 0, 0, 150), wtsc(enemy.position), 200)
-            for enemy in entitySceneMain.enemyList:
-                if enemy.lit:
-                    pg.draw.circle(vis.overlay, (150, 0, 0, 30), wtsc(enemy.position), state.counter%8*10+20)
-
-        # screen.blit(blur_surface(vis.overlay, 0.2), (0, 0))
-        # screen.blit()
-        screen.blit(vis.overlay, (0, 0))
-        
-
-        # print("HEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+                if hostageCounter == len(entitySceneMain.hostageList):
+                    goTYScene()
                 
+                D.add("hostages", hostageCounter)
+                D.add("length hostage list", len(entitySceneMain.hostageList))
 
-        P.checkN("past shadow blit")
 
-        old_position_circle = position_circle.copy()
-
-        hostageCounter = 0
-        for i in range(len(entitySceneMain.hostageList)):
-            hostage = entitySceneMain.hostageList[i]
-
-            if hostage.hostageSaved:
-                screen.blit(hostage_green, (s.WIDTH * (0.01 + i * 0.04), s.HEIGHT * 0.90))
-                hostageCounter += 1
-            else:
-                screen.blit(hostage_red, (s.WIDTH * (0.01 + i * 0.04), s.HEIGHT * 0.90))
-
-            if hostageCounter == len(entitySceneMain.hostageList):
-                goTYScene()
+            for i in range(state.bulletsInInv):
+                screen.blit(bullet_green, (s.WIDTH * (0.875 + i * 0.02), s.HEIGHT * 0.925))
             
-            D.add("hostages", hostageCounter)
-            D.add("length hostage list", len(entitySceneMain.hostageList))
+
+            screen.blit(crosshair, (mouse_position[0] - 16,mouse_position[1] - 16))
+
+            if state.gameOver:
+                GameOverSCreen()
 
 
-        for i in range(state.bulletsInInv):
-            screen.blit(bullet_green, (s.WIDTH * (0.875 + i * 0.02), s.HEIGHT * 0.925))
-        
-
-        screen.blit(crosshair, (mouse_position[0] - 16,mouse_position[1] - 16))
-
-        if state.gameOver:
-            GameOverSCreen()
+            D.add("count", state.counter)
 
 
-        D.add("count", state.counter)
         state.counter += 1
+
+
+        if state.blackScreen:
+            screen.fill("black")
+
 
         MainLore.check_and_draw()
         # MM.draw()

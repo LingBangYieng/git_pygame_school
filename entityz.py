@@ -284,7 +284,7 @@ class Enemyz(Entityz):
         self.lit = False
 
 
-        self.fovDegr = 180
+        self.fovDegr = 90
         self.sightDist = 600
 
         self.static = stationary
@@ -539,7 +539,7 @@ class Enemyz(Entityz):
             
 
         if (ago > 70+self.waitAround and self.randomGaol) or (self.savedPath is None or len(self.savedPath)<5):
-            print("set_random goal", state.counter)
+            # print("set_random goal", state.counter)
             D.add("where", "setnew")
             self.aStarPath(goal=self.randomGaol)
             # self.goal = self.randomGaol
